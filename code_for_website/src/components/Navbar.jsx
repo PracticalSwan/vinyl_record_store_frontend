@@ -1,0 +1,88 @@
+import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useStore } from '../context/StoreContext';
+import { IconGrid, IconStar, IconHeart, IconCart, IconSearch } from './Icons';
+
+export default function Navbar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { wishlist, cart } = useStore();
+  const [query, setQuery] = useState('');
+
+  const is = (path) => location.pathname === path;
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter' && query.trim()) {
+      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+      setQuery('');
+    }
+  };
+
+  return (
+    <nav className="nav" aria-label="Main navigation">
+      <div className="nav-inner">
+        <button className="nav-brand" onClick={() => navigate('/')} aria-label="Groovehaus home">
+          Groove<span>haus</span>
+        </button>
+
+        <div className="nav-search" role="search">
+          <span className="nav-search-icon"><IconSearch /></span>
+          <input
+            type="search"
+            placeholder="Search records, artists, labels…"
+            aria-label="Search records"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onKeyDown={handleSearch}
+          />
+        </div>
+
+        <ul className="nav-links" role="list">
+          <li>
+            <button
+              className={`nav-link${is('/catalog') ? ' active' : ''}`}
+              onClick={() => navigate('/catalog')}
+              aria-current={is('/catalog') ? 'page' : undefined}
+            >
+              <IconGrid /><span>Catalog</span>
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-link${is('/recommendations') ? ' active' : ''}`}
+              onClick={() => navigate('/recommendations')}
+            >
+              <IconStar /><span>For You</span>
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-link${is('/wishlist') ? ' active' : ''}`}
+              onClick={() => navigate('/wishlist')}
+              aria-label={`Wishlist, ${wishlist.length} items`}
+            >
+              <IconHeart />
+              <span>Wishlist</span>
+              {wishlist.length > 0 && (
+                <span className="nav-badge" aria-hidden="true">{wishlist.length}</span>
+              )}
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-link${is('/cart') ? ' active' : ''}`}
+              onClick={() => navigate('/cart')}
+              aria-label={`Cart, ${cart.length} items`}
+            >
+              <IconCart />
+              <span>Cart</span>
+              {cart.length > 0 && (
+                <span className="nav-badge" aria-hidden="true">{cart.length}</span>
+              )}
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  );
+}
