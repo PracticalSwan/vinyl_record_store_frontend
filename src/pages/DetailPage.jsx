@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { records } from '../data/records';
-import { useStore } from '../context/StoreContext';
+import { useCatalog } from '../context/useCatalog';
+import { useStore } from '../context/useStore';
+import { useProductRecommendations } from '../hooks/useProductRecommendations';
 import { RecScroll } from '../components/ProductGrid';
-import { IconVinyl, IconHeart } from '../components/Icons';
+import { IconVinyl, IconHeart, IconStar } from '../components/Icons';
 
 function StockBadge({ stock }) {
   if (stock === 'in')  return <span className="badge badge-in">In stock</span>;
@@ -14,10 +15,12 @@ function StockBadge({ stock }) {
 export default function DetailPage() {
   const { id }  = useParams();
   const navigate = useNavigate();
+  const { records } = useCatalog();
   const record   = records.find(r => r.id === Number(id));
   const { wishlist, toggleWishlist, addToCart } = useStore();
   const [rating, setRating] = useState(4);
   const [hovered, setHovered] = useState(null);
+  const similarState = useProductRecommendations(id);
 
   if (!record) {
     return (
@@ -30,7 +33,6 @@ export default function DetailPage() {
     );
   }
 
-  const similar = records.filter(r => r.genre === record.genre && r.id !== record.id).slice(0, 6);
   const saved   = wishlist.includes(record.id);
 
   return (
@@ -84,17 +86,18 @@ export default function DetailPage() {
 
             {/* Star rating */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 13, color: 'var(--ink-muted)' }}>Your rating</label>
+              <label style={{ fontSize: 13, color: 'var(--ink-muted)' }}>Demo rating (local only)</label>
               <div className="rating" role="group" aria-label="Rate this record">
                 {[1, 2, 3, 4, 5].map(n => (
                   <button
                     key={n}
                     className={`star-btn${(hovered ?? rating) >= n ? ' lit' : ''}`}
                     aria-label={`${n} star${n > 1 ? 's' : ''}`}
+                    aria-pressed={rating === n}
                     onClick={() => setRating(n)}
                     onMouseEnter={() => setHovered(n)}
                     onMouseLeave={() => setHovered(null)}
-                  >★</button>
+                  ><IconStar size={22} filled={(hovered ?? rating) >= n} /></button>
                 ))}
               </div>
             </div>
@@ -121,15 +124,20 @@ export default function DetailPage() {
         </div>
 
         {/* Similar records */}
-        {similar.length > 0 && (
-          <section aria-labelledby="similar-heading" style={{ paddingBottom: '3rem' }}>
-            <h2 className="section-heading" id="similar-heading">
-              Similar records <small>You might also like</small>
-            </h2>
-            <hr className="section-rule" aria-hidden="true" />
-            <RecScroll records={similar} ariaLabel="Similar records" />
-          </section>
-        )}
+        <section aria-labelledby="similar-heading" style={{ paddingBottom: '3rem' }}>
+          <h2 className="section-heading" id="similar-heading">
+            Similar records <small>Content-based matches from the backend</small>
+          </h2>
+          <hr className="section-rule" aria-hidden="true" />
+          {similarState.status === 'loading' && <p className="inline-state">Loading similar records…</p>}
+          {similarState.status === 'error' && (
+            <p className="inline-state" role="alert">{similarState.error?.message}</p>
+          )}
+          {similarState.status === 'empty' && <p className="inline-state">No similar records are available.</p>}
+          {similarState.status === 'success' && (
+            <RecScroll records={similarState.items} ariaLabel="Similar records" />
+          )}
+        </section>
       </div>
     </main>
   );

@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { IconFilter } from './Icons';
-import { GENRES, ERAS, CONDITIONS } from '../data/records';
 
-const GENRE_COUNTS = { Jazz: 148, Rock: 312, Soul: 94, Electronic: 201, Classical: 77, Folk: 63, 'Hip-Hop': 115, Blues: 52 };
+const ERAS = ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s+'];
+const CONDITIONS = ['M', 'NM', 'VG+', 'VG', 'G'];
 
-export default function FilterSidebar({ filters, onChange }) {
+export default function FilterSidebar({ filters, onChange, records }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const genres = useMemo(() => [...new Set(records.map((record) => record.genre))].sort(), [records]);
+  const genreCounts = useMemo(() => records.reduce((counts, record) => ({
+    ...counts,
+    [record.genre]: (counts[record.genre] || 0) + 1,
+  }), {}), [records]);
 
   const toggleGenre = (g) => {
     const next = filters.genres.includes(g)
@@ -50,7 +55,7 @@ export default function FilterSidebar({ filters, onChange }) {
 
         <div className="filter-group" role="group" aria-labelledby="genre-fl">
           <span className="filter-group-label" id="genre-fl">Genre</span>
-          {GENRES.map(g => (
+          {genres.map(g => (
             <label className="filter-option" key={g}>
               <input
                 type="checkbox"
@@ -58,7 +63,7 @@ export default function FilterSidebar({ filters, onChange }) {
                 onChange={() => toggleGenre(g)}
               />
               <span>{g}</span>
-              <span className="filter-count">{GENRE_COUNTS[g] ?? ''}</span>
+              <span className="filter-count">{genreCounts[g] ?? ''}</span>
             </label>
           ))}
         </div>

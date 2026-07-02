@@ -3,10 +3,10 @@ import { ProductGrid } from '../components/ProductGrid';
 import { RecScroll } from '../components/ProductGrid';
 
 const SIGNALS = [
-  { icon: '🎷', label: 'Bought: Jazz albums × 4' },
-  { icon: '💜', label: 'Wishlist: 3 Soul records' },
-  { icon: '⭐', label: 'Rated: Electronic 5★' },
-  { icon: '🕒', label: 'Viewed: 1970s records' },
+  'Bought: Jazz albums × 4',
+  'Wishlist: 3 Soul records',
+  'Rated: Electronic 5 of 5',
+  'Viewed: 1970s records',
 ];
 
 export default function RecommendationsPage() {
@@ -25,9 +25,9 @@ export default function RecommendationsPage() {
           Signals we've picked up
         </p>
         <div className="signal-pills" aria-label="Signals used for recommendations">
-          {SIGNALS.map(s => (
-            <div className="signal-pill" key={s.label}>
-              <span>{s.icon}</span> {s.label}
+          {SIGNALS.map(signal => (
+            <div className="signal-pill" key={signal}>
+              {signal}
             </div>
           ))}
         </div>

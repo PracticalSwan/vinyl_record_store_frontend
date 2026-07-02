@@ -1,12 +1,21 @@
 import { useNavigate } from 'react-router-dom';
-import { records } from '../data/records';
 import { ProductGrid } from '../components/ProductGrid';
 import { RecScroll } from '../components/ProductGrid';
+import { useCatalog } from '../context/useCatalog';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const newArrivals   = records.slice(0, 4);
-  const recommended   = records.slice(4, 9);
+  const {
+    records,
+    recommendations,
+    recommendationStatus,
+    recommendationError,
+    reloadRecommendations,
+  } = useCatalog();
+  const newArrivals = records.slice(0, 4);
+  const recommended = recommendations.slice(0, 5);
+  const genreCount = new Set(records.map((record) => record.genre)).size;
+  const inStockCount = records.filter((record) => record.stock !== 'out').length;
 
   return (
     <main>
@@ -18,7 +27,7 @@ export default function HomePage() {
             Find the record<br />that <span>finds you back.</span>
           </h1>
           <p className="hero-sub">
-            New arrivals, rare pressings, and personalised recommendations — all in one crate.
+            New arrivals, rare pressings, and explainable recommendations — all in one crate.
           </p>
           <div className="hero-actions">
             <button className="btn btn-accent" onClick={() => navigate('/catalog')}>
@@ -33,7 +42,11 @@ export default function HomePage() {
             </button>
           </div>
           <div className="hero-stat-row" role="list" aria-label="Store highlights">
-            {[['4,200+', 'Records in stock'], ['320', 'New this month'], ['12', 'Genres']].map(([num, label]) => (
+            {[
+              [String(records.length), 'Demo catalog records'],
+              [String(inStockCount), 'Available now'],
+              [String(genreCount), 'Genres'],
+            ].map(([num, label]) => (
               <div key={label} role="listitem">
                 <div className="hero-stat-num">{num}</div>
                 <div className="hero-stat-label">{label}</div>
@@ -56,10 +69,20 @@ export default function HomePage() {
         {/* Recommendations */}
         <section aria-labelledby="rec-home-heading" className="rec-section" style={{ marginTop: '3rem' }}>
           <h2 className="section-heading" id="rec-home-heading">
-            Recommended for you <small>Based on your listening history</small>
+            Recommendation picks <small>Explainable demo profile</small>
           </h2>
           <hr className="section-rule" aria-hidden="true" />
-          <RecScroll records={recommended} ariaLabel="Recommended records" />
+          {recommendationStatus === 'loading' && <p className="inline-state">Loading recommendations…</p>}
+          {recommendationStatus === 'error' && (
+            <div className="inline-state" role="alert">
+              <span>{recommendationError?.message}</span>
+              <button className="btn btn-outline btn-sm" onClick={() => reloadRecommendations()}>Try again</button>
+            </div>
+          )}
+          {recommendationStatus === 'empty' && <p className="inline-state">No recommendations are available.</p>}
+          {recommendationStatus === 'success' && (
+            <RecScroll records={recommended} ariaLabel="Recommended records for the demo profile" />
+          )}
         </section>
       </div>
     </main>

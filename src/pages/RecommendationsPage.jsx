@@ -1,50 +1,85 @@
-import { records } from '../data/records';
-import { ProductGrid } from '../components/ProductGrid';
-import { RecScroll } from '../components/ProductGrid';
+import { ProductGrid, RecScroll, SkeletonGrid } from '../components/ProductGrid';
+import { IconAlert } from '../components/Icons';
+import { useCatalog } from '../context/useCatalog';
 
-const SIGNALS = [
-  { icon: '🎷', label: 'Bought: Jazz albums × 4' },
-  { icon: '💜', label: 'Wishlist: 3 Soul records' },
-  { icon: '⭐', label: 'Rated: Electronic 5★' },
-  { icon: '🕒', label: 'Viewed: 1970s records' },
-];
+function ProfileSummary({ signals }) {
+  if (!signals.length) return null;
+  return (
+    <>
+      <p className="signal-heading">Signals used by the backend</p>
+      <ul className="signal-pills" aria-label="Demo signals used for recommendations">
+        {signals.map((signal) => <li className="signal-pill" key={signal}>{signal}</li>)}
+      </ul>
+    </>
+  );
+}
+
+function RecommendationResults({ recommendations, isDemoProfile }) {
+  const topPicks = recommendations.slice(0, 8);
+  const moreJazz = recommendations.filter((record) => record.genre === 'Jazz');
+  return (
+    <>
+      <h2 className="section-heading" style={{ fontSize: 20 }} id="top-picks-heading">
+        Top ranked picks <small>{isDemoProfile ? 'Demo profile' : 'Cold-start mode'}</small>
+      </h2>
+      <hr className="section-rule" aria-hidden="true" />
+      <ProductGrid records={topPicks} showReason />
+
+      {moreJazz.length > 0 && (
+        <section aria-labelledby="more-jazz-heading" style={{ marginTop: '3rem' }}>
+          <h2 className="section-heading" style={{ fontSize: 20 }} id="more-jazz-heading">
+            Jazz matches <small>Ranked from the same demo profile</small>
+          </h2>
+          <hr className="section-rule" aria-hidden="true" />
+          <RecScroll records={moreJazz} ariaLabel="Jazz recommendations" />
+        </section>
+      )}
+    </>
+  );
+}
+
+function RecommendationState({ status, error, retry, recommendations, isDemoProfile }) {
+  if (status === 'loading') return <SkeletonGrid count={8} />;
+  if (status === 'error') {
+    return (
+      <div className="state-box" role="alert">
+        <div className="state-icon" aria-hidden="true"><IconAlert /></div>
+        <p className="state-title">Recommendations unavailable</p>
+        <p className="state-desc">{error?.message}</p>
+        <button className="btn btn-primary" onClick={retry}>Try again</button>
+      </div>
+    );
+  }
+  if (status === 'empty') {
+    return (
+      <div className="state-box" role="status">
+        <p className="state-title">No recommendations are available</p>
+      </div>
+    );
+  }
+  return <RecommendationResults recommendations={recommendations} isDemoProfile={isDemoProfile} />;
+}
 
 export default function RecommendationsPage() {
-  const topPicks  = records.slice(0, 6);
-  const moreJazz  = records.filter(r => r.genre === 'Jazz');
-
+  const catalog = useCatalog();
+  const isDemoProfile = catalog.recommendationMode === 'demo-profile';
   return (
     <main>
       <div className="container rec-page">
-        <h1 className="section-heading" style={{ fontSize: 28 }}>Your picks</h1>
+        <h1 className="section-heading" style={{ fontSize: 28 }}>Recommendation demo</h1>
         <p className="rec-page-intro">
-          Based on your purchase history, wishlist, and listening signals — here are records we think you'll love. Reasons are shown on each card.
+          {isDemoProfile
+            ? 'These explainable results use the documented sample profile, not a signed-in customer.'
+            : 'No user history is available, so these results are clearly marked as cold-start suggestions.'}
         </p>
-
-        <p style={{ fontSize: 13, color: 'var(--ink-muted)', marginBottom: '.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.6px' }}>
-          Signals we've picked up
-        </p>
-        <div className="signal-pills" aria-label="Signals used for recommendations">
-          {SIGNALS.map(s => (
-            <div className="signal-pill" key={s.label}>
-              <span>{s.icon}</span> {s.label}
-            </div>
-          ))}
-        </div>
-
-        <h2 className="section-heading" style={{ fontSize: 20 }} id="top-picks-heading">
-          Top picks for you
-        </h2>
-        <hr className="section-rule" aria-hidden="true" />
-        <ProductGrid records={topPicks} showReason />
-
-        <section aria-labelledby="more-jazz-heading" style={{ marginTop: '3rem' }}>
-          <h2 className="section-heading" style={{ fontSize: 20 }} id="more-jazz-heading">
-            More jazz you'll like <small>Because you bought Kind of Blue</small>
-          </h2>
-          <hr className="section-rule" aria-hidden="true" />
-          <RecScroll records={moreJazz} />
-        </section>
+        <ProfileSummary signals={catalog.profileSummary} />
+        <RecommendationState
+          status={catalog.recommendationStatus}
+          error={catalog.recommendationError}
+          retry={catalog.reloadRecommendations}
+          recommendations={catalog.recommendations}
+          isDemoProfile={isDemoProfile}
+        />
       </div>
     </main>
   );

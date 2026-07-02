@@ -1,6 +1,5 @@
-# Public Folder
+# Public Assets
 
-Planned location for public static assets after assets are approved.
+This folder contains the storefront favicon and shared SVG symbols.
 
-Do not add copied logos, images, album art, or website assets from external sources unless the project has clear permission to use them.
-
+Add only original, licensed, or explicitly approved assets. Do not add copied album art, logos, screenshots, or website assets.

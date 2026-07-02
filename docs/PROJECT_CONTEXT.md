@@ -2,80 +2,39 @@
 
 This is the frontend source of truth for the Vinyl Record Store Recommender System.
 
-## Frontend Role
+## Current State
 
-The frontend presents the vinyl record store to users. It should let users browse products, inspect details, use search and filters, manage wishlist/cart UI, and understand recommendation explanations returned by the backend.
+Groovehaus is an implemented Vite 8.1 and React 19.2.7 storefront with seven routes. It loads the demo catalog and recommendation results from the separate Next.js backend through `VITE_API_BASE_URL`.
 
-The frontend does not own database access or recommender algorithms.
+## Responsibilities
+
+- Render catalog, search, filters, product details, recommendations, wishlist, and cart screens.
+- Own responsive layout, accessibility, navigation, client-side filtering, and API state surfaces.
+- Display backend-generated recommendation reasons and mode labels.
+- Keep wishlist, cart quantity, and rating behavior as clearly local demo state until write APIs and identity exist.
+
+The frontend does not own database access, API route implementation, scoring algorithms, or private interaction data.
+
+## Canonical Source
+
+- `src/` is the active application.
+- `src/lib/api.js` is the API client boundary.
+- `CatalogProvider` owns fetched product and recommendation data.
+- `StoreProvider` owns local demo wishlist and cart state.
+- `code_for_website/` is a retained design-import snapshot only.
+
+## Current Limitations
+
+- No authentication or real user profile.
+- No MongoDB persistence or interaction write APIs.
+- No checkout or payment behavior.
+- Recommendation results use a documented sample profile or cold-start mode.
+- Search and catalog filters run client-side after one backend catalog fetch.
 
 ## Academic Focus
 
-The academic focus is Decision Support and Recommender Systems. Frontend work should make decision support visible through ranking, explanations, filters, and clear product information.
+The interface supports decision-making by combining product metadata, filtering, stock information, ranked suggestions, and readable explanation reasons. It must never overstate the evidence as real personalization.
 
-## Scope
+## Update Rule
 
-Frontend scope:
-
-- Catalog UI.
-- Product detail UI.
-- Search and filter UI.
-- Wishlist and cart UI.
-- Recommendation display.
-- Explanation badges or text.
-- API consumption from backend.
-- Loading, empty, and error states.
-- Accessibility and responsive behavior.
-
-## Non-Goals
-
-These are out of scope for the frontend unless the user explicitly changes the architecture:
-
-- MongoDB Atlas connection code.
-- Database schemas.
-- API route implementation.
-- Recommender scoring algorithms.
-- Interaction logging implementation.
-- Scraping external websites.
-- Copying external website designs or assets.
-
-## Assumptions
-
-- The frontend calls APIs from `../vinyl_record_store_backend`.
-- The backend returns products, recommendation results, scores or ranks, and explanation reasons.
-- The frontend may store temporary client UI state, but persistent data belongs to the backend.
-- The current frontend scaffold is Vite React.
-- No backend URL has been finalized yet.
-
-## Constraints
-
-- Current phase is planning/setup only.
-- Keep frontend and backend responsibilities separate.
-- Keep secrets out of the frontend.
-- Keep docs editable.
-- Keep explanations beginner-friendly for academic review.
-
-## Important Terms
-
-- Product card: UI element that summarizes one vinyl record.
-- Recommendation reason: user-facing text that explains why a record was recommended.
-- API consumption: frontend code that calls backend endpoints and handles responses.
-- Client data shape: the object structure the frontend expects from backend responses.
-- Empty state: UI shown when no data is available.
-
-## Documentation Maintenance Rule
-
-Update frontend docs when frontend behavior, setup, architecture, UI, API consumption, recommendation display, environment variables, risks, or scope change.
-
-If information is missing, add a clear `TODO` with the missing decision.
-
-## Frontend Task Workflow
-
-1. Read `LESSONS.md`, `AGENTS.md`, `CLAUDE.md`, and relevant docs.
-2. Identify the frontend task type.
-3. Make a short plan for multi-file work.
-4. Modify only relevant frontend files.
-5. Validate when practical.
-6. Update affected frontend docs.
-7. Check whether backend API docs need updates.
-8. Summarize changed files, validation, assumptions, and next steps.
-
+Update this file when the frontend's implemented routes, data ownership, API dependency, recommendation presentation, or limitations change.

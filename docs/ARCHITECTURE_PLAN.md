@@ -1,79 +1,31 @@
-# Frontend Architecture Plan
+# Frontend Architecture
 
-## Summary
+This document describes the implemented client structure and data flow.
 
-The frontend is a React application that consumes APIs from the separate Next.js backend. It owns UI behavior, layout, components, frontend state, and recommendation display.
+## Runtime Flow
 
-## Frontend Layers
+1. `App.jsx` creates the router and wraps routes in `CatalogProvider`, `StoreProvider`, and `CatalogGate`.
+2. `src/lib/api.js` calls the backend configured by `VITE_API_BASE_URL`.
+3. `CatalogProvider` fetches catalog and demo-profile recommendations and exposes separate status/error state for each.
+4. Route components read server data with `useCatalog` and local wishlist/cart state with `useStore`.
+5. Product detail routes request backend similarity results through `useProductRecommendations`.
 
-### Page Layer
+## Layers
 
-Responsibilities:
+- Pages: route-specific rendering and client-side search/filter decisions.
+- Components: reusable cards, grids, navigation, filters, loading, error, and empty states.
+- Context: API-backed catalog/recommendation state and local demo store state.
+- API client: URL construction, error normalization, and fetch calls.
+- Styles: the current Groovehaus design tokens and responsive behavior in `src/index.css`.
 
-- Catalog page.
-- Product detail page.
-- Search results page.
-- Wishlist page.
-- Cart page.
-- User recommendation page.
+## Data Ownership
 
-### Component Layer
+The backend is the catalog and recommendation source of truth. The frontend owns temporary UI state. Local wishlist, cart, and rating state must not be presented as persisted.
 
-Responsibilities:
+## Design Snapshot
 
-- Product cards.
-- Product grids.
-- Search controls.
-- Filter controls.
-- Recommendation rows.
-- Recommendation reason labels.
-- Loading, empty, and error states.
+`code_for_website/` records the imported design starting point. It is excluded from active linting and must not receive normal feature changes.
 
-### API Client Layer
+## Security
 
-Planned responsibility:
-
-- Call backend endpoints.
-- Normalize backend responses for UI use.
-- Keep API base URL configuration in frontend environment variables.
-- Handle safe frontend errors.
-
-### State Layer
-
-Planned responsibility:
-
-- Store temporary UI state such as filters, selected sort, active tabs, loading flags, and local wishlist/cart display state.
-- Do not store persistent backend data as the source of truth.
-
-## Backend Boundary
-
-The backend owns:
-
-- API route implementation.
-- MongoDB Atlas access.
-- Interaction logging.
-- Recommender scoring.
-- Recommendation explanation generation.
-
-If an API contract changes, update this frontend plan and the backend API contract docs.
-
-## Security Considerations
-
-- Do not store MongoDB credentials in frontend files.
-- Do not expose private user data unnecessarily.
-- Use only public `NEXT_PUBLIC_` or Vite-safe public environment variables for frontend config.
-- Treat recommendation and interaction displays as privacy-sensitive.
-
-## Open Decisions
-
-- Whether the frontend remains Vite or moves to a different React setup.
-- Exact API base URL configuration.
-- Whether TypeScript will be used.
-- Design system choice.
-- State management approach.
-- Authentication UI scope.
-
-## Documentation Update Rules
-
-Update this file when frontend layers, component ownership, API client strategy, state management, security assumptions, or framework setup change.
-
+Only public Vite variables may be used in frontend code. Database credentials and private interaction history stay on the backend.

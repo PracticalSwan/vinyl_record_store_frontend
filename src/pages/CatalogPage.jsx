@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
-import { records } from '../data/records';
 import FilterSidebar from '../components/FilterSidebar';
 import { ProductGrid } from '../components/ProductGrid';
+import { useCatalog } from '../context/useCatalog';
 
 const DEFAULT_FILTERS = { genres: [], eras: [], conditions: [], inStockOnly: false, minPrice: 0, maxPrice: 200 };
 const SORT_OPTIONS = ['Newest first', 'Price: low to high', 'Price: high to low', 'Artist A–Z'];
@@ -16,6 +16,7 @@ function eraMatch(year, eras) {
 }
 
 export default function CatalogPage() {
+  const { records } = useCatalog();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sort, setSort]       = useState('Newest first');
 
@@ -35,13 +36,13 @@ export default function CatalogPage() {
     else res = [...res].sort((a, b) => b.year - a.year);
 
     return res;
-  }, [filters, sort]);
+  }, [filters, records, sort]);
 
   return (
     <main>
       <div className="container">
         <div className="catalog-layout">
-          <FilterSidebar filters={filters} onChange={setFilters} />
+          <FilterSidebar filters={filters} onChange={setFilters} records={records} />
 
           <section aria-label="Record catalog results">
             <div className="catalog-toolbar">

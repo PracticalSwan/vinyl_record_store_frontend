@@ -1,5 +1,12 @@
-# Frontend Source Folder
+# Frontend Source
 
-This folder currently contains generated Vite starter files plus planned folders for future frontend code.
+This is the canonical Groovehaus application source.
 
-Do not treat starter files as finished product behavior. Future code in this folder should focus on React UI, components, API consumption, accessibility, and responsive behavior.
+- `pages/`: routed screens.
+- `components/`: reusable UI and state surfaces.
+- `context/`: API-backed catalog state and local demo store state.
+- `hooks/`: reusable request behavior.
+- `lib/api.js`: backend client boundary.
+- `data/records.js`: retained design-era fixture; active catalog data comes from the backend.
+
+Do not add server routes, database credentials, or recommender scoring here.

@@ -3,8 +3,7 @@ export default function Footer() {
     <footer className="footer" role="contentinfo">
       <div className="container">
         <p>
-          Groovehaus Vinyl &mdash; Bangkok &mdash; Open Mon–Sat 11am–8pm &middot;{' '}
-          <a href="mailto:hello@groovehaus.com">hello@groovehaus.com</a>
+          Groovehaus Vinyl &mdash; CSX4207 academic recommender demo &mdash; Bangkok
         </p>
       </div>
     </footer>

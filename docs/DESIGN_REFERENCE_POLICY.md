@@ -48,4 +48,3 @@ If scraping is later approved:
 ## Future Updates
 
 Future agents must update this file if the design research policy changes.
-

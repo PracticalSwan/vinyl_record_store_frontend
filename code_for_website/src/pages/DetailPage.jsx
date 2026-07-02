@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { records } from '../data/records';
 import { useStore } from '../context/StoreContext';
 import { RecScroll } from '../components/ProductGrid';
-import { IconVinyl, IconHeart } from '../components/Icons';
+import { IconVinyl, IconHeart, IconStar } from '../components/Icons';
 
 function StockBadge({ stock }) {
   if (stock === 'in')  return <span className="badge badge-in">In stock</span>;
@@ -94,7 +94,7 @@ export default function DetailPage() {
                     onClick={() => setRating(n)}
                     onMouseEnter={() => setHovered(n)}
                     onMouseLeave={() => setHovered(null)}
-                  >★</button>
+                  ><IconStar size={22} filled={(hovered ?? rating) >= n} /></button>
                 ))}
               </div>
             </div>

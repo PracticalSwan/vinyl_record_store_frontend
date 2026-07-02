@@ -1,55 +1,40 @@
-# Frontend API Consumption Plan
+# Frontend API Contract
 
-This file describes how the frontend expects to consume backend APIs. Backend route implementation belongs in `../../vinyl_record_store_backend/docs/API_CONTRACT_PLAN.md`.
+The backend base URL comes from `VITE_API_BASE_URL` and defaults locally to `http://localhost:3000`.
 
-## API Consumption Principles
+## Response Envelopes
 
-- Treat the backend as the source of truth.
-- Keep API calls in a documented frontend helper boundary when implementation begins.
-- Handle loading, empty, and error states for every data request.
-- Do not expose backend secrets in frontend code.
-- Update this file when frontend expectations change.
+Success:
 
-## Planned Backend Calls
-
-| Frontend Need | Method | Backend Path | Frontend Use |
-| --- | --- | --- | --- |
-| Product listing | `GET` | `/api/products` | Catalog grid and pagination. |
-| Product detail | `GET` | `/api/products/:id` | Product detail page. |
-| Search and filters | `GET` | `/api/search` | Search results and filter UI. |
-| Interaction logging | `POST` | `/api/interactions` | Record views, wishlist, cart, ratings, and purchases through backend. |
-| Product recommendations | `GET` | `/api/recommendations/product/:id` | Similar records on product detail pages. |
-| User recommendations | `GET` | `/api/recommendations/user/:userId` | Personalized recommendation page or section. |
-| Wishlist | `POST` or `DELETE` | `/api/wishlist/:recordId` | Wishlist UI actions. |
-| Cart | `POST` or `DELETE` | `/api/cart/:recordId` | Cart UI actions. |
-| Orders | `POST` | `/api/orders` | Simulated or future order action. |
-
-## Expected Frontend States
-
-For each request, the frontend should plan:
-
-- Loading state.
-- Success state.
-- Empty state.
-- Error state.
-- Retry or recovery behavior when useful.
-
-## Recommendation Response Expectations
-
-The frontend expects recommendation responses to include:
-
-- Product data needed for display.
-- Rank or score when safe to show or debug.
-- Explanation reasons.
-- Stock status.
-
-Example display reason:
-
-```text
-Recommended because it shares the same genre and release era.
+```json
+{ "data": {}, "meta": {} }
 ```
 
-## Documentation Update Notes
+Error:
 
-Update this file when frontend API consumption, response expectations, loading states, error handling, or backend paths change. Update backend API docs when the contract itself changes.
+```json
+{ "error": { "code": "ERROR_CODE", "message": "Safe message" } }
+```
 
+## Implemented Read Calls
+
+| Frontend Need | Method | Path | Current Use |
+| --- | --- | --- | --- |
+| Catalog | `GET` | `/api/products?limit=100` | Loaded by `CatalogProvider`. |
+| Product detail | `GET` | `/api/products/:id` | Available contract; current UI reads the loaded catalog. |
+| Search | `GET` | `/api/search?q=...` | Available contract; current UI filters the loaded catalog locally. |
+| Similar products | `GET` | `/api/recommendations/product/:id?limit=6` | Product detail recommendation row. |
+| User recommendations | `GET` | `/api/recommendations/user/demo-user?limit=12` | Home and recommendation demo routes. |
+| Health | `GET` | `/api/health` | Operational check. |
+
+## Deferred Write Calls
+
+Interaction, wishlist, cart, order, authentication, and admin write endpoints are not implemented. The frontend must keep those actions local or disabled and must not pretend that data was saved.
+
+## Error Handling
+
+`src/lib/api.js` converts connection and backend envelope failures into `ApiError`. API-backed screens must preserve loading, empty, error, retry, and success behavior.
+
+## Change Rule
+
+Any path or response-shape change must update this file, the backend contract, and the API client in the same task.

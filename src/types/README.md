@@ -1,7 +1,5 @@
-# Frontend Types Folder
+# Frontend Types
 
-Planned location for frontend type definitions if TypeScript or type-like documentation is added later.
+The active project uses JavaScript. Current response shapes are documented in `../../docs/DATA_MODEL_PLAN.md`.
 
-Keep these types aligned with frontend API consumption and UI data shapes. Backend schema types belong in the backend folder.
-
-TODO: Decide whether the frontend will use TypeScript.
+If TypeScript is explicitly adopted later, define client-facing API types here and keep them aligned with both contract documents.

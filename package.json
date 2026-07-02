@@ -1,7 +1,7 @@
 {
-  "name": "vinyl_record_store",
+  "name": "vinyl_record_store_frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Frontend for an academic vinyl record store recommender system.",
   "license": "MIT",
   "type": "module",

@@ -1,11 +1,12 @@
-import { records } from '../data/records';
-import { useStore } from '../context/StoreContext';
+import { useCatalog } from '../context/useCatalog';
+import { useStore } from '../context/useStore';
 import { RecScroll } from '../components/ProductGrid';
 import { IconVinylDark } from '../components/Icons';
 
 const SHIPPING = 6;
 
 export default function CartPage() {
+  const { records } = useCatalog();
   const { cart, removeFromCart, updateQty } = useStore();
 
   const cartItems = cart
@@ -79,8 +80,14 @@ export default function CartPage() {
               <div className="cart-summary-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
               <div className="cart-summary-row"><span>Shipping</span><span>${SHIPPING.toFixed(2)}</span></div>
               <div className="cart-summary-row total"><span>Total</span><span>${total.toFixed(2)}</span></div>
-              <button className="btn btn-accent" style={{ width: '100%', marginTop: '1rem', padding: '12px' }}>
-                Proceed to checkout
+              <button
+                className="btn btn-accent"
+                style={{ width: '100%', marginTop: '1rem', padding: '12px' }}
+                disabled
+                aria-disabled="true"
+                title="Checkout is outside the academic demo scope"
+              >
+                Checkout unavailable in demo
               </button>
             </div>
           </>

@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { records } from '../data/records';
 import { ProductGrid } from '../components/ProductGrid';
+import { useCatalog } from '../context/useCatalog';
 
 export default function SearchPage() {
+  const { records } = useCatalog();
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
 
@@ -14,7 +15,7 @@ export default function SearchPage() {
       r.artist.toLowerCase().includes(q) ||
       r.genre.toLowerCase().includes(q)
     );
-  }, [query]);
+  }, [query, records]);
 
   return (
     <main>

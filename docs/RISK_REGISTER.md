@@ -1,15 +1,13 @@
 # Frontend Risk Register
 
-| ID | Risk | Impact | Likelihood | Mitigation | Status |
-| --- | --- | --- | --- | --- | --- |
-| FR-001 | Frontend exposes backend secrets. | High | Medium | Keep MongoDB and server secrets out of frontend env files. | open |
-| FR-002 | API contract drifts from backend. | Medium | High | Update frontend and backend API docs together. | open |
-| FR-003 | Recommendation reasons are unclear. | Medium | Medium | Keep reasons short and test readability. | open |
-| FR-004 | UI implies false personalization. | Medium | Medium | Clearly handle cold-start or generic recommendation states. | open |
-| FR-005 | Responsive layout breaks product cards or filters. | Medium | Medium | Test mobile and desktop layouts. | open |
-| FR-006 | Accessibility gaps. | Medium | Medium | Use semantic markup, labels, keyboard controls, and visible focus states. | open |
-| FR-007 | External design copying risk. | High | Medium | Follow `docs/DESIGN_REFERENCE_POLICY.md`. | open |
-| FR-008 | Scope creep into backend work. | Medium | Medium | Keep API, database, and recommender implementation in backend folder. | open |
-| FR-009 | Framework version drift. | Medium | Medium | Verify latest React before dependency work. | open |
-| FR-010 | Inconsistent agent instructions. | Medium | Medium | Keep `AGENTS.md` and `CLAUDE.md` similar in context. | open |
-| FR-011 | Accidental deletion during cleanup. | High | Low | Remove only exact intended files after path verification inside the frontend folder. | open |
+| ID | Risk | Impact | Mitigation | Status |
+| --- | --- | --- | --- | --- |
+| FR-001 | Frontend exposes secrets. | High | Use public `VITE_` configuration only; keep database values backend-only. | controlled |
+| FR-002 | API contract drifts. | High | Update both contract docs and the client together; build both repos. | controlled |
+| FR-003 | UI implies real personalization. | High | Display demo-profile or cold-start language. | controlled |
+| FR-004 | Local cart/wishlist looks persisted. | Medium | Document local-only state and disable checkout. | controlled |
+| FR-005 | Duplicate source trees drift. | Medium | Keep `src/` canonical and `code_for_website/` snapshot-only. | controlled |
+| FR-006 | Backend outage hides all content. | Medium | Catalog error with retry and independent recommendation status. | controlled |
+| FR-007 | Mobile or keyboard regression. | Medium | Preserve responsive/focus rules and run browser scenarios when available. | open |
+| FR-008 | Unapproved artwork or copied design enters the repo. | High | Preserve placeholders and design-reference policy. | controlled |
+| FR-009 | Private interaction data appears in UI. | High | No persistent profile data exists; expose only safe summaries. | controlled |

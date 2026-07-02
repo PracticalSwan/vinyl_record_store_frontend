@@ -1,5 +1,5 @@
 # App Folder
 
-Reserved for future frontend app-level organization if the Vite scaffold keeps this folder.
+This folder is currently unused. Route components live in `../pages/` because the active frontend is Vite with React Router, not Next.js.
 
-Do not add Next.js route handlers, server actions, or backend behavior here. Backend routes belong in `../../vinyl_record_store_backend/src/app/api/`.
+Do not place backend route handlers or server actions here.

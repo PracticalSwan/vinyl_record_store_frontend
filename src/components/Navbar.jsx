@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useStore } from '../context/StoreContext';
+import { useStore } from '../context/useStore';
 import { IconGrid, IconStar, IconHeart, IconCart, IconSearch } from './Icons';
 
 export default function Navbar() {
@@ -51,6 +51,7 @@ export default function Navbar() {
             <button
               className={`nav-link${is('/recommendations') ? ' active' : ''}`}
               onClick={() => navigate('/recommendations')}
+              aria-current={is('/recommendations') ? 'page' : undefined}
             >
               <IconStar /><span>For You</span>
             </button>
@@ -60,6 +61,7 @@ export default function Navbar() {
               className={`nav-link${is('/wishlist') ? ' active' : ''}`}
               onClick={() => navigate('/wishlist')}
               aria-label={`Wishlist, ${wishlist.length} items`}
+              aria-current={is('/wishlist') ? 'page' : undefined}
             >
               <IconHeart />
               <span>Wishlist</span>
@@ -73,6 +75,7 @@ export default function Navbar() {
               className={`nav-link${is('/cart') ? ' active' : ''}`}
               onClick={() => navigate('/cart')}
               aria-label={`Cart, ${cart.length} items`}
+              aria-current={is('/cart') ? 'page' : undefined}
             >
               <IconCart />
               <span>Cart</span>

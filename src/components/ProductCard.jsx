@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useStore } from '../context/StoreContext';
+import { useStore } from '../context/useStore';
 import { IconHeart, IconVinyl } from './Icons';
 
 function StockBadge({ stock }) {
@@ -16,7 +16,7 @@ function StockDot({ stock }) {
 
 export default function ProductCard({ record, showReason = false }) {
   const navigate = useNavigate();
-  const { wishlist, toggleWishlist, addToCart } = useStore();
+  const { wishlist, toggleWishlist } = useStore();
   const saved = wishlist.includes(record.id);
 
   return (
@@ -54,11 +54,9 @@ export default function ProductCard({ record, showReason = false }) {
           </div>
           <button
             className="btn btn-primary btn-sm"
-            disabled={record.stock === 'out'}
-            aria-disabled={record.stock === 'out'}
             onClick={() => navigate(`/records/${record.id}`)}
           >
-            {record.stock === 'out' ? 'Out of stock' : 'View record'}
+            View record
           </button>
         </div>
       </div>

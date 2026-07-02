@@ -1,40 +1,30 @@
-# Frontend Evaluation Plan
+# Frontend Evaluation
 
-## Evaluation Goals
+This plan separates completed static checks from runtime browser evidence.
 
-- Check whether users can find products.
-- Check whether recommendation reasons are visible and understandable.
-- Check whether frontend states work for loading, empty, and error cases.
-- Check accessibility and responsive behavior.
-- Support the academic explanation of decision support.
+## Automated Checks
 
-## UI Evaluation Ideas
-
-- Product cards show enough information to decide whether to open a record.
-- Search and filters are easy to understand.
-- Recommendation reasons are readable.
-- Users can tell when recommendations are generic versus personalized.
-- Mobile layout does not hide key information.
-
-## Manual Test Scenarios
-
-| ID | Scenario | Expected Frontend Result |
+| Check | Command | Current Evidence |
 | --- | --- | --- |
-| FE-001 | Product API returns records. | Catalog grid displays product cards. |
-| FE-002 | Product API returns empty list. | Empty state appears. |
-| FE-003 | Backend recommendation API returns reasons. | Recommendation row shows product cards and reasons. |
-| FE-004 | Backend API returns error. | User sees a safe error state. |
-| FE-005 | Mobile viewport. | Filters, cards, and recommendation rows remain usable. |
-| FE-006 | Keyboard navigation. | Main controls can be reached and used. |
+| ESLint | `npm run lint` | Passed on 2026-07-02. |
+| Production bundle | `npm run build` | Passed on 2026-07-02. |
 
-## Explanation Quality Checks
+## Browser Scenarios
 
-- Reasons are short and clear.
-- Reasons match the recommendation context returned by the backend.
-- Reasons are text, not only icons.
-- UI does not imply personalization if the backend returned generic cold-start results.
+| ID | Scenario | Expected Result |
+| --- | --- | --- |
+| FE-001 | Backend available. | Catalog loads and counts reflect the API response. |
+| FE-002 | Backend unavailable. | Safe catalog error and retry action appear. |
+| FE-003 | Recommendation request succeeds. | Mode, profile summary, ranks, and reasons render. |
+| FE-004 | Recommendation request fails or is empty. | Independent error or empty state renders without hiding the catalog. |
+| FE-005 | Product detail opened. | Similar products load from the product recommendation route. |
+| FE-006 | 375px viewport. | Navigation, cards, filters, lists, and recommendation rows remain usable without page-level horizontal overflow. |
+| FE-007 | Keyboard-only navigation. | Search, navigation, filters, product actions, rating, and retry controls are reachable with visible focus. |
 
-## Documentation Update Rules
+## Recommendation Comprehension
 
-Update this file when frontend evaluation checks, UI test scenarios, accessibility expectations, responsive checks, or recommendation display checks change.
+Confirm that a reviewer can distinguish sample-profile results, product similarity, and cold-start suggestions. Do not treat UI behavior checks as ranking-quality evidence.
 
+## Release Evidence Rule
+
+Record live browser and cross-origin API results only when they were actually executed. Lint and build success alone do not prove runtime CORS or responsive behavior.

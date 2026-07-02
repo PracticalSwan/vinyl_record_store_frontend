@@ -1,7 +1,17 @@
-# Frontend Docs
+# Frontend Documentation
 
-This folder contains frontend planning documents for UI, API consumption, client data shapes, recommendation display, risks, roadmap, and presentation notes.
+These files describe the implemented Groovehaus storefront and its current backend contract.
 
-Backend API implementation, MongoDB Atlas models, server validation, and recommender algorithms belong in `../../vinyl_record_store_backend/docs/`.
+- `PROJECT_CONTEXT.md`: canonical frontend status and boundaries.
+- `PRODUCT_REQUIREMENTS.md`: requirements and implementation status.
+- `UI_UX_PLAN.md`: implemented routes, components, states, and accessibility behavior.
+- `API_CONTRACT_PLAN.md`: backend endpoints consumed or available to the frontend.
+- `DATA_MODEL_PLAN.md`: actual client-facing product and recommendation shapes.
+- `RECOMMENDER_SYSTEM_PLAN.md`: recommendation presentation and honesty rules.
+- `ARCHITECTURE_PLAN.md`: current source and state ownership.
+- `EVALUATION_PLAN.md`: automated and manual frontend checks.
+- `ROADMAP.md` and `TASK_BACKLOG.md`: completed consolidation and explicitly deferred work.
+- `DECISION_LOG.md`, `RISK_REGISTER.md`, and `PRESENTATION_NOTES.md`: durable decisions, risks, and course-facing summary.
+- `SETUP_LATER.md`: deferred setup that has not started.
 
-Update the relevant frontend document in the same task whenever frontend behavior, setup, implementation, API consumption, UI, recommendation display, or scope changes.
+Backend implementation details belong in `../../vinyl_record_store_backend/docs/`. Update both API contract documents when the shared contract changes.

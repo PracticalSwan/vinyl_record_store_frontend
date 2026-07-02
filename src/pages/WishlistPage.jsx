@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { records } from '../data/records';
-import { useStore } from '../context/StoreContext';
+import { useCatalog } from '../context/useCatalog';
+import { useStore } from '../context/useStore';
 import { IconVinylDark, IconHeart } from '../components/Icons';
 
 function StockBadge({ stock }) {
@@ -11,6 +11,7 @@ function StockBadge({ stock }) {
 
 export default function WishlistPage() {
   const navigate = useNavigate();
+  const { records } = useCatalog();
   const { wishlist, removeFromWishlist, addToCart } = useStore();
   const items = records.filter(r => wishlist.includes(r.id));
 

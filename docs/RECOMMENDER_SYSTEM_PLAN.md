@@ -1,65 +1,29 @@
-# Frontend Recommendation Display Plan
+# Frontend Recommendation Presentation
 
-Backend recommender logic belongs in `../../vinyl_record_store_backend/docs/RECOMMENDER_SYSTEM_PLAN.md`.
+The backend owns candidate generation, scoring, diversity, exclusions, and explanations. The frontend owns presentation and request state.
 
-This file plans how the frontend displays recommendation results and explanations.
+## Implemented Surfaces
 
-## Frontend Responsibility
+- Home recommendation row from `/api/recommendations/user/demo-user`.
+- Recommendation demo page with profile summary, mode label, ranking order, and reasons.
+- Product detail similarity row from `/api/recommendations/product/:id`.
 
-The frontend should:
+## Modes
 
-- Request recommendations from the backend.
-- Display recommended vinyl records.
-- Show clear explanation reasons.
-- Handle loading, empty, and error states.
-- Avoid implying recommendations are personal when the backend returned cold-start or generic results.
+| Mode | Meaning | Required UI Language |
+| --- | --- | --- |
+| `demo-profile` | Results use the documented synthetic profile. | State that it is a sample profile, not a signed-in customer. |
+| `content-similarity` | Results match one source product's metadata. | Describe them as similar records. |
+| `cold-start` | No stored history is available. | Describe results as generic in-stock suggestions. |
 
-## Recommendation UI Locations
+## Display Rules
 
-Planned locations:
+- Render at least one backend reason when present.
+- Keep reasons tied to actual artist, genre, era, label, or availability matches.
+- Do not expose score as a quality guarantee.
+- Preserve loading, empty, error, and success states.
+- Never infer or display private interaction history that the backend did not return.
 
-- Product detail page: similar records.
-- Catalog page: optional "recommended for you" row.
-- Wishlist page: records related to wishlist items.
-- Cart page: optional related records before checkout.
+## Evaluation Boundary
 
-## Explanation UI
-
-Example explanation text:
-
-- "Same artist."
-- "Shares the same genre and release era."
-- "Similar to records in your wishlist."
-- "Matches tags from records you viewed."
-- "In stock now."
-
-Keep reasons short and readable.
-
-## Frontend States
-
-- Loading recommendations.
-- No recommendations available.
-- Backend error.
-- Partial recommendation data.
-- Generic recommendations for a new user.
-
-## Accessibility Notes
-
-- Recommendation reasons must be text, not icons only.
-- Carousel or row controls must be keyboard accessible.
-- Product cards must have readable labels.
-- Do not rely only on color to explain recommendation strength or stock.
-
-## Evaluation Support
-
-Frontend evaluation can check:
-
-- Do users notice recommendation reasons?
-- Are reasons understandable?
-- Can users distinguish similar records from generic recommendations?
-- Does the recommendation row work on mobile and desktop?
-
-## Documentation Update Rules
-
-Update this file when recommendation display, explanation copy, UI location, frontend states, accessibility behavior, or evaluation expectations change.
-
+UI review can measure comprehension and accessibility. Ranking-quality metrics belong to the backend evaluation protocol and require held-out interactions, baselines, and a leakage-safe split.

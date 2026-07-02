@@ -1,54 +1,26 @@
-# Presentation Notes
+# Frontend Presentation Notes
 
-Use this file to prepare future report and presentation writing.
+Use these points to describe the implemented frontend accurately.
 
-## Short Project Pitch
+## What The Frontend Demonstrates
 
-The Vinyl Record Store Recommender System is a web application that helps users find vinyl records they may want to buy. It uses product metadata and user behavior to rank records and explain each recommendation.
+- A distinct Groovehaus storefront with seven React routes.
+- Catalog browsing, search, filters, product metadata, stock state, wishlist, and cart UI.
+- Explainable ranked suggestions from a separate backend.
+- Honest distinction between a synthetic demo profile, product similarity, and cold-start output.
+- Loading, empty, error, retry, and success states for API data.
 
-## Problem-Solution Explanation
+## Decision-Support Value
 
-Problem: a record store catalog can be hard to browse because users may not know every artist, genre, label, or release era.
+Users can narrow a catalog, compare metadata and availability, and inspect why a record was suggested. Explanations make the ranking easier to understand than an unexplained “recommended” label.
 
-Solution: the system recommends records that match the user's interests and explains the reason, such as same artist, shared genre, similar release era, or wishlist behavior.
+## Architecture Talking Point
 
-## Why Recommender Systems Fit This Project
+The React frontend owns presentation and temporary UI state. The Next.js backend owns contracts, validation, the demo catalog, scoring, and explanations. This separation supports later persistence without placing database credentials in the browser.
 
-A recommender system fits because users make choices from many records. Ranking and explanation can reduce search effort and support better decisions.
+## Limitations To State Clearly
 
-## Why MongoDB Atlas Fits The Project
-
-MongoDB Atlas fits the planned data because vinyl records can have flexible metadata. Different records may have different tags, moods, labels, formats, conditions, and release details. User interactions can also be stored as event-like documents.
-
-## MVP Features
-
-- Product catalog.
-- Product detail page.
-- Search and filters.
-- User interaction logging.
-- Content-based recommendations.
-- Recommendation explanations.
-- Basic evaluation scenarios.
-
-## Future Features
-
-- Collaborative filtering after enough interaction data exists.
-- Hybrid recommendation.
-- Admin catalog tools.
-- User onboarding for favorite artists or genres.
-- Recommendation logs dashboard for academic evaluation.
-- Deployment.
-
-## Risks And Limitations
-
-- New users and new records create cold-start problems.
-- Sparse interaction data limits collaborative filtering.
-- Bad metadata can produce weak recommendations.
-- Copying external website design or product data is not allowed.
-- Privacy must be considered for user behavior logs.
-- Scope can grow too large if payment, authentication, scraping, and admin tools are added too early.
-
-## Update Notes
-
-Update this file when project scope, implemented features, architecture, recommender logic, evaluation results, or risks change.
-
+- The user profile is synthetic.
+- Wishlist, cart, rating, and quantity are local demo state.
+- No authentication, MongoDB persistence, checkout, payment, or interaction write API exists.
+- Automated behavior tests do not equal offline recommendation-quality metrics.
