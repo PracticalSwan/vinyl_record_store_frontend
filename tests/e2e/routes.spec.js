@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('@smoke current routes load against the real backend', async ({ page }) => {
   const routes = [
     ['/', /Find the record/],
-    ['/catalog', /Showing 24 of 42 records/],
+    ['/catalog', /Showing 24 of 116 records/],
     ['/records/1', /Kind of Blue/],
     ['/search?q=Coltrane', /A Love Supreme/],
     ['/recommendations', /Recommendation demo/],
@@ -70,7 +70,7 @@ test('catalog failure can retry and empty data is distinct', async ({ page }) =>
   await expect(page.getByRole('alert')).toContainText('Test backend unavailable.');
   failCatalog = false;
   await page.getByRole('button', { name: 'Try again' }).click();
-  await expect(page.getByText(/Showing\s+24\s+of\s+42\s+records/)).toBeVisible();
+  await expect(page.getByText(/Showing\s+24\s+of\s+116\s+records/)).toBeVisible();
 
   await page.unroute('**/api/products?*');
   await page.route('**/api/products?*', (route) => route.fulfill({
@@ -84,13 +84,13 @@ test('catalog failure can retry and empty data is distinct', async ({ page }) =>
 
 test('server filters, sorting, pagination, focus, and history use the URL as source of truth', async ({ page }) => {
   await page.goto('/catalog?genre=Jazz&genre=Rock&limit=5&sort=price-asc');
-  await expect(page.getByText(/Showing\s+5\s+of\s+14\s+records/)).toBeVisible();
+  await expect(page.getByText(/Showing\s+5\s+of\s+40\s+records/)).toBeVisible();
   await expect(page.getByLabel('Catalog pagination')).toBeVisible();
   await page.getByRole('button', { name: 'Next page' }).click();
   await expect(page).toHaveURL(/page=2/);
   await expect(page.getByRole('heading', { name: 'Catalog results' })).toBeFocused();
   await page.reload();
-  await expect(page.getByText(/Showing\s+5\s+of\s+14\s+records/)).toBeVisible();
+  await expect(page.getByText(/Showing\s+5\s+of\s+40\s+records/)).toBeVisible();
   await page.getByLabel('Sort by').selectOption('artist-asc');
   await expect(page).not.toHaveURL(/page=2/);
   await expect(page).toHaveURL(/sort=artist-asc/);
@@ -112,7 +112,7 @@ test('rapid debounced search never lets an older response replace a newer query'
   await page.waitForRequest((request) => new URL(request.url()).searchParams.get('q') === 'blue');
   await search.fill('jazz');
   await expect(page.getByRole('heading', { name: 'Search results for "jazz"' })).toBeVisible();
-  await expect(page.getByText(/Showing\s+7\s+of\s+7\s+records/)).toBeVisible();
+  await expect(page.getByText(/Showing\s+20\s+of\s+20\s+records/)).toBeVisible();
   // Let the delayed "blue" response resolve so the stale-response guard is
   // exercised; race against an upper bound so an aborted (canceled) response
   // that never lands cannot hang the test.
@@ -121,7 +121,7 @@ test('rapid debounced search never lets an older response replace a newer query'
     page.waitForTimeout(1500),
   ]);
   await expect(page).toHaveURL(/q=jazz/);
-  await expect(page.getByText(/Showing\s+7\s+of\s+7\s+records/)).toBeVisible();
+  await expect(page.getByText(/Showing\s+20\s+of\s+20\s+records/)).toBeVisible();
 });
 
 test('mobile catalog filters open with the keyboard', async ({ page }, testInfo) => {
