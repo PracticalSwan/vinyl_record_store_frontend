@@ -9,10 +9,24 @@ export class ApiError extends Error {
   }
 }
 
-async function request(path, { signal } = {}) {
+async function request(path, {
+  signal,
+  method = 'GET',
+  body,
+  idempotencyKey,
+} = {}) {
   let response;
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, { signal });
+    const headers = {};
+    if (body !== undefined) headers['Content-Type'] = 'application/json';
+    if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey;
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      signal,
+      method,
+      headers,
+      credentials: 'include',
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
   } catch (error) {
     if (error.name === 'AbortError') throw error;
     throw new ApiError('The storefront could not reach the backend API.', 'API_UNAVAILABLE');
@@ -77,6 +91,82 @@ export function fetchUserRecommendations(userId = 'demo-user', { signal } = {}) 
 
 export function fetchProductRecommendations(productId, { signal } = {}) {
   return request(`/api/recommendations/product/${encodeURIComponent(productId)}?limit=6`, { signal });
+}
+
+export function fetchSession({ signal } = {}) {
+  return request('/api/auth/session', { signal });
+}
+
+export function login(credentials, { signal } = {}) {
+  return request('/api/auth/login', { method: 'POST', body: credentials, signal });
+}
+
+export function register(account, { signal } = {}) {
+  return request('/api/auth/register', { method: 'POST', body: account, signal });
+}
+
+export function logout({ signal } = {}) {
+  return request('/api/auth/logout', { method: 'POST', signal });
+}
+
+export function fetchMe({ signal } = {}) {
+  return request('/api/me', { signal });
+}
+
+export function updatePreferences(preferences, { signal } = {}) {
+  return request('/api/me/preferences', { method: 'PATCH', body: preferences, signal });
+}
+
+export function fetchWishlist({ signal } = {}) {
+  return request('/api/wishlist', { signal });
+}
+
+export function addWishlistProduct(productId, { signal } = {}) {
+  return request(`/api/wishlist/${encodeURIComponent(productId)}`, { method: 'PUT', signal });
+}
+
+export function removeWishlistProduct(productId, { signal } = {}) {
+  return request(`/api/wishlist/${encodeURIComponent(productId)}`, { method: 'DELETE', signal });
+}
+
+export function fetchCart({ signal } = {}) {
+  return request('/api/cart', { signal });
+}
+
+export function setCartProduct(productId, quantity, { signal } = {}) {
+  return request(`/api/cart/${encodeURIComponent(productId)}`, {
+    method: 'PUT',
+    body: { quantity },
+    signal,
+  });
+}
+
+export function removeCartProduct(productId, { signal } = {}) {
+  return request(`/api/cart/${encodeURIComponent(productId)}`, { method: 'DELETE', signal });
+}
+
+export function fetchRatings({ signal } = {}) {
+  return request('/api/ratings', { signal });
+}
+
+export function setProductRating(productId, rating, { signal } = {}) {
+  return request(`/api/ratings/${encodeURIComponent(productId)}`, {
+    method: 'PUT',
+    body: { rating },
+    signal,
+  });
+}
+
+export function removeProductRating(productId, { signal } = {}) {
+  return request(`/api/ratings/${encodeURIComponent(productId)}`, { method: 'DELETE', signal });
+}
+
+export function mergeGuestState(state, { signal } = {}) {
+  return request('/api/me/merge-guest-state', { method: 'POST', body: state, signal });
+}
+
+export function sendInteractions(events, { signal } = {}) {
+  return request('/api/interactions', { method: 'POST', body: { events }, signal });
 }
 
 export { API_BASE_URL };

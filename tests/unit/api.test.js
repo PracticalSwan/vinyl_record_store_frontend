@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ApiError, fetchProductRecommendations, fetchProducts } from '../../src/lib/api';
+import {
+  ApiError,
+  fetchProductRecommendations,
+  fetchProducts,
+  login,
+  setCartProduct,
+} from '../../src/lib/api';
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -18,7 +24,13 @@ describe('API client', () => {
     await expect(fetchProducts()).resolves.toEqual(payload);
     expect(fetchMock).toHaveBeenCalledWith(
       'http://localhost:3000/api/products',
-      { signal: undefined },
+      {
+        signal: undefined,
+        method: 'GET',
+        headers: {},
+        credentials: 'include',
+        body: undefined,
+      },
     );
   });
 
@@ -49,6 +61,32 @@ describe('API client', () => {
 
     await fetchProductRecommendations('1/../../secret');
     expect(fetchMock.mock.calls[0][0]).toContain('/1%2F..%2F..%2Fsecret?limit=6');
+  });
+
+  it('sends credentialed JSON for authentication and absolute cart writes', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: vi.fn().mockResolvedValue({ data: {} }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await login({ username: 'listener', password: 'password value' });
+    await setCartProduct(12, 3);
+
+    expect(fetchMock.mock.calls[0]).toEqual([
+      'http://localhost:3000/api/auth/login',
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'listener', password: 'password value' }),
+      }),
+    ]);
+    expect(fetchMock.mock.calls[1]).toEqual([
+      'http://localhost:3000/api/cart/12',
+      expect.objectContaining({ method: 'PUT', body: JSON.stringify({ quantity: 3 }) }),
+    ]);
   });
 
   it('maps backend error envelopes to ApiError', async () => {

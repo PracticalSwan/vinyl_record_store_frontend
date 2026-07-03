@@ -328,6 +328,27 @@ button, input, select { font-family: inherit; font-size: inherit; }
 .search-page-controls { display: flex; gap: .75rem; }
 .search-page-controls input { flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--rule); border-radius: var(--radius-md); background: var(--surface); color: var(--ink); }
 
+/* Authentication */
+.auth-page, .account-page { min-height: 60vh; display: grid; place-items: center; padding-top: 3rem; padding-bottom: 3rem; }
+.auth-card, .account-card { width: min(100%, 520px); background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 2rem; }
+.auth-card h1, .account-card h1 { font-family: var(--font-display); font-size: 28px; line-height: 1.2; }
+.auth-eyebrow { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: .5rem; }
+.auth-intro, .account-note { color: var(--ink-muted); margin-top: .75rem; }
+.auth-form { display: grid; gap: .5rem; margin-top: 1.5rem; }
+.auth-form label { font-size: 13px; font-weight: 600; margin-top: .5rem; }
+.auth-form label span, .field-help { color: var(--ink-muted); font-size: 12px; font-weight: 400; }
+.auth-form input { width: 100%; padding: 10px 12px; border: 1px solid var(--rule); border-radius: var(--radius-md); background: var(--cream); color: var(--ink); }
+.auth-form input:focus { border-color: var(--accent); outline: 2px solid var(--accent-dim); }
+.auth-submit { width: 100%; margin-top: 1rem; }
+.auth-switch { margin-top: 1.25rem; color: var(--ink-muted); font-size: 14px; text-align: center; }
+.auth-switch a { color: var(--accent); font-weight: 600; }
+.form-error { color: #8d1f1f; background: #f8e4e4; border-left: 3px solid #a02020; border-radius: var(--radius-sm); padding: .65rem .75rem; margin-top: .5rem; }
+.account-details { display: grid; gap: .75rem; margin: 1.5rem 0; }
+.account-details div { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--rule); padding-bottom: .5rem; }
+.account-details dt { color: var(--ink-muted); }
+.account-details dd { font-weight: 600; text-align: right; }
+.account-note { margin-bottom: 1.5rem; }
+
 /* ── States ────────────────────────────────────────── */
 .state-box { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 4rem 2rem; gap: 1rem; border: 1.5px dashed var(--rule); border-radius: var(--radius-lg); color: var(--ink-muted); }
 .state-icon { font-size: 40px; color: var(--rule); }
@@ -405,7 +426,7 @@ button, input, select { font-family: inherit; font-size: inherit; }
   }
   .nav-brand { grid-column: 1; font-size: 18px; }
   .nav-links { grid-column: 2; justify-self: end; }
-  .nav-link { width: 40px; height: 40px; justify-content: center; padding: 0; }
+  .nav-link { width: 36px; height: 40px; justify-content: center; padding: 0; }
   .nav-link span { display: none; }
   .nav-search { grid-column: 1 / -1; grid-row: 2; width: 100%; max-width: none; }
 }
@@ -417,4 +438,5 @@ button, input, select { font-family: inherit; font-size: inherit; }
   .list-item { flex-wrap: wrap; }
   .list-item-actions { width: 100%; justify-content: flex-end; flex-wrap: wrap; }
   .search-page-controls { align-items: stretch; }
+  .auth-card, .account-card { padding: 1.5rem; }
 }

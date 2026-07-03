@@ -1,10 +1,13 @@
 import path from 'node:path';
 import process from 'node:process';
+import { randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, devices } from '@playwright/test';
 
 const frontendDirectory = path.dirname(fileURLToPath(import.meta.url));
 const backendDirectory = path.resolve(frontendDirectory, '..', 'vinyl_record_store_backend');
+process.env.E2E_REGISTER_PASSWORD = randomBytes(18).toString('base64url');
+process.env.E2E_REGISTER_USERNAME = `e2e_${randomBytes(8).toString('hex')}`;
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -28,6 +31,7 @@ export default defineConfig({
         ...process.env,
         CATALOG_DATA_SOURCE: 'seed',
         FRONTEND_ORIGIN: 'http://localhost:5173',
+        AUTH_SECRET: randomBytes(48).toString('base64url'),
       },
       url: 'http://localhost:3000/api/health',
       reuseExistingServer: !process.env.CI,

@@ -9,6 +9,8 @@ test('@smoke current routes load against the real backend', async ({ page }) => 
     ['/recommendations', /Recommendation demo/],
     ['/wishlist', /Wishlist/],
     ['/cart', /Cart/],
+    ['/login', /Sign in to Groovehaus/],
+    ['/register', /Create an account/],
   ];
 
   for (const [route, expected] of routes) {

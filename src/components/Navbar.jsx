@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../context/useStore';
-import { IconGrid, IconStar, IconHeart, IconCart, IconSearch } from './Icons';
+import { useAuth } from '../context/useAuth';
+import { IconGrid, IconStar, IconHeart, IconCart, IconSearch, IconUser } from './Icons';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { wishlist, cart } = useStore();
+  const auth = useAuth();
   const [query, setQuery] = useState('');
 
   const is = (path) => location.pathname === path;
@@ -84,6 +86,16 @@ export default function Navbar() {
               {cart.length > 0 && (
                 <span className="nav-badge" aria-hidden="true">{cart.length}</span>
               )}
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-link${is('/account') || is('/login') || is('/register') ? ' active' : ''}`}
+              onClick={() => navigate(auth.status === 'authenticated' ? '/account' : '/login')}
+              aria-label={auth.status === 'authenticated' ? `Account for ${auth.user.username}` : 'Sign in'}
+              aria-current={is('/account') || is('/login') || is('/register') ? 'page' : undefined}
+            >
+              <IconUser /><span>{auth.status === 'authenticated' ? 'Account' : 'Sign in'}</span>
             </button>
           </li>
         </ul>

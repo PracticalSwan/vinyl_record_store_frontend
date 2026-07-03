@@ -1,6 +1,6 @@
 # Frontend Data Shapes
 
-These are the current API and client-only shapes used by the storefront.
+These are the current API, authentication, and client-only shapes used by the storefront.
 
 ## Product
 
@@ -30,3 +30,9 @@ The backend returns `{ product, rank, score, reasons, algorithmVersion }`. Recom
 - Loading and error state for remote requests.
 
 Product lists also carry `page`, `limit`, `total`, `totalPages`, `sort`, and full-catalog facet metadata. Persistent identity and interaction data remains a backend concern and is not present in the current demo.
+
+## Authenticated Session Shape
+
+The frontend receives only `{ publicId, username, displayName, role, onboardingComplete, preferences, seeded }` inside the safe session/profile envelope. It never receives password hashes, salts, session tokens, internal database IDs, raw events, or another user's state.
+
+`AuthProvider` stores the safe user in memory and reports `loading`, `authenticated`, `anonymous`, or `error`. The signed cookie remains HttpOnly and browser-managed. Wishlist/cart/rating API shapes are available through `src/lib/api.js`, but the current pages still use the client-only state above until FFP-03.

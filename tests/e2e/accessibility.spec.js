@@ -9,6 +9,8 @@ const representativeRoutes = [
   ['recommendations', '/recommendations'],
   ['wishlist', '/wishlist'],
   ['cart', '/cart'],
+  ['login', '/login'],
+  ['register', '/register'],
 ];
 
 for (const [name, route] of representativeRoutes) {

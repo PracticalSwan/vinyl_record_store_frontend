@@ -9,12 +9,13 @@ This is a subtree instruction file. Read the global instructions and the project
 The Groovehaus storefront is an implemented API-backed academic demo, not a Vite starter or planning-only scaffold.
 
 - React 19.2.7, Vite 8.1, and React Router 7.
-- Routes: home, catalog, product detail, search, recommendation demo, wishlist, and cart.
+- Routes: home, catalog, product detail, search, recommendation demo, wishlist, cart, registration, login, and protected account.
 - Catalog pages use URL-backed server queries with literal search, repeated facets, deterministic sorting, pagination, and stale-request cancellation.
 - Product details and recommendation data come from the separate Next.js backend.
-- Wishlist, cart, quantity, and rating state are local demo state only.
-- The backend has an optional verified MongoDB catalog source, but the frontend must still treat wishlist, cart, rating, and identity state as non-persistent.
-- Checkout, authentication, and write APIs are not implemented.
+- Authentication and registered identity are backend-backed through credentialed signed-cookie sessions restored by `AuthProvider`.
+- Wishlist, cart, quantity, and rating UI state are local demo state until FFP-03 adopts the implemented backend write APIs.
+- The API client exposes profile/preferences, interaction, wishlist, cart, rating, and guest-merge calls, but pages/providers must not imply server persistence before they use them.
+- Checkout, frontend interaction capture, and payments are not implemented.
 - Vitest, React Testing Library, Playwright, and axe provide unit, component, browser, responsive, and accessibility coverage.
 
 ## Canonical Source And Folder Boundary
@@ -37,10 +38,11 @@ Read `../AGENT_MEMORY.md` at session start and append a dated entry at session e
 ## Integration Contract
 
 - Configure the backend with `VITE_API_BASE_URL`; the local default is `http://localhost:3000`.
-- Keep requests in `src/lib/api.js`. Query hooks own route-specific catalog data; `CatalogProvider` owns shared recommendation state only.
+- Keep requests in `src/lib/api.js`. `AuthProvider` owns session restoration and identity, query hooks own route-specific catalog data, and `CatalogProvider` owns shared recommendation state only.
 - Every remote-data surface must handle loading, empty, error, and success states.
 - Recommendation copy must distinguish `demo-profile`, `content-similarity`, and `cold-start` modes.
 - Never imply a real user's history or personalization unless authenticated persistence is actually implemented.
+- Credentialed auth/write requests depend on exact backend/frontend origin alignment. Preserve safe same-origin `returnTo` handling and ensure stale restoration responses cannot overwrite completed auth operations.
 - API contract changes require matching updates in both repositories' `docs/API_CONTRACT_PLAN.md`.
 
 ## UI And Accessibility Rules
