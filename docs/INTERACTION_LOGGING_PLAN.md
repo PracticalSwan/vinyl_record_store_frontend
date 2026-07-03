@@ -1,5 +1,7 @@
 # Interaction Logging (Frontend) Implementation Plan
 
+Later decision: FFP-01 in `FUTURE_IMPLEMENTATION_PLAN.md` supplements this general tracking plan with recommendation-specific events and the approved default-on, visible-opt-out privacy behavior. Reconcile both documents before implementation; FFP-01 controls if they conflict.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Capture storefront interactions (views, wishlist, cart, rating, search) from the Groovehaus frontend and send them to the backend as a batched, durable, fire-and-forget stream so the recommender can later learn from real signals.

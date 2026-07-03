@@ -12,6 +12,7 @@ The Groovehaus storefront is an implemented API-backed academic demo, not a Vite
 - Routes: home, catalog, product detail, search, recommendation demo, wishlist, and cart.
 - Catalog and recommendation data come from the separate Next.js backend.
 - Wishlist, cart, quantity, and rating state are local demo state only.
+- The backend can connect to MongoDB Atlas, but it has no active models, repositories, collections, or persistence APIs; the frontend must still treat all current catalog and user state as non-persistent.
 - Checkout, authentication, MongoDB persistence, and write APIs are not implemented.
 
 ## Canonical Source And Folder Boundary

@@ -10,7 +10,7 @@ Groovehaus is the React storefront for the CSX4207 Vinyl Record Store Recommende
 - Product-similarity and sample-profile recommendations with backend-generated explanations.
 - Local demo wishlist, cart quantity, and rating interactions.
 
-The UI does not implement authentication, MongoDB persistence, interaction writes, checkout, payments, or real customer personalization.
+The backend Atlas connection is verified, but the UI has no MongoDB-backed API or durable state. Authentication, interaction writes, checkout, payments, and real customer personalization are not implemented.
 
 ## Run Locally
 

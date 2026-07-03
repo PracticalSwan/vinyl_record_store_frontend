@@ -26,7 +26,8 @@ The frontend does not own database access, API route implementation, scoring alg
 ## Current Limitations
 
 - No authentication or real user profile.
-- No MongoDB persistence or interaction write APIs.
+- The backend Atlas connection is verified, but there are no active MongoDB models, repositories, collections, or persistence APIs.
+- No MongoDB-backed frontend state or interaction write APIs.
 - No checkout or payment behavior.
 - Recommendation results use a documented sample profile or cold-start mode.
 - Search and catalog filters run client-side after one backend catalog fetch.

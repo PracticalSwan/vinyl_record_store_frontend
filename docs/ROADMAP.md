@@ -22,4 +22,6 @@ This file records current completion and deferred scope. It does not authorize c
 - Approved album artwork pipeline.
 - Offline recommendation benchmark against random and popularity baselines.
 
-Deferred items require a separate explicit task and must not be described as in progress.
+Detailed plans and the approved cross-repository implementation order are in `FUTURE_IMPLEMENTATION_PLAN.md`. Atlas connectivity is verified, but authentication registration and persistent state still require backend models, repositories, migration, and write APIs. Deployment and real payments remain out of scope.
+
+Deferred items require a separate explicit implementation task and must not be described as in progress.

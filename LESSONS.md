@@ -6,6 +6,7 @@ Read this file before every frontend session.
 
 - `src/` is the active Groovehaus storefront. It is no longer a Vite starter or planning-only scaffold.
 - The frontend consumes catalog and recommendation data from the separate backend.
+- Backend Atlas connectivity is verified, but no persistence API exists. Do not infer durable frontend state from a successful database ping.
 - `code_for_website/` is a retained design-import snapshot and must not become a second source of truth.
 - Wishlist, cart, quantity, and rating behavior is local demo state; do not describe it as persisted.
 - Recommendation copy must label sample-profile and cold-start behavior honestly.
