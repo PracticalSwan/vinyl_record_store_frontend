@@ -9,7 +9,7 @@ Groovehaus is an implemented Vite 8.1 and React 19.2.7 storefront with seven rou
 ## Responsibilities
 
 - Render catalog, search, filters, product details, recommendations, wishlist, and cart screens.
-- Own responsive layout, accessibility, navigation, client-side filtering, and API state surfaces.
+- Own responsive layout, accessibility, navigation, URL query state, and API state surfaces.
 - Display backend-generated recommendation reasons and mode labels.
 - Keep wishlist, cart quantity, and rating behavior as clearly local demo state until write APIs and identity exist.
 
@@ -19,18 +19,18 @@ The frontend does not own database access, API route implementation, scoring alg
 
 - `src/` is the active application.
 - `src/lib/api.js` is the API client boundary.
-- `CatalogProvider` owns fetched product and recommendation data.
+- Route query hooks own fetched catalog and product data; `CatalogProvider` owns shared recommendation data.
 - `StoreProvider` owns local demo wishlist and cart state.
 - `code_for_website/` is a retained design-import snapshot only.
 
 ## Current Limitations
 
 - No authentication or real user profile.
-- The backend Atlas connection is verified, but there are no active MongoDB models, repositories, collections, or persistence APIs.
-- No MongoDB-backed frontend state or interaction write APIs.
+- The backend can serve the catalog from the seed default or explicit verified MongoDB mode.
+- No MongoDB-backed frontend user state or interaction write APIs.
 - No checkout or payment behavior.
 - Recommendation results use a documented sample profile or cold-start mode.
-- Search and catalog filters run client-side after one backend catalog fetch.
+- Search, repeated filters, sort, pagination, and facet counts run through bounded backend queries.
 
 ## Academic Focus
 

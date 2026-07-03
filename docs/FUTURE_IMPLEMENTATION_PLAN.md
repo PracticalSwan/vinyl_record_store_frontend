@@ -1,6 +1,6 @@
 # Frontend Future Implementation Plan
 
-Status: planned work only. Backend Atlas connectivity is complete; no frontend feature plan in this document is implemented or in progress.
+Status: FFP-04 and FFP-05 completed on 2026-07-03. The remaining frontend plans are approved future work and are not in progress.
 
 Audience: developers implementing the Groovehaus Vite/React storefront and backend developers maintaining the shared API contracts.
 
@@ -9,7 +9,7 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 ## User Decisions Recorded On 2026-07-03
 
 - Use backend-enforced seeded customer and administrator sessions before durable user persistence.
-- Add simple customer registration only after the backend user repository exists. Atlas connectivity is now verified, but that original persistence gate is not complete.
+- Add simple customer registration only after authentication and protected user-write routes exist. The MongoDB user repository boundary is now implemented, but registration is not.
 - Keep numeric product IDs in URLs, API requests, and client state.
 - Merge guest wishlist and cart state into authenticated state automatically.
 - Enable anonymous interaction tracking by default with a visible opt-out, no direct personal information, and a 90-day backend retention target.
@@ -25,21 +25,21 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 | FFP-01 | Recommendation interaction analytics | Planned | Backend event ingestion and retention are required for durable data. |
 | FFP-02 | User onboarding and preference capture | Planned | Seeded login can demonstrate it; registration and saved preferences require backend user persistence. |
 | FFP-03 | Local-to-server state migration | Planned | Requires authentication and wishlist/cart/rating write APIs. |
-| FFP-04 | Browser, integration, and accessibility testing | Planned | May start immediately and should precede feature implementation. |
-| FFP-05 | Full server-side search and pagination | Planned | Existing backend read routes provide the base; additive filter/sort metadata is required. |
+| FFP-04 | Browser, integration, and accessibility testing | Completed | Vitest, React Testing Library, Playwright, and axe gate established 2026-07-03. |
+| FFP-05 | Full server-side search and pagination | Completed | Query-driven backend and frontend contract completed 2026-07-03. |
 | FFP-06 | Artwork and image handling | Planned | Requires approved MusicBrainz/Cover Art mappings from the backend. |
 | FFP-07 | Integrated admin mode | Planned | Requires backend sessions, `admin` authorization, persistence, and admin routes. |
 | FFP-08 | Simulated checkout and order demonstration | Planned | Can remain client-only; no payment or deployment dependency. |
 
 ## Approved Cross-Repository Implementation Order
 
-The Atlas connection is a completed backend prerequisite, not a completed persistence phase. Implement the remaining plans in this order so each later surface builds on verified contracts and regression coverage:
+The first three plans are complete. Continue the remaining plans in this order so each later surface builds on verified contracts and regression coverage:
 
 | Order | Plan | Dependency-safe outcome |
 | --- | --- | --- |
-| 1 | FFP-04: browser, integration, and accessibility testing | Protect the current storefront and backend contract before feature work changes either side. |
-| 2 | BFP-01: MongoDB persistence | Reuse the verified connection to add models, repositories, indexes, and an idempotent seed migration while preserving seed fallback. |
-| 3 | FFP-05: server-side search and pagination | Build the final read-query contract once, on top of the repository boundary. |
+| 1 | FFP-04: browser, integration, and accessibility testing | Completed 2026-07-03. |
+| 2 | BFP-01: MongoDB persistence | Completed 2026-07-03 with seed default preserved. |
+| 3 | FFP-05: server-side search and pagination | Completed 2026-07-03. |
 | 4 | BFP-04: simple authentication and authorization | Establish real server-enforced customer/admin identity and registration through the user repository. |
 | 5 | BFP-03: write APIs | Add protected wishlist, cart, rating, preference, merge, and interaction contracts. |
 | 6 | FFP-03: local-to-server state migration | Move guest state only after identity and write contracts are stable. |
@@ -264,6 +264,8 @@ After successful login, automatically call `POST /api/me/merge-guest-state` when
 
 ## FFP-04: Browser, Integration, And Accessibility Testing
 
+Status: Completed on 2026-07-03 for the current storefront. Scenarios belonging to unimplemented future features remain acceptance gates for those later plans.
+
 This plan defines the local quality gate that protects current and future behavior.
 
 ### Goal
@@ -274,7 +276,7 @@ Automated tests reduce regressions but cannot guarantee that software has no def
 
 ### Test Layers
 
-| Layer | Tooling to evaluate at implementation time | Scope |
+| Layer | Implemented Tooling | Scope |
 | --- | --- | --- |
 | Pure unit tests | Vitest | Query mapping, validation, guest-state merge preparation, tracking deduplication, and formatting. |
 | React component tests | React Testing Library with Vitest | Loading, empty, error, success, optimistic rollback, route guards, and form validation. |
@@ -282,7 +284,7 @@ Automated tests reduce regressions but cannot guarantee that software has no def
 | Automated accessibility | `@axe-core/playwright` or current equivalent | Serious/critical axe findings on representative pages and states. |
 | Exploratory verification | Playwright CLI plus manual keyboard/screen-reader checklist | Layout, focus order, visual regressions, and flows difficult to assert automatically. |
 
-Dependency versions must be rechecked before installation. Browser binaries and generated artifacts remain untracked unless the repository explicitly chooses otherwise.
+Installed versions are recorded in `package-lock.json`. Browser binaries and generated artifacts remain untracked.
 
 ### Required Browser Matrix
 
@@ -319,7 +321,7 @@ Dependency versions must be rechecked before installation. Browser binaries and 
 
 - `vitest.config.js`, `playwright.config.js`, and `tests/setup.js`.
 - `tests/unit/`, `tests/components/`, and `tests/e2e/` with fixtures and page helpers kept small.
-- `tests/e2e/fixtures/backend.js` or Playwright web-server configuration that launches both local repositories.
+- Playwright web-server configuration launches both local repositories.
 - `output/playwright/` for ignored local traces and screenshots.
 - Package scripts: `test`, `test:unit`, `test:e2e`, `test:a11y`, and `test:all`.
 
@@ -343,11 +345,13 @@ Dependency versions must be rechecked before installation. Browser binaries and 
 
 ## FFP-05: Full Server-Side Search And Pagination
 
+Status: Completed on 2026-07-03. Recommendation result-click analytics remains part of FFP-01 because interaction ingestion is not implemented.
+
 This plan defines the complete move from a preloaded catalog to query-driven backend results.
 
 ### Goal
 
-Replace the current `limit=100` catalog preload and client filtering with URL-driven backend queries that scale, remain accessible, and preserve browser navigation.
+Use URL-driven backend queries that scale, remain accessible, and preserve browser navigation without a global catalog preload.
 
 ### Shared Query Model
 
@@ -395,7 +399,7 @@ Changing query, filter, sort, or page size resets `page` to 1. Back/forward navi
 2. Add the frontend URL parser/serializer with round-trip unit tests.
 3. Refactor API calls and remote catalog state behind the existing loading/error conventions.
 4. Migrate Catalog filters and sorting to URL-backed server requests.
-5. Migrate Search to the same hook with debounced text and result-click analytics.
+5. Migrate Search to the same hook with debounced text; defer result-click analytics to FFP-01.
 6. Fetch product detail by ID so catalog pagination does not make valid detail routes appear missing.
 7. Add numbered pagination, focus handling, back/forward restoration, and rapid-query race tests.
 

@@ -20,12 +20,16 @@ Error:
 
 | Frontend Need | Method | Path | Current Use |
 | --- | --- | --- | --- |
-| Catalog | `GET` | `/api/products?limit=100` | Loaded by `CatalogProvider`. |
-| Product detail | `GET` | `/api/products/:id` | Available contract; current UI reads the loaded catalog. |
-| Search | `GET` | `/api/search?q=...` | Available contract; current UI filters the loaded catalog locally. |
+| Catalog | `GET` | `/api/products` | Catalog, Search, Home, and cart suggestions use bounded server queries. |
+| Product detail | `GET` | `/api/products/:id` | Detail and ID-based local-list hydration. |
+| Search alias | `GET` | `/api/search` | Shares the product query service and response shape. |
 | Similar products | `GET` | `/api/recommendations/product/:id?limit=6` | Product detail recommendation row. |
 | User recommendations | `GET` | `/api/recommendations/user/demo-user?limit=12` | Home and recommendation demo routes. |
 | Health | `GET` | `/api/health` | Operational check. |
+
+Product query parameters are `q`, repeated `genre`, repeated `era`, repeated `condition`, `minPrice`, `maxPrice`, `inStock`, `sort`, `page`, and `limit`. Search is a bounded, case-insensitive literal substring. Supported sorts are `newest`, `price-asc`, `price-desc`, and `artist-asc`.
+
+Product-list metadata includes `page`, `limit`, `total`, `totalPages`, `sort`, and full-active-catalog facets for genres, conditions, stock, prices, and years. Repeated values are ORed within a facet and different facets are ANDed.
 
 ## Deferred Write Calls
 
@@ -33,7 +37,7 @@ Interaction, wishlist, cart, order, authentication, and admin write endpoints ar
 
 ## Error Handling
 
-`src/lib/api.js` converts connection and backend envelope failures into `ApiError`. API-backed screens must preserve loading, empty, error, retry, and success behavior.
+`src/lib/api.js` converts connection, abort, malformed payload, and backend envelope failures into safe client behavior. API-backed screens preserve loading, empty, error, retry, and success behavior; superseded search requests cannot replace newer results.
 
 ## Change Rule
 

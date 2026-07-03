@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useCatalog } from '../context/useCatalog';
 import { useStore } from '../context/useStore';
 import { useProductRecommendations } from '../hooks/useProductRecommendations';
+import { useProduct } from '../hooks/useRemoteProducts';
 import { RecScroll } from '../components/ProductGrid';
 import { IconVinyl, IconHeart, IconStar } from '../components/Icons';
 
@@ -15,14 +15,27 @@ function StockBadge({ stock }) {
 export default function DetailPage() {
   const { id }  = useParams();
   const navigate = useNavigate();
-  const { records } = useCatalog();
-  const record   = records.find(r => r.id === Number(id));
+  const productState = useProduct(id);
+  const record = productState.item;
   const { wishlist, toggleWishlist, addToCart } = useStore();
   const [rating, setRating] = useState(4);
   const [hovered, setHovered] = useState(null);
-  const similarState = useProductRecommendations(id);
+  const similarState = useProductRecommendations(id, { enabled: productState.status === 'success' });
 
-  if (!record) {
+  if (productState.status === 'loading') {
+    return <main className="container catalog-state" role="status">Loading record...</main>;
+  }
+
+  if (productState.status === 'error') {
+    return (
+      <main className="container catalog-state"><div className="state-box" role="alert">
+        <p className="state-title">Record unavailable</p><p className="state-desc">{productState.error?.message}</p>
+        <button className="btn btn-primary" onClick={productState.reload}>Try again</button>
+      </div></main>
+    );
+  }
+
+  if (productState.status === 'not-found' || !record) {
     return (
       <div className="container" style={{ padding: '4rem 0' }}>
         <div className="state-box">

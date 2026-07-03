@@ -22,7 +22,7 @@ export function RecScroll({ records, showReason = true, ariaLabel = 'Recommended
 
 export function SkeletonGrid({ count = 4 }) {
   return (
-    <div className="product-grid" aria-busy="true" aria-label="Loading records">
+    <div className="product-grid" role="status" aria-busy="true" aria-label="Loading records">
       {Array.from({ length: count }).map((_, i) => (
         <div className="skeleton-card" key={i} aria-hidden="true">
           <div className="skeleton-cover skeleton" />

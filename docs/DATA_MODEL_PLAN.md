@@ -17,7 +17,7 @@ These are the current API and client-only shapes used by the storefront.
 
 ## Recommendation Item
 
-The backend returns `{ product, rank, score, reasons, algorithmVersion }`. `CatalogProvider` flattens the product fields for existing cards and adds:
+The backend returns `{ product, rank, score, reasons, algorithmVersion }`. Recommendation mapping flattens the product fields for existing cards and adds:
 
 - `reason`: first display reason.
 - `recommendationReasons`: all returned reasons.
@@ -25,8 +25,8 @@ The backend returns `{ product, rank, score, reasons, algorithmVersion }`. `Cata
 
 ## Client-Only State
 
-- Filters, sort, search query, mobile-filter visibility.
+- URL-backed filters, sort, search query, page, and mobile-filter visibility.
 - Wishlist IDs, cart IDs/quantities, and demo rating.
 - Loading and error state for remote requests.
 
-Persistent identity and interaction data remains a backend concern and is not present in the current demo.
+Product lists also carry `page`, `limit`, `total`, `totalPages`, `sort`, and full-catalog facet metadata. Persistent identity and interaction data remains a backend concern and is not present in the current demo.

@@ -42,6 +42,7 @@ export default function Navbar() {
             <button
               className={`nav-link${is('/catalog') ? ' active' : ''}`}
               onClick={() => navigate('/catalog')}
+              aria-label="Catalog"
               aria-current={is('/catalog') ? 'page' : undefined}
             >
               <IconGrid /><span>Catalog</span>
@@ -51,6 +52,7 @@ export default function Navbar() {
             <button
               className={`nav-link${is('/recommendations') ? ' active' : ''}`}
               onClick={() => navigate('/recommendations')}
+              aria-label="Recommendations"
               aria-current={is('/recommendations') ? 'page' : undefined}
             >
               <IconStar /><span>For You</span>

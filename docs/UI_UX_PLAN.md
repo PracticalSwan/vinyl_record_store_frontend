@@ -7,9 +7,9 @@ This document records the implemented Groovehaus experience and its required sta
 | Route | Purpose |
 | --- | --- |
 | `/` | Hero, current catalog statistics, new arrivals, and sample-profile recommendation row. |
-| `/catalog` | Product grid, filters, sorting, and no-result state. |
+| `/catalog` | URL-backed product grid, repeated filters, sorting, pagination, and no-result state. |
 | `/records/:id` | Product metadata, local demo rating/cart actions, and backend similarity results. |
-| `/search?q=` | Client-side title, artist, and genre search over API-loaded products. |
+| `/search?q=` | Debounced literal server search with shared filters, sorting, and pagination. |
 | `/recommendations` | Explainable demo-profile or cold-start recommendation results. |
 | `/wishlist` | Local demo wishlist. |
 | `/cart` | Local demo cart and disabled checkout. |
@@ -20,7 +20,7 @@ Groovehaus uses a cream surface, dark brown navigation and cards, rust accent, s
 
 ## Required States
 
-- Catalog: loading skeleton, empty response, connection/backend error with retry, success.
+- Catalog and Search: loading skeleton, empty response, connection/backend error with retry, success, and pagination focus management.
 - Recommendations: loading, empty, error with retry, success and explicit recommendation mode.
 - Similar products: loading, empty, error, success.
 - Local lists: populated and empty states.
@@ -32,6 +32,7 @@ Groovehaus uses a cream surface, dark brown navigation and cards, rust accent, s
 - Visible focus treatment and keyboard-operable controls.
 - Text labels in addition to stock colors.
 - Mobile filter disclosure below 900px.
+- Back/forward navigation restores canonical search, filter, sort, and page state.
 - Product grids reflow and recommendation rows remain horizontally scrollable.
 - Recommendation explanations remain text, not icon-only meaning.
 

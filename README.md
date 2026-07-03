@@ -6,11 +6,13 @@ Groovehaus is the React storefront for the CSX4207 Vinyl Record Store Recommende
 
 - Home, catalog, product detail, search, recommendation, wishlist, and cart routes.
 - Responsive product grid, mobile filters, keyboard-visible focus, empty/error/loading states, and horizontal recommendation rows.
-- Catalog data loaded from the backend API.
+- URL-backed server search, repeated filters, deterministic sorting, pagination, and full-catalog facet counts.
+- Route-specific product queries with cancellation of stale search responses.
 - Product-similarity and sample-profile recommendations with backend-generated explanations.
 - Local demo wishlist, cart quantity, and rating interactions.
+- Unit and component tests with Vitest and React Testing Library; multi-browser, responsive, and axe checks with Playwright.
 
-The backend Atlas connection is verified, but the UI has no MongoDB-backed API or durable state. Authentication, interaction writes, checkout, payments, and real customer personalization are not implemented.
+The backend can serve the catalog from its safe seed default or explicit MongoDB mode. Frontend wishlist, cart, rating, and identity state is still local: authentication, interaction writes, checkout, payments, and real customer personalization are not implemented.
 
 ## Run Locally
 
@@ -44,26 +46,27 @@ Vite only exposes variables prefixed with `VITE_`. Do not place secrets in front
 
 ## Validation
 
-Run both checks before committing frontend source or integration changes.
+Run the complete frontend quality gate before committing source or integration changes.
 
 ```bash
-npm run lint
-npm run build
+npm run test:all
 ```
+
+Targeted commands are `npm run test:unit`, `npm run test:e2e`, `npm run test:a11y`, `npm run lint`, and `npm run build`.
 
 ## Source Layout
 
 - `src/pages/`: route-level screens.
 - `src/components/`: reusable storefront UI and API state surfaces.
-- `src/context/`: remote catalog/recommendation state and local demo store state.
-- `src/hooks/`: reusable product-recommendation loading logic.
+- `src/context/`: shared recommendation state and local demo store state.
+- `src/hooks/`: URL query, catalog request, product-detail, and recommendation loading logic.
 - `src/lib/api.js`: the backend client boundary.
 - `docs/`: current frontend contracts, decisions, limitations, and evaluation notes.
 - `code_for_website/`: retained design-import snapshot, not the active application.
 
 ## Backend Boundary
 
-The backend owns catalog seed data, API validation, recommendation scoring, explanations, and future persistence. Contract changes must be documented in both repositories.
+The backend owns catalog seed and MongoDB repositories, API validation, search execution, recommendation scoring, and explanations. Contract changes must be documented in both repositories.
 
 ## License
 

@@ -10,16 +10,18 @@ The Groovehaus storefront is an implemented API-backed academic demo, not a Vite
 
 - React 19.2.7, Vite 8.1, and React Router 7.
 - Routes: home, catalog, product detail, search, recommendation demo, wishlist, and cart.
-- Catalog and recommendation data come from the separate Next.js backend.
+- Catalog pages use URL-backed server queries with literal search, repeated facets, deterministic sorting, pagination, and stale-request cancellation.
+- Product details and recommendation data come from the separate Next.js backend.
 - Wishlist, cart, quantity, and rating state are local demo state only.
-- The backend can connect to MongoDB Atlas, but it has no active models, repositories, collections, or persistence APIs; the frontend must still treat all current catalog and user state as non-persistent.
-- Checkout, authentication, MongoDB persistence, and write APIs are not implemented.
+- The backend has an optional verified MongoDB catalog source, but the frontend must still treat wishlist, cart, rating, and identity state as non-persistent.
+- Checkout, authentication, and write APIs are not implemented.
+- Vitest, React Testing Library, Playwright, and axe provide unit, component, browser, responsive, and accessibility coverage.
 
 ## Canonical Source And Folder Boundary
 
 - `src/` is the only active storefront source tree.
 - `code_for_website/` is a retained design-import snapshot. Do not treat it as a second app, run it as the project, or keep feature changes synchronized into it.
-- `../vinyl_record_store_backend/` owns route handlers, validation, catalog seed data, recommender scoring, and future persistence.
+- `../vinyl_record_store_backend/` owns route handlers, validation, catalog persistence, query execution, and recommender scoring.
 - Never put database credentials, MongoDB code, or recommender algorithms in this repo.
 
 ## Required Startup Reads
@@ -35,7 +37,7 @@ Read `../AGENT_MEMORY.md` at session start and append a dated entry at session e
 ## Integration Contract
 
 - Configure the backend with `VITE_API_BASE_URL`; the local default is `http://localhost:3000`.
-- Keep requests in `src/lib/api.js` and server data ownership in `CatalogProvider`.
+- Keep requests in `src/lib/api.js`. Query hooks own route-specific catalog data; `CatalogProvider` owns shared recommendation state only.
 - Every remote-data surface must handle loading, empty, error, and success states.
 - Recommendation copy must distinguish `demo-profile`, `content-similarity`, and `cold-start` modes.
 - Never imply a real user's history or personalization unless authenticated persistence is actually implemented.
@@ -54,9 +56,10 @@ Read `../AGENT_MEMORY.md` at session start and append a dated entry at session e
 For source or integration changes, run from this repository:
 
 ```bash
-npm run lint
-npm run build
+npm run test:all
 ```
+
+Use `npm run test:unit`, `npm run test:e2e`, `npm run test:a11y`, `npm run lint`, or `npm run build` for targeted checks.
 
 When backend behavior is involved, also validate the backend tests, lint, and build from the backend repository. Use a live browser check when the environment permits it.
 

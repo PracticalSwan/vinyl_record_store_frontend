@@ -1,0 +1,92 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { ApiError, fetchProductRecommendations, fetchProducts } from '../../src/lib/api';
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+describe('API client', () => {
+  it('requests the catalog and returns its envelope', async () => {
+    const payload = { data: { items: [] }, meta: { total: 0 } };
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: vi.fn().mockResolvedValue(payload),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(fetchProducts()).resolves.toEqual(payload);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:3000/api/products',
+      { signal: undefined },
+    );
+  });
+
+  it('serializes repeated filters and controlled pagination', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: vi.fn().mockResolvedValue({ data: { items: [] }, meta: {} }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    await fetchProducts({
+      q: 'Miles', page: 2, limit: 24, genres: ['Jazz', 'Rock'], eras: ['1950s'],
+      conditions: ['NM'], minPrice: 20, maxPrice: 80, inStock: true, sort: 'price-asc',
+    });
+    const url = new URL(fetchMock.mock.calls[0][0]);
+    expect(url.searchParams.getAll('genre')).toEqual(['Jazz', 'Rock']);
+    expect(url.searchParams.get('page')).toBe('2');
+    expect(url.searchParams.get('sort')).toBe('price-asc');
+  });
+
+  it('encodes product identifiers safely', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: vi.fn().mockResolvedValue({ data: { recommendations: [] } }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await fetchProductRecommendations('1/../../secret');
+    expect(fetchMock.mock.calls[0][0]).toContain('/1%2F..%2F..%2Fsecret?limit=6');
+  });
+
+  it('maps backend error envelopes to ApiError', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      json: vi.fn().mockResolvedValue({ error: { code: 'INVALID_QUERY', message: 'Bad query.' } }),
+    }));
+
+    await expect(fetchProducts()).rejects.toMatchObject({
+      name: 'ApiError',
+      code: 'INVALID_QUERY',
+      message: 'Bad query.',
+      status: 400,
+    });
+  });
+
+  it('reports unreachable backends without leaking the original error', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('socket details')));
+
+    await expect(fetchProducts()).rejects.toEqual(
+      new ApiError('The storefront could not reach the backend API.', 'API_UNAVAILABLE'),
+    );
+  });
+
+  it('preserves AbortError so stale callers can stop quietly', async () => {
+    const aborted = new DOMException('Aborted', 'AbortError');
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(aborted));
+
+    await expect(fetchProducts()).rejects.toBe(aborted);
+  });
+
+  it('rejects malformed success responses', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: vi.fn().mockResolvedValue(null),
+    }));
+    await expect(fetchProducts()).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+  });
+});

@@ -2,6 +2,8 @@
 
 Later decision: FFP-01 in `FUTURE_IMPLEMENTATION_PLAN.md` supplements this general tracking plan with recommendation-specific events and the approved default-on, visible-opt-out privacy behavior. Reconcile both documents before implementation; FFP-01 controls if they conflict.
 
+Current prerequisite status: the FFP-04 Vitest/Playwright testing foundation and FFP-05 server-search architecture are implemented. Interaction logging itself and the backend `POST /api/interactions` route are not implemented.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Capture storefront interactions (views, wishlist, cart, rating, search) from the Groovehaus frontend and send them to the backend as a batched, durable, fire-and-forget stream so the recommender can later learn from real signals.
@@ -34,7 +36,7 @@ Later decision: FFP-01 in `FUTURE_IMPLEMENTATION_PLAN.md` supplements this gener
 2. **Batched POST, single endpoint.** One route receives a batch: `POST /api/interactions` with `{ events: [...] }`. Batching reduces request count; the queue drains 25 events at a time.
 3. **Fire-and-forget, never block the UI.** `track` is synchronous and returns nothing; all network work is backgrounded; every error is swallowed inside the module.
 4. **Durable queue.** Unsent events persist in `localStorage` across refresh. On failure, events retry with exponential backoff up to `MAX_ATTEMPTS` (5), then are dropped to bound storage. Until the backend route exists, events will retry then drop — this is expected and harmless.
-5. **No test runner is added by default.** The frontend has no test framework; this plan validates via `npm run lint`, `npm run build`, and manual browser verification (DevTools Network panel), per the project convention. Adding Vitest for the pure tracking helpers is an optional final task.
+5. **Use the existing test foundation.** Add Vitest tests for pure tracking helpers and Playwright coverage for queue, opt-out, and graceful failure behavior; keep lint, build, and manual DevTools evidence in the gate.
 6. **Debug mode is log-only.** With `VITE_TRACKING_DEBUG=true`, events print to the console and are **not** queued or sent, so the module can be developed and demoed without a backend.
 
 ## Event schema (versioned)
@@ -613,12 +615,11 @@ Wishlist, cart, order, authentication, and admin write endpoints remain not impl
 
 - [ ] **Step 2: Update `docs/TASK_BACKLOG.md`**
 
-Add rows (before the deferred block) and keep F-008..F-010 as deferred:
+Update the existing F-011 analytics backlog item and add new non-conflicting IDs if finer tracking tasks are needed. F-010 and F-013 are already completed by FFP-04 and FFP-05:
 
 ```markdown
-| F-011 | Implement frontend interaction capture (tracking module). | done | `src/lib/tracking.js` queue, flush, retry, dedup, debug. |
-| F-012 | Emit interaction events from UI interaction points. | done | StoreProvider, DetailPage, SearchPage wired. |
-| F-013 | Implement backend `POST /api/interactions` + CORS POST. | deferred | Separate backend plan; unblocks real evaluation. |
+| F-011 | Add recommendation interaction analytics. | done | Tracking module, UI events, privacy control, and browser coverage. |
+| F-016 | Implement backend `POST /api/interactions` + CORS POST. | deferred | Separate backend plan; unblocks real evaluation. |
 ```
 
 - [ ] **Step 3: Update `docs/ROADMAP.md`**
@@ -687,20 +688,18 @@ Append a short note to `AGENT_MEMORY.md` describing what was verified.
 
 ---
 
-## Task 9 (optional): Unit tests for pure helpers
+## Task 9: Unit tests for pure helpers
 
-Only if the team decides to add a test runner. Skip if staying with lint/build/browser verification.
+Use the existing Vitest setup and test directory.
 
 **Files:**
 
-- Create: `vitest.config.js`
-- Create: `src/lib/tracking.test.js`
+- Create: `tests/unit/tracking.test.js`
 
-- [ ] **Step 1:** Install Vitest: `npm install -D vitest`.
-- [ ] **Step 2:** Add a `test` script to `package.json`: `"test": "vitest run"`.
-- [ ] **Step 3:** Test the pure helpers (`loadQueue`/`persistQueue` round-trip, `shouldDedupe` window, `toWire` strips `_attempts`, `backoffMs` bounds). Export them from `tracking.js` for testability if needed.
-- [ ] **Step 4:** `npm test` — all green.
-- [ ] **Step 5:** Commit.
+- [ ] **Step 1:** Test the pure helpers (`loadQueue`/`persistQueue` round-trip, `shouldDedupe` window, `toWire` strips `_attempts`, `backoffMs` bounds). Export them from `tracking.js` for testability if needed.
+- [ ] **Step 2:** Add Playwright coverage for opt-out, graceful endpoint failure, and queue behavior.
+- [ ] **Step 3:** Run `npm run test:unit` and the affected Playwright projects.
+- [ ] **Step 4:** Commit.
 
 ---
 

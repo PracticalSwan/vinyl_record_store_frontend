@@ -11,7 +11,7 @@ function StockBadge({ stock }) {
 function StockDot({ stock }) {
   const cls   = stock === 'in' ? 'dot-in' : stock === 'low' ? 'dot-low' : 'dot-out';
   const label = stock === 'in' ? 'In stock' : stock === 'low' ? 'Low stock' : 'Out of stock';
-  return <span className={`card-stock-dot ${cls}`} title={label} aria-label={label} />;
+  return <span className={`card-stock-dot ${cls}`} title={label} aria-hidden="true" />;
 }
 
 export default function ProductCard({ record, showReason = false }) {

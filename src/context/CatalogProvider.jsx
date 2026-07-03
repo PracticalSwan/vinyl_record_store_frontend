@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { fetchProducts, fetchUserRecommendations } from '../lib/api';
+import { fetchUserRecommendations } from '../lib/api';
 import { CatalogContext } from './catalogContext';
 
-const INITIAL_CATALOG = { data: [], status: 'loading', error: null };
 const INITIAL_RECOMMENDATIONS = {
   data: [],
   status: 'loading',
@@ -20,12 +19,6 @@ const withReason = (item) => ({
 });
 
 const loadDemoRecommendations = (options) => fetchUserRecommendations('demo-user', options);
-
-const selectCatalog = (response) => ({
-  data: response.data.items,
-  status: response.data.items.length ? 'success' : 'empty',
-  error: null,
-});
 
 const selectRecommendations = (response) => ({
   data: response.data.recommendations.map(withReason),
@@ -63,7 +56,6 @@ function useRemoteResource(loader, select, initialState) {
 }
 
 export function CatalogProvider({ children }) {
-  const catalog = useRemoteResource(fetchProducts, selectCatalog, INITIAL_CATALOG);
   const recommendation = useRemoteResource(
     loadDemoRecommendations,
     selectRecommendations,
@@ -71,17 +63,13 @@ export function CatalogProvider({ children }) {
   );
 
   const value = useMemo(() => ({
-    records: catalog.data,
-    catalogStatus: catalog.status,
-    catalogError: catalog.error,
-    reloadCatalog: catalog.reload,
     recommendations: recommendation.data,
     recommendationStatus: recommendation.status,
     recommendationError: recommendation.error,
     recommendationMode: recommendation.mode,
     profileSummary: recommendation.profileSummary,
     reloadRecommendations: recommendation.reload,
-  }), [catalog, recommendation]);
+  }), [recommendation]);
 
   return <CatalogContext.Provider value={value}>{children}</CatalogContext.Provider>;
 }

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { fetchProductRecommendations } from '../lib/api';
 
-export function useProductRecommendations(productId) {
+export function useProductRecommendations(productId, { enabled = true } = {}) {
   const normalizedProductId = String(productId);
   const [state, setState] = useState({ productId: null, status: 'loading', items: [], error: null });
 
   useEffect(() => {
+    if (!enabled) return undefined;
     const controller = new AbortController();
 
     fetchProductRecommendations(productId, { signal: controller.signal })
@@ -24,7 +25,9 @@ export function useProductRecommendations(productId) {
       });
 
     return () => controller.abort();
-  }, [normalizedProductId, productId]);
+  }, [enabled, normalizedProductId, productId]);
+
+  if (!enabled) return { productId: normalizedProductId, status: 'idle', items: [], error: null };
 
   return state.productId === normalizedProductId
     ? state

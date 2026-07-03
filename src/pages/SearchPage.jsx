@@ -1,45 +1,40 @@
-import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { ProductGrid } from '../components/ProductGrid';
-import { useCatalog } from '../context/useCatalog';
+import { useEffect, useState } from 'react';
+import CatalogResultsLayout from '../components/CatalogResultsLayout';
+import { useCatalogQuery } from '../hooks/useCatalogQuery';
 
 export default function SearchPage() {
-  const { records } = useCatalog();
-  const [searchParams] = useSearchParams();
-  const query = searchParams.get('q') || '';
+  const catalog = useCatalogQuery();
+  const queryText = catalog.query.q;
+  const updateQuery = catalog.updateQuery;
+  const [draft, setDraft] = useState({ sourceQuery: queryText, value: queryText });
+  const input = draft.sourceQuery === queryText ? draft.value : queryText;
 
-  const results = useMemo(() => {
-    const q = query.toLowerCase();
-    return records.filter(r =>
-      r.title.toLowerCase().includes(q) ||
-      r.artist.toLowerCase().includes(q) ||
-      r.genre.toLowerCase().includes(q)
-    );
-  }, [query, records]);
+  useEffect(() => {
+    if (input === queryText) return undefined;
+    const timer = setTimeout(() => updateQuery({ q: input }, { replace: true }), 300);
+    return () => clearTimeout(timer);
+  }, [input, queryText, updateQuery]);
+
+  const searchForm = (
+    <form className="search-page-form" role="search" onSubmit={(event) => {
+      event.preventDefault();
+      updateQuery({ q: input });
+    }}>
+      <label htmlFor="catalog-search">Search title, artist, genre, or label</label>
+      <div className="search-page-controls">
+        <input id="catalog-search" type="search" value={input} maxLength="100" onChange={(event) => setDraft({ sourceQuery: queryText, value: event.target.value })} />
+        <button className="btn btn-primary" type="submit">Search</button>
+      </div>
+    </form>
+  );
 
   return (
-    <main>
-      <div className="container">
-        <div className="search-header">
-          <p className="search-query-display">
-            Results for "<em>{query}</em>"
-          </p>
-          <p style={{ color: 'var(--ink-muted)', fontSize: 14, marginTop: 4 }} aria-live="polite">
-            {results.length} record{results.length !== 1 ? 's' : ''} found
-          </p>
-        </div>
-
-        <div style={{ padding: '1.5rem 0' }}>
-          {results.length === 0 ? (
-            <div className="state-box">
-              <p className="state-title">No results for "{query}"</p>
-              <p className="state-desc">Try a different artist, album title, or genre.</p>
-            </div>
-          ) : (
-            <ProductGrid records={results} />
-          )}
-        </div>
-      </div>
-    </main>
+    <CatalogResultsLayout
+      title={catalog.query.q ? `Search results for "${catalog.query.q}"` : 'Search records'}
+      header={searchForm}
+      query={catalog.query}
+      updateQuery={catalog.updateQuery}
+      resource={catalog}
+    />
   );
 }

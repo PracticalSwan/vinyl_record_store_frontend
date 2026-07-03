@@ -1,13 +1,16 @@
 # Frontend Evaluation
 
-This plan separates completed static checks from runtime browser evidence.
+This plan records the automated release evidence for the storefront. It does not substitute for recommender-quality evaluation.
 
 ## Automated Checks
 
 | Check | Command | Current Evidence |
 | --- | --- | --- |
-| ESLint | `npm run lint` | Passed on 2026-07-02. |
-| Production bundle | `npm run build` | Passed on 2026-07-02. |
+| Unit and component tests | `npm run test:unit` | 16 tests passed on 2026-07-03. |
+| Browser and integration tests | `npm run test:e2e` | Chromium desktop/mobile/tablet, Firefox, and WebKit matrix passed on 2026-07-03. |
+| Accessibility subset | `npm run test:a11y` | Representative axe checks passed on 2026-07-03. |
+| ESLint | `npm run lint` | Passed on 2026-07-03. |
+| Production bundle | `npm run build` | Passed on 2026-07-03. |
 
 ## Browser Scenarios
 
@@ -20,6 +23,9 @@ This plan separates completed static checks from runtime browser evidence.
 | FE-005 | Product detail opened. | Similar products load from the product recommendation route. |
 | FE-006 | 375px viewport. | Navigation, cards, filters, lists, and recommendation rows remain usable without page-level horizontal overflow. |
 | FE-007 | Keyboard-only navigation. | Search, navigation, filters, product actions, rating, and retry controls are reachable with visible focus. |
+| FE-008 | Rapid server search and browser history. | Superseded responses stay hidden; canonical query state restores on back/forward navigation. |
+| FE-009 | Multi-value filters and pagination. | Repeated facets, deterministic pages, page reset, and result focus behave consistently. |
+| FE-010 | Representative accessibility scan. | No serious or critical axe findings on the tested routes and states. |
 
 ## Recommendation Comprehension
 
@@ -27,4 +33,4 @@ Confirm that a reviewer can distinguish sample-profile results, product similari
 
 ## Release Evidence Rule
 
-Record live browser and cross-origin API results only when they were actually executed. Lint and build success alone do not prove runtime CORS or responsive behavior.
+Record live browser and cross-origin API results only when they were actually executed. Keep the Playwright web-server configuration on the real local frontend/backend contract; lint and build success alone do not prove runtime CORS or responsive behavior.
