@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchUserRecommendations } from '../lib/api';
 import { CatalogContext } from './catalogContext';
 
@@ -30,6 +30,7 @@ const selectRecommendations = (response) => ({
 
 function useRemoteResource(loader, select, initialState) {
   const [state, setState] = useState(initialState);
+  const controllerRef = useRef(null);
 
   const load = useCallback(async (signal) => {
     try {
@@ -42,12 +43,18 @@ function useRemoteResource(loader, select, initialState) {
   }, [initialState, loader, select]);
 
   const reload = useCallback(() => {
+    // Abort any in-flight request (initial mount or a prior reload) so a stale
+    // response can never settle after unmount or overwrite a newer attempt.
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
     setState(initialState);
-    load();
+    load(controller.signal);
   }, [initialState, load]);
 
   useEffect(() => {
     const controller = new AbortController();
+    controllerRef.current = controller;
     Promise.resolve().then(() => load(controller.signal));
     return () => controller.abort();
   }, [load]);

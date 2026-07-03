@@ -5,6 +5,15 @@ const toggle = (values, value) => values.includes(value)
   ? values.filter((item) => item !== value)
   : [...values, value];
 
+// Coerce a price input safely: empty -> null, finite non-negative -> number,
+// otherwise drop the entry so transient "-" / "1.2e" / negative values never
+// reach the backend as NaN or an invalid bound.
+const parsePrice = (raw) => {
+  if (raw === '') return null;
+  const value = Number(raw);
+  return Number.isFinite(value) && value >= 0 ? value : null;
+};
+
 export default function FilterSidebar({ query, facets, onChange }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const clearAll = () => onChange({
@@ -47,9 +56,9 @@ export default function FilterSidebar({ query, facets, onChange }) {
         <div className="filter-group" role="group" aria-labelledby="price-filter-label">
           <span className="filter-group-label" id="price-filter-label">Price (USD)</span>
           <div className="price-range">
-            <input className="price-input" type="number" min="0" value={query.minPrice ?? ''} placeholder={String(facets?.price?.min ?? 0)} aria-label="Minimum price" onChange={(event) => onChange({ minPrice: event.target.value === '' ? null : Number(event.target.value) })} />
+            <input className="price-input" type="number" min="0" value={query.minPrice ?? ''} placeholder={String(facets?.price?.min ?? 0)} aria-label="Minimum price" onChange={(event) => onChange({ minPrice: parsePrice(event.target.value) })} />
             <span aria-hidden="true">-</span>
-            <input className="price-input" type="number" min="0" value={query.maxPrice ?? ''} placeholder={String(facets?.price?.max ?? 200)} aria-label="Maximum price" onChange={(event) => onChange({ maxPrice: event.target.value === '' ? null : Number(event.target.value) })} />
+            <input className="price-input" type="number" min="0" value={query.maxPrice ?? ''} placeholder={String(facets?.price?.max ?? 200)} aria-label="Maximum price" onChange={(event) => onChange({ maxPrice: parsePrice(event.target.value) })} />
           </div>
         </div>
         <hr className="filter-divider" aria-hidden="true" />

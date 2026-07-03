@@ -107,11 +107,19 @@ test('rapid debounced search never lets an older response replace a newer query'
   await page.goto('/search');
   const search = page.getByRole('searchbox', { name: 'Search title, artist, genre, or label' });
   await search.fill('blue');
-  await page.waitForTimeout(350);
+  // Wait for the debounced "blue" request to actually be issued (independent of
+  // the 300ms debounce), then supersede it before its delayed response can land.
+  await page.waitForRequest((request) => new URL(request.url()).searchParams.get('q') === 'blue');
   await search.fill('jazz');
   await expect(page.getByRole('heading', { name: 'Search results for "jazz"' })).toBeVisible();
   await expect(page.getByText(/Showing\s+7\s+of\s+7\s+records/)).toBeVisible();
-  await page.waitForTimeout(1000);
+  // Let the delayed "blue" response resolve so the stale-response guard is
+  // exercised; race against an upper bound so an aborted (canceled) response
+  // that never lands cannot hang the test.
+  await Promise.race([
+    page.waitForResponse((response) => new URL(response.url()).searchParams.get('q') === 'blue'),
+    page.waitForTimeout(1500),
+  ]);
   await expect(page).toHaveURL(/q=jazz/);
   await expect(page.getByText(/Showing\s+7\s+of\s+7\s+records/)).toBeVisible();
 });
