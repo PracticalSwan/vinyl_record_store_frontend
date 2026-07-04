@@ -1,18 +1,7 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
-
-function safeReturnTo(value) {
-  if (!value) return '/account';
-  try {
-    const target = new URL(value, window.location.origin);
-    return target.origin === window.location.origin
-      ? `${target.pathname}${target.search}${target.hash}`
-      : '/account';
-  } catch {
-    return '/account';
-  }
-}
+import { safeReturnTo } from '../lib/returnTo';
 
 export default function LoginPage() {
   const auth = useAuth();
@@ -22,7 +11,7 @@ export default function LoginPage() {
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  if (auth.status === 'authenticated') return <Navigate to="/account" replace />;
+  if (auth.status === 'authenticated') return <Navigate to={safeReturnTo(searchParams.get('returnTo'))} replace />;
 
   const submit = async (event) => {
     event.preventDefault();

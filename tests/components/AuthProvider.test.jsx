@@ -20,7 +20,7 @@ function Probe() {
       <p>{auth.user?.username || 'no-user'}</p>
       <button type="button" onClick={() => auth.signIn({ username: 'listener', password: 'password value' }).catch(() => {})}>Sign in test</button>
       <button type="button" onClick={() => auth.signUp({ username: 'listener', password: 'password value' }).catch(() => {})}>Sign up test</button>
-      <button type="button" onClick={async () => { try { await auth.signOut(); auth.clearSession(); } catch { /* Preserve the current or restoring session. */ } }}>Sign out test</button>
+      <button type="button" onClick={() => auth.signOut().catch(() => {})}>Sign out test</button>
     </div>
   );
 }
@@ -43,6 +43,7 @@ describe('AuthProvider', () => {
     expect(screen.getByText('listener')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Sign out test' }));
     await waitFor(() => expect(screen.getByText('anonymous')).toBeInTheDocument());
+    expect(screen.getByText('no-user')).toBeInTheDocument();
   });
 
   it('surfaces session restoration failures without inventing a user', async () => {

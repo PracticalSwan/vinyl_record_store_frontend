@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 
 export default function AccountPage() {
   const auth = useAuth();
+  const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -11,7 +13,7 @@ export default function AccountPage() {
     setError(null);
     try {
       await auth.signOut();
-      window.location.replace('/');
+      navigate('/', { replace: true });
     } catch (requestError) {
       setError(requestError);
     } finally {

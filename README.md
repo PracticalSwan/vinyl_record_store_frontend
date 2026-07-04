@@ -48,10 +48,12 @@ Vite only exposes variables prefixed with `VITE_`. Do not place secrets in front
 
 ## Test Auth Users
 
-The backend seeds demo authentication from local environment variables. The verified demo accounts are:
+The site has two roles only: `customer` and `admin`. The administrator account and the shared classroom demo-customer account are environment-backed on the backend (`.env.local`); registered customers are stored in MongoDB. The verified demo accounts are:
 
-- Customer: listener / classroom customer password
-- Admin: admin / groovehaus-admin
+- Customer (demo): `listener` / `classroom customer password`
+- Admin: `admin` / `groovehaus-admin`
+
+Registered customers choose their own username and password through the Create Account page, so their credentials are not listed here.
 
 ## Validation
 

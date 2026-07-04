@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
+import { safeReturnTo } from '../lib/returnTo';
 
 export default function RegisterPage() {
   const auth = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState({ username: '', displayName: '', password: '' });
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  if (auth.status === 'authenticated') return <Navigate to="/account" replace />;
+  if (auth.status === 'authenticated') return <Navigate to={safeReturnTo(searchParams.get('returnTo'))} replace />;
 
   const update = (field) => (event) => {
     setForm((current) => ({ ...current, [field]: event.target.value }));

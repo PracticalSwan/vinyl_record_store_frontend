@@ -35,26 +35,31 @@ export function AuthProvider({ children }) {
     return () => controller.abort();
   }, []);
 
+  // Write operations commit only if no other auth operation committed while
+  // they were awaiting. A failed write throws before committing and does NOT
+  // advance the counter, so a pending session restore can still settle.
   const signIn = useCallback(async (credentials) => {
+    const before = operation.current;
     const response = await api.login(credentials);
+    if (operation.current !== before) return response.data.user;
     operation.current += 1;
     setState({ status: 'authenticated', user: response.data.user, error: null });
     return response.data.user;
   }, []);
 
   const signUp = useCallback(async (account) => {
+    const before = operation.current;
     const response = await api.register(account);
+    if (operation.current !== before) return response.data.user;
     operation.current += 1;
     setState({ status: 'authenticated', user: response.data.user, error: null });
     return response.data.user;
   }, []);
 
   const signOut = useCallback(async () => {
+    const before = operation.current;
     await api.logout();
-    operation.current += 1;
-  }, []);
-
-  const clearSession = useCallback(() => {
+    if (operation.current !== before) return;
     operation.current += 1;
     setState({ status: 'anonymous', user: null, error: null });
   }, []);
@@ -65,8 +70,7 @@ export function AuthProvider({ children }) {
     signIn,
     signUp,
     signOut,
-    clearSession,
-  }), [state, restoreSession, signIn, signUp, signOut, clearSession]);
+  }), [state, restoreSession, signIn, signUp, signOut]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
