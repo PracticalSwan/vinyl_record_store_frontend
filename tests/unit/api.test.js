@@ -3,11 +3,17 @@ import {
   ApiError,
   fetchProductRecommendations,
   fetchProducts,
+  fetchUserRecommendations,
   login,
   setCartProduct,
 } from '../../src/lib/api';
+import {
+  resetTrackingPreferenceForTests,
+  storeTrackingPreference,
+} from '../../src/lib/identity';
 
 afterEach(() => {
+  resetTrackingPreferenceForTests();
   vi.unstubAllGlobals();
 });
 
@@ -30,6 +36,7 @@ describe('API client', () => {
         headers: {},
         credentials: 'include',
         body: undefined,
+        keepalive: false,
       },
     );
   });
@@ -61,6 +68,24 @@ describe('API client', () => {
 
     await fetchProductRecommendations('1/../../secret');
     expect(fetchMock.mock.calls[0][0]).toContain('/1%2F..%2F..%2Fsecret?limit=6');
+  });
+
+  it('sends the runtime opt-out even when browser storage rejects persistence', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: vi.fn().mockResolvedValue({ data: { recommendations: [] } }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const storageWrite = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('quota');
+    });
+
+    storeTrackingPreference(false);
+    await fetchUserRecommendations();
+
+    expect(fetchMock.mock.calls[0][1].headers).toEqual({ 'X-Tracking-Enabled': 'false' });
+    storageWrite.mockRestore();
   });
 
   it('sends credentialed JSON for authentication and absolute cart writes', async () => {

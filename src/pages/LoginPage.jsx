@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
-import { safeReturnTo } from '../lib/returnTo';
+import { postAuthDestination } from '../lib/returnTo';
 
 export default function LoginPage() {
   const auth = useAuth();
@@ -11,15 +11,15 @@ export default function LoginPage() {
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  if (auth.status === 'authenticated') return <Navigate to={safeReturnTo(searchParams.get('returnTo'))} replace />;
+  if (auth.status === 'authenticated') return <Navigate to={postAuthDestination(auth.user, searchParams.get('returnTo'))} replace />;
 
   const submit = async (event) => {
     event.preventDefault();
     setError(null);
     setSubmitting(true);
     try {
-      await auth.signIn(form);
-      navigate(safeReturnTo(searchParams.get('returnTo')), { replace: true });
+      const user = await auth.signIn(form);
+      navigate(postAuthDestination(user, searchParams.get('returnTo')), { replace: true });
     } catch (requestError) {
       setError(requestError);
     } finally {

@@ -41,17 +41,23 @@ test('keyboard search, not-found, and out-of-stock states behave safely', async 
 });
 
 test('wishlist removal and cart quantity floor remain stable', async ({ page }) => {
+  await page.goto('/records/2');
+  await page.getByRole('button', { name: 'Add to wishlist' }).click();
+  await page.getByRole('button', { name: 'Add to cart' }).click();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Remove from wishlist' })).toBeVisible();
+
   await page.goto('/wishlist');
   await page.getByRole('button', { name: 'Remove Innervisions from wishlist' }).click();
   await expect(page.getByRole('listitem', { name: /Innervisions by Stevie Wonder/ })).toHaveCount(0);
 
   await page.goto('/cart');
-  const quantity = page.getByRole('group', { name: 'Quantity for Kind of Blue' });
+  const quantity = page.getByRole('group', { name: 'Quantity for Innervisions' });
   await quantity.getByRole('button', { name: 'Decrease quantity' }).click();
   await quantity.getByRole('button', { name: 'Decrease quantity' }).click();
   await expect(quantity.getByText('1', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Remove Kind of Blue from cart' }).click();
-  await expect(page.getByRole('listitem', { name: /Kind of Blue by Miles Davis/ })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Remove Innervisions from cart' }).click();
+  await expect(page.getByRole('listitem', { name: /Innervisions by Stevie Wonder/ })).toHaveCount(0);
 });
 
 test('catalog failure can retry and empty data is distinct', async ({ page }) => {

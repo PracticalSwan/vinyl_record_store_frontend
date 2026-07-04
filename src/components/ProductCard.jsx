@@ -1,5 +1,7 @@
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/useStore';
+import { useTracking } from '../context/useTracking';
 import { IconHeart, IconVinyl } from './Icons';
 
 function StockBadge({ stock }) {
@@ -14,13 +16,61 @@ function StockDot({ stock }) {
   return <span className={`card-stock-dot ${cls}`} title={label} aria-hidden="true" />;
 }
 
-export default function ProductCard({ record, showReason = false }) {
+export default function ProductCard({ record, showReason = false, surface = 'catalog', queryLength = 0, searchRank = null }) {
   const navigate = useNavigate();
-  const { wishlist, toggleWishlist } = useStore();
+  const tracking = useTracking();
+  const cardRef = useRef(null);
+  const store = useStore();
+  const { wishlist, toggleWishlist } = store;
   const saved = wishlist.includes(record.id);
+  const recommendationContext = record.recommendationContext;
+
+  useEffect(() => {
+    if (!recommendationContext?.requestId || !cardRef.current) return undefined;
+    const emit = () => tracking.track('recommendation_impression', {
+      productId: record.id,
+      surface,
+      recommendationContext,
+      dedupeKey: `impression:${globalThis.location?.pathname || ''}:${surface}:${recommendationContext.requestId}:${record.id}`,
+    });
+    if (!globalThis.IntersectionObserver) {
+      emit();
+      return undefined;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.5)) {
+        emit();
+        observer.disconnect();
+      }
+    }, { threshold: 0.5 });
+    observer.observe(cardRef.current);
+    return () => observer.disconnect();
+  }, [record.id, recommendationContext, surface, tracking]);
+
+  const viewRecord = () => {
+    if (recommendationContext) {
+      tracking.track('recommendation_click', { productId: record.id, surface, recommendationContext });
+    } else if (surface === 'search') {
+      tracking.track('search_result_click', {
+        productId: record.id,
+        surface,
+        value: Math.min(99, queryLength),
+        searchContext: { rank: searchRank, queryLength: Math.min(100, queryLength) },
+      });
+    }
+    navigate(`/records/${record.id}`, {
+      state: recommendationContext ? { recommendationContext, surface } : undefined,
+    });
+  };
+
+  const toggleSaved = async (event) => {
+    event.stopPropagation();
+    await toggleWishlist(record.id, recommendationContext ? { recommendationContext, surface } : { surface });
+  };
 
   return (
     <article
+      ref={cardRef}
       className="product-card"
       role="listitem"
       aria-label={`${record.title} by ${record.artist}`}
@@ -33,7 +83,8 @@ export default function ProductCard({ record, showReason = false }) {
         <button
           className={`card-wishlist-btn${saved ? ' active' : ''}`}
           aria-label={`${saved ? 'Remove' : 'Add'} ${record.title} ${saved ? 'from' : 'to'} wishlist`}
-          onClick={e => { e.stopPropagation(); toggleWishlist(record.id); }}
+          disabled={store.isPending('wishlist', record.id)}
+          onClick={toggleSaved}
         >
           <IconHeart filled={saved} />
         </button>
@@ -54,7 +105,7 @@ export default function ProductCard({ record, showReason = false }) {
           </div>
           <button
             className="btn btn-primary btn-sm"
-            onClick={() => navigate(`/records/${record.id}`)}
+            onClick={viewRecord}
           >
             View record
           </button>

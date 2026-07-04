@@ -13,7 +13,6 @@ export default function AccountPage() {
     setError(null);
     try {
       await auth.signOut();
-      navigate('/', { replace: true });
     } catch (requestError) {
       setError(requestError);
     } finally {
@@ -31,7 +30,11 @@ export default function AccountPage() {
           <div><dt>Role</dt><dd>{auth.user.role}</dd></div>
           <div><dt>Preferences</dt><dd>{auth.user.onboardingComplete ? 'Completed' : 'Not completed'}</dd></div>
         </dl>
-        <p className="account-note">Wishlist, cart, and rating pages remain guest demo state until the separate state-migration plan is implemented.</p>
+        <p className="account-note">Wishlist, cart, and ratings are saved to this account. Preferences are stored for future recommendation work and do not change the current demo ranking.</p>
+        <div className="account-actions">
+          <button className="btn btn-primary" type="button" onClick={() => navigate('/profile/preferences')}>Edit preferences</button>
+          {!auth.user.onboardingComplete && <button className="btn btn-outline" type="button" onClick={() => navigate('/onboarding')}>Complete onboarding</button>}
+        </div>
         {error && <p className="form-error" role="alert">{error.message}</p>}
         <button className="btn btn-outline" type="button" onClick={signOut} disabled={submitting}>
           {submitting ? 'Signing out...' : 'Sign out'}

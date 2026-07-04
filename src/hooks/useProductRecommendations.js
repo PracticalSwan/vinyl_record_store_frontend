@@ -15,6 +15,13 @@ export function useProductRecommendations(productId, { enabled = true } = {}) {
           ...item.product,
           reason: item.reasons?.[0] || '',
           recommendationReasons: item.reasons || [],
+          recommendationContext: {
+            requestId: response.data.requestId,
+            algorithmVersion: response.data.algorithmVersion,
+            mode: response.data.mode,
+            rank: item.rank,
+            listId: response.data.listId,
+          },
         }));
         setState({ productId: normalizedProductId, status: items.length ? 'success' : 'empty', items, error: null });
       })

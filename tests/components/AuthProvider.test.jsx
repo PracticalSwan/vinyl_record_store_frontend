@@ -10,6 +10,7 @@ vi.mock('../../src/lib/api', () => ({
   login: vi.fn(),
   register: vi.fn(),
   logout: vi.fn(),
+  updatePreferences: vi.fn(),
 }));
 
 function Probe() {
@@ -18,9 +19,11 @@ function Probe() {
     <div>
       <p>{auth.status}</p>
       <p>{auth.user?.username || 'no-user'}</p>
+      <p>{auth.authMethod || 'no-method'}</p>
       <button type="button" onClick={() => auth.signIn({ username: 'listener', password: 'password value' }).catch(() => {})}>Sign in test</button>
       <button type="button" onClick={() => auth.signUp({ username: 'listener', password: 'password value' }).catch(() => {})}>Sign up test</button>
       <button type="button" onClick={() => auth.signOut().catch(() => {})}>Sign out test</button>
+      <button type="button" onClick={() => auth.savePreferences({ favoriteGenres: ['Jazz'] }).catch(() => {})}>Save preferences test</button>
     </div>
   );
 }
@@ -41,9 +44,25 @@ describe('AuthProvider', () => {
     await user.click(screen.getByRole('button', { name: 'Sign in test' }));
     await screen.findByText('authenticated');
     expect(screen.getByText('listener')).toBeInTheDocument();
+    expect(screen.getByText('login')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Sign out test' }));
     await waitFor(() => expect(screen.getByText('anonymous')).toBeInTheDocument());
     expect(screen.getByText('no-user')).toBeInTheDocument();
+    expect(screen.getByText('no-method')).toBeInTheDocument();
+  });
+
+  it('records the auth method for restore, sign-in, and sign-up', async () => {
+    api.fetchSession.mockResolvedValue({ data: { authenticated: true, user: { username: 'listener', role: 'customer' } } });
+    api.register.mockResolvedValue({ data: { user: { username: 'newbie', role: 'customer' } } });
+    const user = userEvent.setup();
+
+    render(<AuthProvider><Probe /></AuthProvider>);
+    await screen.findByText('authenticated');
+    expect(screen.getByText('restore')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Sign up test' }));
+    await screen.findByText('newbie');
+    expect(screen.getByText('register')).toBeInTheDocument();
   });
 
   it('surfaces session restoration failures without inventing a user', async () => {
@@ -51,6 +70,16 @@ describe('AuthProvider', () => {
     render(<AuthProvider><Probe /></AuthProvider>);
     await screen.findByText('error');
     expect(screen.getByText('no-user')).toBeInTheDocument();
+  });
+
+  it('commits the safe user returned by a preference write', async () => {
+    api.fetchSession.mockResolvedValue({ data: { authenticated: true, user: { username: 'listener', onboardingComplete: false } } });
+    api.updatePreferences.mockResolvedValue({ data: { user: { username: 'listener', onboardingComplete: true } } });
+    const user = userEvent.setup();
+    render(<AuthProvider><Probe /></AuthProvider>);
+    await screen.findByText('authenticated');
+    await user.click(screen.getByRole('button', { name: 'Save preferences test' }));
+    await waitFor(() => expect(api.updatePreferences).toHaveBeenCalledWith({ favoriteGenres: ['Jazz'] }));
   });
 
   it('does not let a stale session restore overwrite a completed login', async () => {

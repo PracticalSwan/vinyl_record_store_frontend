@@ -12,7 +12,8 @@ function StockBadge({ stock }) {
 
 export default function WishlistPage() {
   const navigate = useNavigate();
-  const { wishlist, removeFromWishlist, addToCart } = useStore();
+  const store = useStore();
+  const { wishlist, removeFromWishlist, addToCart } = store;
   const products = useProductsByIds(wishlist);
 
   return (
@@ -28,7 +29,7 @@ export default function WishlistPage() {
             <article key={record.id} className="list-item" role="listitem" aria-label={`${record.title} by ${record.artist}`}>
               <div className="list-item-cover" aria-hidden="true"><IconVinylDark /></div>
               <div className="list-item-info"><p className="list-item-title">{record.title}</p><p className="list-item-artist">{record.artist}</p><div className="list-item-meta"><span className="badge badge-genre">{record.genre}</span><span className="badge badge-era">{record.year}</span><StockBadge stock={record.stock} /><span className="badge badge-cond">{record.condition}</span></div></div>
-              <div className="list-item-actions"><span className="list-item-price" aria-label={`Price: $${record.price}`}>${record.price}</span>{record.stock === 'out' ? <button className="btn btn-outline btn-sm" disabled>Out of stock</button> : <button className="btn btn-primary btn-sm" onClick={() => addToCart(record.id)}>Add to cart</button>}<button className="btn btn-ghost btn-sm" aria-label={`Remove ${record.title} from wishlist`} onClick={() => removeFromWishlist(record.id)}>Remove</button></div>
+              <div className="list-item-actions"><span className="list-item-price" aria-label={`Price: $${record.price}`}>${record.price}</span>{record.stock === 'out' ? <button className="btn btn-outline btn-sm" disabled>Out of stock</button> : <button className="btn btn-primary btn-sm" disabled={store.isPending('cart', record.id)} onClick={() => addToCart(record.id)}>Add to cart</button>}<button className="btn btn-ghost btn-sm" aria-label={`Remove ${record.title} from wishlist`} disabled={store.isPending('wishlist', record.id)} onClick={() => removeFromWishlist(record.id)}>Remove</button></div>
             </article>
           ))}
         </div>

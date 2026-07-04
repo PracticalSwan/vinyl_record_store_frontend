@@ -27,6 +27,10 @@ export default function RequireAuth({ children }) {
   const auth = useAuth();
   const location = useLocation();
 
+  if (auth.redirectTo) {
+    return <main className="container catalog-state" role="status">Signing out...</main>;
+  }
+
   if (auth.status === 'loading') {
     return (
       <main className="container catalog-state" aria-busy="true">

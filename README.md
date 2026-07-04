@@ -9,12 +9,12 @@ Groovehaus is the React storefront for the CSX4207 Vinyl Record Store Recommende
 - URL-backed server search, repeated filters, deterministic sorting, pagination, and full-catalog facet counts.
 - Route-specific product queries with cancellation of stale search responses.
 - Product-similarity and sample-profile recommendations with backend-generated explanations.
-- Local demo wishlist, cart quantity, and rating interactions.
+- Session-only guest wishlist, cart quantity, and rating interactions: a guest's cart/wishlist/ratings live in `sessionStorage` and clear when the tab closes, merge into a brand-new account on sign-up, and are discarded when signing in to an existing account.
 - Customer registration/login/logout, signed-cookie session restoration, safe post-login return paths, protected account routing, and authenticated navigation state.
 - Credentialed API helpers for profile/preferences, interactions, wishlist, cart, ratings, and guest-state merge, ready for the separate FFP-03 client-state migration.
 - Unit and component tests with Vitest and React Testing Library; multi-browser, responsive, and axe checks with Playwright.
 
-The backend can serve the catalog from its safe seed default or explicit MongoDB mode. Authentication and registered identity are server-backed. Wishlist, cart, and rating pages still use local guest demo state until FFP-03 connects them to the implemented write APIs; frontend interaction capture, checkout, payments, and measured real-customer personalization remain unimplemented.
+The backend can serve the catalog from its safe seed default or explicit MongoDB mode. Authentication and registered identity are server-backed. Wishlist, cart, and rating pages still use session-only guest state until FFP-03 connects them to the implemented write APIs; guest data merges into a new account on sign-up but is never copied onto an existing account. Frontend interaction capture, checkout, payments, and measured real-customer personalization remain unimplemented.
 
 ## Run Locally
 
@@ -48,12 +48,16 @@ Vite only exposes variables prefixed with `VITE_`. Do not place secrets in front
 
 ## Test Auth Users
 
-The site has two roles only: `customer` and `admin`. The administrator account and the shared classroom demo-customer account are environment-backed on the backend (`.env.local`); registered customers are stored in MongoDB. The verified demo accounts are:
+The site has two roles only: `customer` and `admin`. Showcase demo customer accounts are seeded into MongoDB and their (intentionally public) credentials are listed below. The administrator account is environment-backed on the backend (`.env.local`).
 
-- Customer (demo): `listener` / `classroom customer password`
+- Customer (demo, jazz): `jazzlistener` / `jazz-groove-2026`
+- Customer (demo, rock): `rockcollector` / `rock-groove-2026`
+- Customer (demo, soul): `soulseeker` / `soul-groove-2026`
 - Admin: `admin` / `groovehaus-admin`
 
-Registered customers choose their own username and password through the Create Account page, so their credentials are not listed here.
+The three demo customer accounts start with empty preferences. Distinct per-account preference profiles (for example a jazz listener, a rock collector, and a soul seeker) will be added once recommender algorithm selection is finalized; see the backend `docs/FUTURE_IMPLEMENTATION_PLAN.md`. The demo customer usernames are reserved, so visitors cannot register them. Registered customers choose their own username and password through the Create Account page.
+
+The demo customer logins require the backend to reach MongoDB. The local backend runs against Atlas, so they work in development; in pure seed-catalog mode without a configured `MONGODB_URI` they are unavailable, though registration still creates MongoDB-backed customers when `MONGODB_URI` is set.
 
 ## Validation
 

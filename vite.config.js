@@ -8,4 +8,10 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] })
   ],
+  test: {
+    pool: 'threads',
+    maxWorkers: 1,
+    fileParallelism: false,
+    isolate: false,
+  },
 })

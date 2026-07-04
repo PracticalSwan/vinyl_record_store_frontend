@@ -1,3 +1,5 @@
+import TrackingPreference from './TrackingPreference';
+
 export default function Footer() {
   return (
     <footer className="footer" role="contentinfo">
@@ -5,6 +7,7 @@ export default function Footer() {
         <p>
           Groovehaus Vinyl &mdash; CSX4207 academic recommender demo &mdash; Bangkok
         </p>
+        <TrackingPreference compact />
       </div>
     </footer>
   );

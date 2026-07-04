@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
-import { safeReturnTo } from '../lib/returnTo';
+import { postAuthDestination } from '../lib/returnTo';
 
 export default function RegisterPage() {
   const auth = useAuth();
@@ -11,7 +11,7 @@ export default function RegisterPage() {
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  if (auth.status === 'authenticated') return <Navigate to={safeReturnTo(searchParams.get('returnTo'))} replace />;
+  if (auth.status === 'authenticated') return <Navigate to={postAuthDestination(auth.user, searchParams.get('returnTo'))} replace />;
 
   const update = (field) => (event) => {
     setForm((current) => ({ ...current, [field]: event.target.value }));
@@ -21,12 +21,12 @@ export default function RegisterPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await auth.signUp({
+      const user = await auth.signUp({
         username: form.username,
         password: form.password,
         displayName: form.displayName.trim() || null,
       });
-      navigate('/account', { replace: true });
+      navigate(postAuthDestination(user, searchParams.get('returnTo')), { replace: true });
     } catch (requestError) {
       setError(requestError);
     } finally {

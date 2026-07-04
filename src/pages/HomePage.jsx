@@ -46,7 +46,7 @@ export default function HomePage() {
           {catalog.status === 'loading' && <SkeletonGrid count={4} />}
           {catalog.status === 'error' && <div className="inline-state" role="alert"><span>{catalog.error?.message}</span><button className="btn btn-outline btn-sm" onClick={catalog.reload}>Try again</button></div>}
           {catalog.status === 'empty' && <p className="inline-state">No records are available.</p>}
-          {catalog.items.length > 0 && <ProductGrid records={catalog.items} />}
+          {catalog.items.length > 0 && <ProductGrid records={catalog.items} surface="home" />}
         </section>
         <section aria-labelledby="rec-home-heading" className="rec-section">
           <h2 className="section-heading" id="rec-home-heading">Recommendation picks <small>Explainable demo profile</small></h2>
@@ -54,7 +54,7 @@ export default function HomePage() {
           {recommendationStatus === 'loading' && <p className="inline-state">Loading recommendations...</p>}
           {recommendationStatus === 'error' && <div className="inline-state" role="alert"><span>{recommendationError?.message}</span><button className="btn btn-outline btn-sm" onClick={reloadRecommendations}>Try again</button></div>}
           {recommendationStatus === 'empty' && <p className="inline-state">No recommendations are available.</p>}
-          {recommendationStatus === 'success' && <RecScroll records={recommendations.slice(0, 5)} ariaLabel="Recommended records for the demo profile" />}
+          {recommendationStatus === 'success' && <RecScroll records={recommendations.slice(0, 5)} ariaLabel="Recommended records for the demo profile" surface="home" />}
         </section>
       </div>
     </main>

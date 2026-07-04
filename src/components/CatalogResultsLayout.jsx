@@ -11,7 +11,7 @@ const SORT_OPTIONS = [
   ['artist-asc', 'Artist A-Z'],
 ];
 
-export default function CatalogResultsLayout({ title, header, query, updateQuery, resource }) {
+export default function CatalogResultsLayout({ title, header, query, updateQuery, resource, surface = 'catalog' }) {
   const resultsHeading = useRef(null);
   const previousPage = useRef(query.page);
   const { items, meta, status, error, reload } = resource;
@@ -65,7 +65,7 @@ export default function CatalogResultsLayout({ title, header, query, updateQuery
                 )}
               </div>
             )}
-            {items.length > 0 && <ProductGrid records={items} />}
+            {items.length > 0 && <ProductGrid records={items} surface={surface} queryLength={query.q?.length || 0} />}
             <Pagination page={query.page} totalPages={meta?.totalPages ?? 0} onPageChange={(page) => updateQuery({ page }, { resetPage: false })} />
           </section>
         </div>

@@ -13,7 +13,7 @@ The Groovehaus storefront is an implemented API-backed academic demo, not a Vite
 - Catalog pages use URL-backed server queries with literal search, repeated facets, deterministic sorting, pagination, and stale-request cancellation.
 - Product details and recommendation data come from the separate Next.js backend.
 - Authentication and registered identity are backend-backed through credentialed signed-cookie sessions restored by `AuthProvider`.
-- Wishlist, cart, quantity, and rating UI state are local demo state until FFP-03 adopts the implemented backend write APIs.
+- Wishlist, cart, quantity, and rating UI state are session-only guest demo state (cleared on tab close; merged into a new account on sign-up only; discarded on existing-account login) until FFP-03 adopts the implemented backend write APIs.
 - The API client exposes profile/preferences, interaction, wishlist, cart, rating, and guest-merge calls, but pages/providers must not imply server persistence before they use them.
 - Checkout, frontend interaction capture, and payments are not implemented.
 - Vitest, React Testing Library, Playwright, and axe provide unit, component, browser, responsive, and accessibility coverage.

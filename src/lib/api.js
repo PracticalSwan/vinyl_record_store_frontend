@@ -1,3 +1,5 @@
+import { getAnonymousId, isTrackingEnabled } from './identity';
+
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 export class ApiError extends Error {
@@ -14,10 +16,12 @@ async function request(path, {
   method = 'GET',
   body,
   idempotencyKey,
+  keepalive = false,
+  extraHeaders = {},
 } = {}) {
   let response;
   try {
-    const headers = {};
+    const headers = { ...extraHeaders };
     if (body !== undefined) headers['Content-Type'] = 'application/json';
     if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey;
     response = await fetch(`${API_BASE_URL}${path}`, {
@@ -26,6 +30,7 @@ async function request(path, {
       headers,
       credentials: 'include',
       body: body === undefined ? undefined : JSON.stringify(body),
+      keepalive,
     });
   } catch (error) {
     if (error.name === 'AbortError') throw error;
@@ -85,12 +90,28 @@ export async function fetchProductsByIds(productIds, { signal } = {}) {
   };
 }
 
-export function fetchUserRecommendations(userId = 'demo-user', { signal } = {}) {
-  return request(`/api/recommendations/user/${encodeURIComponent(userId)}?limit=12`, { signal });
+function trackingHeaders() {
+  const enabled = isTrackingEnabled();
+  return {
+    'X-Tracking-Enabled': String(enabled),
+    ...(enabled ? { 'X-Anonymous-Id': getAnonymousId() } : {}),
+  };
 }
 
-export function fetchProductRecommendations(productId, { signal } = {}) {
-  return request(`/api/recommendations/product/${encodeURIComponent(productId)}?limit=6`, { signal });
+export function fetchUserRecommendations(userId = 'demo-user', { signal, surface = 'recommendations' } = {}) {
+  const params = new URLSearchParams({ limit: '12', surface });
+  return request(`/api/recommendations/user/${encodeURIComponent(userId)}?${params}`, {
+    signal,
+    extraHeaders: trackingHeaders(),
+  });
+}
+
+export function fetchProductRecommendations(productId, { signal, surface = 'product-detail' } = {}) {
+  const params = new URLSearchParams({ limit: '6', surface });
+  return request(`/api/recommendations/product/${encodeURIComponent(productId)}?${params}`, {
+    signal,
+    extraHeaders: { 'X-Tracking-Enabled': String(isTrackingEnabled()) },
+  });
 }
 
 export function fetchSession({ signal } = {}) {
@@ -165,8 +186,8 @@ export function mergeGuestState(state, { signal } = {}) {
   return request('/api/me/merge-guest-state', { method: 'POST', body: state, signal });
 }
 
-export function sendInteractions(events, { signal } = {}) {
-  return request('/api/interactions', { method: 'POST', body: { events }, signal });
+export function sendInteractions(events, { signal, keepalive = false } = {}) {
+  return request('/api/interactions', { method: 'POST', body: { events }, signal, keepalive });
 }
 
 export { API_BASE_URL };

@@ -23,7 +23,7 @@ function RecommendationResults({ recommendations, isDemoProfile }) {
         Top ranked picks <small>{isDemoProfile ? 'Demo profile' : 'Cold-start mode'}</small>
       </h2>
       <hr className="section-rule" aria-hidden="true" />
-      <ProductGrid records={topPicks} showReason />
+      <ProductGrid records={topPicks} showReason surface="recommendations" />
 
       {moreJazz.length > 0 && (
         <section aria-labelledby="more-jazz-heading" style={{ marginTop: '3rem' }}>
@@ -31,7 +31,7 @@ function RecommendationResults({ recommendations, isDemoProfile }) {
             Jazz matches <small>Ranked from the same demo profile</small>
           </h2>
           <hr className="section-rule" aria-hidden="true" />
-          <RecScroll records={moreJazz} ariaLabel="Jazz recommendations" />
+          <RecScroll records={moreJazz} ariaLabel="Jazz recommendations" surface="recommendations" />
         </section>
       )}
     </>

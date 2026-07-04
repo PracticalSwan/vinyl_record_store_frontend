@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import CatalogResultsLayout from '../components/CatalogResultsLayout';
 import { useCatalogQuery } from '../hooks/useCatalogQuery';
+import { useTracking } from '../context/useTracking';
 
 export default function SearchPage() {
   const catalog = useCatalogQuery();
+  const tracking = useTracking();
   const queryText = catalog.query.q;
   const updateQuery = catalog.updateQuery;
   const [draft, setDraft] = useState({ sourceQuery: queryText, value: queryText });
@@ -14,6 +16,15 @@ export default function SearchPage() {
     const timer = setTimeout(() => updateQuery({ q: input }, { replace: true }), 300);
     return () => clearTimeout(timer);
   }, [input, queryText, updateQuery]);
+
+  useEffect(() => {
+    if (!queryText) return;
+    tracking.track('search_submit', {
+      surface: 'search',
+      value: Math.min(99, queryText.length),
+      dedupeKey: `search:${queryText}`,
+    });
+  }, [queryText, tracking]);
 
   const searchForm = (
     <form className="search-page-form" role="search" onSubmit={(event) => {
@@ -35,6 +46,7 @@ export default function SearchPage() {
       query={catalog.query}
       updateQuery={catalog.updateQuery}
       resource={catalog}
+      surface="search"
     />
   );
 }

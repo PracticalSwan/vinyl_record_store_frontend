@@ -6,16 +6,16 @@ async function resolveSessionState({ signal } = {}) {
   try {
     const response = await api.fetchSession({ signal });
     return response.data.authenticated
-      ? { status: 'authenticated', user: response.data.user, error: null }
-      : { status: 'anonymous', user: null, error: null };
+      ? { status: 'authenticated', user: response.data.user, error: null, authMethod: 'restore' }
+      : { status: 'anonymous', user: null, error: null, authMethod: null };
   } catch (error) {
     if (error.name === 'AbortError') return null;
-    return { status: 'error', user: null, error };
+    return { status: 'error', user: null, error, authMethod: null };
   }
 }
 
 export function AuthProvider({ children }) {
-  const [state, setState] = useState({ status: 'loading', user: null, error: null });
+  const [state, setState] = useState({ status: 'loading', user: null, error: null, authMethod: null });
   const operation = useRef(0);
 
   const restoreSession = useCallback(({ signal } = {}) => {
@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
     const response = await api.login(credentials);
     if (operation.current !== before) return response.data.user;
     operation.current += 1;
-    setState({ status: 'authenticated', user: response.data.user, error: null });
+    setState({ status: 'authenticated', user: response.data.user, error: null, authMethod: 'login' });
     return response.data.user;
   }, []);
 
@@ -52,7 +52,7 @@ export function AuthProvider({ children }) {
     const response = await api.register(account);
     if (operation.current !== before) return response.data.user;
     operation.current += 1;
-    setState({ status: 'authenticated', user: response.data.user, error: null });
+    setState({ status: 'authenticated', user: response.data.user, error: null, authMethod: 'register' });
     return response.data.user;
   }, []);
 
@@ -61,7 +61,20 @@ export function AuthProvider({ children }) {
     await api.logout();
     if (operation.current !== before) return;
     operation.current += 1;
-    setState({ status: 'anonymous', user: null, error: null });
+    setState({ status: 'anonymous', user: null, error: null, redirectTo: '/', authMethod: null });
+  }, []);
+
+  const consumeRedirect = useCallback(() => {
+    setState((current) => current.redirectTo ? { ...current, redirectTo: null } : current);
+  }, []);
+
+  const savePreferences = useCallback(async (preferences) => {
+    const before = operation.current;
+    const response = await api.updatePreferences(preferences);
+    if (operation.current !== before) return response.data.user;
+    operation.current += 1;
+    setState((current) => ({ ...current, status: 'authenticated', user: response.data.user, error: null }));
+    return response.data.user;
   }, []);
 
   const value = useMemo(() => ({
@@ -70,7 +83,9 @@ export function AuthProvider({ children }) {
     signIn,
     signUp,
     signOut,
-  }), [state, restoreSession, signIn, signUp, signOut]);
+    savePreferences,
+    consumeRedirect,
+  }), [state, restoreSession, signIn, signUp, signOut, savePreferences, consumeRedirect]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

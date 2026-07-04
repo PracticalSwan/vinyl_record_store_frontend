@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchUserRecommendations } from '../lib/api';
+import { useLocation } from 'react-router-dom';
 import { CatalogContext } from './catalogContext';
 
 const INITIAL_RECOMMENDATIONS = {
@@ -10,22 +11,29 @@ const INITIAL_RECOMMENDATIONS = {
   profileSummary: [],
 };
 
-const withReason = (item) => ({
+const withReason = (item, response) => ({
   ...item.product,
   reason: item.reasons?.[0] || '',
   recommendationReasons: item.reasons || [],
   recommendationScore: item.score,
   recommendationRank: item.rank,
+  recommendationContext: {
+    requestId: response.requestId,
+    algorithmVersion: response.algorithmVersion,
+    mode: response.mode,
+    rank: item.rank,
+    listId: response.listId,
+  },
 });
 
-const loadDemoRecommendations = (options) => fetchUserRecommendations('demo-user', options);
-
 const selectRecommendations = (response) => ({
-  data: response.data.recommendations.map(withReason),
+  data: response.data.recommendations.map((item) => withReason(item, response.data)),
   status: response.data.recommendations.length ? 'success' : 'empty',
   error: null,
   mode: response.data.mode,
   profileSummary: response.data.profileSummary || [],
+  requestId: response.data.requestId,
+  recommendationLogged: response.data.recommendationLogged,
 });
 
 function useRemoteResource(loader, select, initialState) {
@@ -63,6 +71,12 @@ function useRemoteResource(loader, select, initialState) {
 }
 
 export function CatalogProvider({ children }) {
+  const location = useLocation();
+  const recommendationSurface = location.pathname === '/recommendations' ? 'recommendations' : 'home';
+  const loadDemoRecommendations = useCallback(
+    (options) => fetchUserRecommendations('demo-user', { ...options, surface: recommendationSurface }),
+    [recommendationSurface],
+  );
   const recommendation = useRemoteResource(
     loadDemoRecommendations,
     selectRecommendations,
@@ -75,6 +89,8 @@ export function CatalogProvider({ children }) {
     recommendationError: recommendation.error,
     recommendationMode: recommendation.mode,
     profileSummary: recommendation.profileSummary,
+    recommendationRequestId: recommendation.requestId,
+    recommendationLogged: recommendation.recommendationLogged,
     reloadRecommendations: recommendation.reload,
   }), [recommendation]);
 

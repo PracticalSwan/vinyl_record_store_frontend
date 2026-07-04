@@ -1,20 +1,20 @@
 import ProductCard from './ProductCard';
 
-export function ProductGrid({ records, showReason = false }) {
+export function ProductGrid({ records, showReason = false, surface, queryLength }) {
   return (
     <div className="product-grid" role="list">
-      {records.map(r => (
-        <ProductCard key={r.id} record={r} showReason={showReason} />
+      {records.map((r, index) => (
+        <ProductCard key={r.id} record={r} showReason={showReason} surface={surface} queryLength={queryLength} searchRank={index + 1} />
       ))}
     </div>
   );
 }
 
-export function RecScroll({ records, showReason = true, ariaLabel = 'Recommended records' }) {
+export function RecScroll({ records, showReason = true, ariaLabel = 'Recommended records', surface }) {
   return (
     <div className="rec-scroll" role="list" aria-label={ariaLabel}>
       {records.map(r => (
-        <ProductCard key={r.id} record={r} showReason={showReason} />
+        <ProductCard key={r.id} record={r} showReason={showReason} surface={surface} />
       ))}
     </div>
   );

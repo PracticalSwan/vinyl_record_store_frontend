@@ -12,3 +12,12 @@ export function safeReturnTo(value) {
     return '/account';
   }
 }
+
+export function postAuthDestination(user, value) {
+  const destination = safeReturnTo(value);
+  return destination === '/account'
+    && user?.role === 'customer'
+    && !user?.onboardingComplete
+    ? '/onboarding'
+    : destination;
+}

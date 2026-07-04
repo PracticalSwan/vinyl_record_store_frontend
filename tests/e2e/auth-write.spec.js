@@ -15,16 +15,37 @@ async function api(page, path, { method = 'GET', body } = {}) {
   }, { url: `${apiBaseUrl}${path}`, method, body });
 }
 
-test('registration, login, restoration, and protected writes work with cleanup', async ({ page }) => {
-  const username = process.env.E2E_REGISTER_USERNAME;
+test('registration, login, restoration, and protected writes work with cleanup', async ({ page }, testInfo) => {
+  const projectSuffix = testInfo.project.name.replace(/[^a-z0-9]/gi, '_').slice(0, 20);
+  const username = `${process.env.E2E_REGISTER_USERNAME}_${projectSuffix}`;
   const password = process.env.E2E_REGISTER_PASSWORD;
+  await page.goto('/records/2');
+  await page.getByRole('button', { name: 'Add to wishlist' }).click();
+  await page.getByRole('button', { name: 'Add to cart' }).click();
+  await page.getByRole('button', { name: '5 stars' }).click();
   await page.goto('/register');
   await page.getByLabel('Username').fill(username);
   await page.getByLabel('Display name').fill('Temporary E2E Listener');
   await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Create customer account' }).click();
+  await expect(page).toHaveURL('/onboarding');
+  await page.getByRole('group', { name: /Favorite genres/ }).getByText('Jazz', { exact: true }).click();
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByLabel('Favorite artists').fill('Miles Davis');
+  await page.getByLabel('Minimum').fill('10');
+  await page.getByLabel('Maximum').fill('100');
+  await page.getByRole('group', { name: 'Preferred condition' }).getByText('NM', { exact: true }).click();
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByRole('button', { name: 'Save preferences' }).click();
   await expect(page).toHaveURL('/account');
   await expect(page.getByText(username)).toBeVisible();
+  await page.goto('/wishlist');
+  await expect(page.getByRole('listitem', { name: /Innervisions by Stevie Wonder/ })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('listitem', { name: /Innervisions by Stevie Wonder/ })).toBeVisible();
+  await page.goto('/cart');
+  await expect(page.getByRole('group', { name: 'Quantity for Innervisions' })).toContainText('1');
+  await page.goto('/account');
 
   try {
     const credentialCheck = await api(page, '/api/auth/login', {
@@ -60,7 +81,7 @@ test('registration, login, restoration, and protected writes work with cleanup',
 
     expect((await api(page, '/api/wishlist/1', { method: 'PUT' })).status).toBe(200);
     const wishlist = await api(page, '/api/wishlist/1', { method: 'PUT' });
-    expect(wishlist.payload.data.productIds).toEqual([1]);
+    expect(wishlist.payload.data.productIds).toEqual(expect.arrayContaining([1, 2]));
 
     expect((await api(page, '/api/cart/2', { method: 'PUT', body: { quantity: 3 } })).status).toBe(200);
     const cart = await api(page, '/api/cart/2', { method: 'PUT', body: { quantity: 3 } });
@@ -75,9 +96,10 @@ test('registration, login, restoration, and protected writes work with cleanup',
 
     expect((await api(page, '/api/ratings/1', { method: 'PUT', body: { rating: 4 } })).status).toBe(200);
     const ratings = await api(page, '/api/ratings');
-    expect(ratings.payload.data.items).toEqual([
+    expect(ratings.payload.data.items).toEqual(expect.arrayContaining([
       expect.objectContaining({ productId: 1, rating: 4 }),
-    ]);
+      expect.objectContaining({ productId: 2, rating: 5 }),
+    ]));
 
     const eventId = `e2e-event-${Date.now()}`;
     const event = {
