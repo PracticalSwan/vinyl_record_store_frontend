@@ -6,11 +6,11 @@ This plan records the automated release evidence for the storefront. It does not
 
 | Check | Command | Current Evidence |
 | --- | --- | --- |
-| Unit and component tests | `npm run test:unit` | 16 tests passed on 2026-07-03. |
-| Browser and integration tests | `npm run test:e2e` | Chromium desktop/mobile/tablet, Firefox, and WebKit matrix passed on 2026-07-03. |
-| Accessibility subset | `npm run test:a11y` | Representative axe checks passed on 2026-07-03. |
-| ESLint | `npm run lint` | Passed on 2026-07-03. |
-| Production bundle | `npm run build` | Passed on 2026-07-03. |
+| Unit and component tests | `npm run test:unit` | 57 tests passed on 2026-07-05. |
+| Browser and integration tests | `npm run test:e2e` | 47 passed, 1 intentional mobile-only skip across Chromium desktop/mobile/tablet, Firefox, and WebKit on 2026-07-05. |
+| Accessibility subset | `npm run test:a11y` | Representative axe checks passed within the full matrix on 2026-07-05. |
+| ESLint | `npm run lint` | Passed on 2026-07-05. |
+| Production bundle | `npm run build` | Passed on 2026-07-05. |
 
 ## Browser Scenarios
 
@@ -26,6 +26,10 @@ This plan records the automated release evidence for the storefront. It does not
 | FE-008 | Rapid server search and browser history. | Superseded responses stay hidden; canonical query state restores on back/forward navigation. |
 | FE-009 | Multi-value filters and pagination. | Repeated facets, deterministic pages, page reset, and result focus behave consistently. |
 | FE-010 | Representative accessibility scan. | No serious or critical axe findings on the tested routes and states. |
+| FE-011 | Guest registers, merge fails, then refreshes. | Persisted merge key resumes without losing the session snapshot. |
+| FE-012 | Existing account signs in or restores. | Guest state is discarded and account state loads without cross-account leakage. |
+| FE-013 | Usage-data opt-out or auth change. | Capture stops immediately; queued events cannot cross identity boundaries. |
+| FE-014 | Non-recommendation route loads. | No user-recommendation request or unseen-list request log is created. |
 
 ## Recommendation Comprehension
 

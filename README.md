@@ -4,17 +4,18 @@ Groovehaus is the React storefront for the CSX4207 Vinyl Record Store Recommende
 
 ## Implemented Features
 
-- Home, catalog, product detail, search, recommendation, wishlist, cart, registration, login, and protected account routes.
+- Home, catalog, product detail, search, recommendation, wishlist, cart, registration, login, protected account, onboarding, and profile-preferences routes.
 - Responsive product grid, mobile filters, keyboard-visible focus, empty/error/loading states, and horizontal recommendation rows.
 - URL-backed server search, repeated filters, deterministic sorting, pagination, and full-catalog facet counts.
 - Route-specific product queries with cancellation of stale search responses.
 - Product-similarity and sample-profile recommendations with backend-generated explanations.
-- Session-only guest wishlist, cart quantity, and rating interactions: a guest's cart/wishlist/ratings live in `sessionStorage` and clear when the tab closes, merge into a brand-new account on sign-up, and are discarded when signing in to an existing account.
+- Session-only guest wishlist/cart/rating state and server-backed authenticated state. A keyed guest merge runs only for a new registration and safely resumes after refresh; existing-account login and ordinary restore discard unrelated guest state.
 - Customer registration/login/logout, signed-cookie session restoration, safe post-login return paths, protected account routing, and authenticated navigation state.
-- Credentialed API helpers for profile/preferences, interactions, wishlist, cart, ratings, and guest-state merge, ready for the separate FFP-03 client-state migration.
+- Three-step onboarding plus editable/clearable account preferences, with honest wording that the current algorithm does not consume them.
+- Privacy-controlled interaction analytics with a durable bounded queue, visible opt-out, recommendation attribution, and auth-boundary isolation.
 - Unit and component tests with Vitest and React Testing Library; multi-browser, responsive, and axe checks with Playwright.
 
-The backend can serve the catalog from its safe seed default or explicit MongoDB mode. Authentication and registered identity are server-backed. Wishlist, cart, and rating pages still use session-only guest state until FFP-03 connects them to the implemented write APIs; guest data merges into a new account on sign-up but is never copied onto an existing account. Frontend interaction capture, checkout, payments, and measured real-customer personalization remain unimplemented.
+The backend can serve the catalog from its safe seed default or explicit MongoDB mode. Authentication, registered identity, and authenticated customer state are server-backed. Guest state remains intentionally session-only. Checkout, payments, offline recommendation evaluation, and measured real-customer personalization remain unimplemented.
 
 ## Run Locally
 
@@ -73,7 +74,7 @@ Targeted commands are `npm run test:unit`, `npm run test:e2e`, `npm run test:a11
 
 - `src/pages/`: route-level screens.
 - `src/components/`: reusable storefront UI and API state surfaces.
-- `src/context/`: shared authentication/recommendation state and local demo store state.
+- `src/context/`: authentication, recommendation, tracking, and guest/authenticated store state.
 - `src/hooks/`: URL query, catalog request, product-detail, and recommendation loading logic.
 - `src/lib/api.js`: the backend client boundary.
 - `docs/`: current frontend contracts, decisions, limitations, and evaluation notes.

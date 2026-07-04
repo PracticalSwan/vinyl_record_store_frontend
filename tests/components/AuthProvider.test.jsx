@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider } from '../../src/context/AuthProvider';
 import { useAuth } from '../../src/context/useAuth';
 import * as api from '../../src/lib/api';
+import { prepareTrackingIdentityChange } from '../../src/lib/tracking';
 
 vi.mock('../../src/lib/api', () => ({
   fetchSession: vi.fn(),
@@ -11,6 +12,9 @@ vi.mock('../../src/lib/api', () => ({
   register: vi.fn(),
   logout: vi.fn(),
   updatePreferences: vi.fn(),
+}));
+vi.mock('../../src/lib/tracking', () => ({
+  prepareTrackingIdentityChange: vi.fn().mockResolvedValue(undefined),
 }));
 
 function Probe() {
@@ -31,6 +35,7 @@ function Probe() {
 describe('AuthProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    prepareTrackingIdentityChange.mockResolvedValue(undefined);
   });
 
   it('restores an anonymous session and transitions through login and logout', async () => {
@@ -49,6 +54,7 @@ describe('AuthProvider', () => {
     await waitFor(() => expect(screen.getByText('anonymous')).toBeInTheDocument());
     expect(screen.getByText('no-user')).toBeInTheDocument();
     expect(screen.getByText('no-method')).toBeInTheDocument();
+    expect(prepareTrackingIdentityChange).toHaveBeenCalledTimes(2);
   });
 
   it('records the auth method for restore, sign-in, and sign-up', async () => {

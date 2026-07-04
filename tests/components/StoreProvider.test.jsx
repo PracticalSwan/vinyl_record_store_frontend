@@ -167,6 +167,23 @@ describe('StoreProvider', () => {
     expect(sessionStorage.getItem(GUEST_STORE_KEY)).toBeNull();
   });
 
+  it('resumes a keyed sign-up merge after the authenticated page is refreshed', async () => {
+    writeGuestStore({ wishlist: [2] });
+    api.mergeGuestState
+      .mockRejectedValueOnce(new Error('Merge failed'))
+      .mockResolvedValueOnce({ data: { wishlist: [2], cart: [], ratings: [], warnings: [] } });
+    const firstRender = renderStore(registered);
+
+    await screen.findByText('error');
+    expect(JSON.parse(sessionStorage.getItem(GUEST_STORE_KEY)).mergeId).toMatch(/^guest-merge-/);
+    firstRender.unmount();
+
+    renderStore(restored);
+    await screen.findByText('authenticated');
+    expect(api.mergeGuestState).toHaveBeenCalledTimes(2);
+    expect(sessionStorage.getItem(GUEST_STORE_KEY)).toBeNull();
+  });
+
   it('rolls back a rejected authenticated mutation and exposes a retryable error', async () => {
     api.addWishlistProduct.mockRejectedValue(new Error('Write failed'));
     const user = userEvent.setup();

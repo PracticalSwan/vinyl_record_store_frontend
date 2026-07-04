@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TRACKING_PREFERENCE_KEY } from '../../src/lib/identity';
 import {
   flush,
+  prepareTrackingIdentityChange,
   resetTrackingForTests,
   retryDelay,
   setTrackingEnabled,
@@ -61,6 +62,21 @@ describe('tracking', () => {
     now.mockRestore();
   });
 
+  it('keeps recommendation impressions deduplicated for the full request page view', () => {
+    const now = vi.spyOn(Date, 'now').mockReturnValue(10_000);
+    const payload = {
+      productId: 1,
+      surface: 'recommendations',
+      dedupeKey: 'impression:request-1:1',
+      dedupeWindowMs: Number.POSITIVE_INFINITY,
+    };
+    expect(track('recommendation_impression', payload)).toBe(true);
+    now.mockReturnValue(60_000);
+    expect(track('recommendation_impression', payload)).toBe(false);
+    expect(trackingQueueForTests()).toHaveLength(1);
+    now.mockRestore();
+  });
+
   it('opt-out clears unsent events and prevents new capture', () => {
     track('wishlist_add', { productId: 2, surface: 'catalog' });
     setTrackingEnabled(false);
@@ -90,6 +106,17 @@ describe('tracking', () => {
       expect.objectContaining({ type: 'wishlist_add', productId: 2 }),
     ], { keepalive: false });
     expect(trackingQueueForTests()).toEqual([]);
+  });
+
+  it('flushes or discards queued events before an authentication identity changes', async () => {
+    sendInteractions.mockRejectedValue(new Error('offline'));
+    track('wishlist_add', { productId: 2, surface: 'catalog' });
+
+    await prepareTrackingIdentityChange();
+
+    expect(sendInteractions).toHaveBeenCalledTimes(1);
+    expect(trackingQueueForTests()).toEqual([]);
+    expect(localStorage.getItem('groovehaus.interaction-queue.v1')).toBeNull();
   });
 
   it('strips retry bookkeeping and caps exponential backoff', () => {

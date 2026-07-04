@@ -6,11 +6,13 @@ Read this file before every frontend session.
 
 - `src/` is the active Groovehaus storefront. It is no longer a Vite starter or planning-only scaffold.
 - The frontend consumes catalog and recommendation data from the separate backend.
-- Backend authentication and customer-state write APIs are implemented. Registered identity is durable in MongoDB mode, but the current wishlist/cart/rating UI is still local until FFP-03 consumes those APIs.
+- Backend authentication and customer-state write APIs are implemented. `StoreProvider` uses them for authenticated wishlist/cart/rating state and keeps guest state in `sessionStorage`.
 - `code_for_website/` is a retained design-import snapshot and must not become a second source of truth.
-- Wishlist, cart, quantity, and rating behavior is local demo state; do not describe it as persisted.
+- Describe state precisely: guest state lasts for the current tab; new-account registration merges it; existing-account login/ordinary restore discards it; authenticated state persists through server APIs.
 - `AuthProvider` restores the signed-cookie session and guards `/account`. Completed login/register/logout operations must win over stale restoration responses, while failed operations must not strand the provider in `loading`.
 - Recommendation copy must label sample-profile and cold-start behavior honestly.
+- Fetch user recommendations only on Home and Recommendations, where the lists render; otherwise request logs falsely describe unseen lists.
+- Flush or discard queued analytics before login, registration, or logout so the backend cannot attach capture-time events to the wrong identity.
 
 ## Working Rules
 

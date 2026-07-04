@@ -9,13 +9,13 @@ This is a subtree instruction file. Read the global instructions and the project
 The Groovehaus storefront is an implemented API-backed academic demo, not a Vite starter or planning-only scaffold.
 
 - React 19.2.7, Vite 8.1, and React Router 7.
-- Routes: home, catalog, product detail, search, recommendation demo, wishlist, cart, registration, login, and protected account.
+- Routes: home, catalog, product detail, search, recommendation demo, wishlist, cart, registration, login, protected account, onboarding, and profile preferences.
 - Catalog pages use URL-backed server queries with literal search, repeated facets, deterministic sorting, pagination, and stale-request cancellation.
 - Product details and recommendation data come from the separate Next.js backend.
 - Authentication and registered identity are backend-backed through credentialed signed-cookie sessions restored by `AuthProvider`.
-- Wishlist, cart, quantity, and rating UI state are session-only guest demo state (cleared on tab close; merged into a new account on sign-up only; discarded on existing-account login) until FFP-03 adopts the implemented backend write APIs.
-- The API client exposes profile/preferences, interaction, wishlist, cart, rating, and guest-merge calls, but pages/providers must not imply server persistence before they use them.
-- Checkout, frontend interaction capture, and payments are not implemented.
+- `StoreProvider` uses session-only guest state and server-backed authenticated state. Guest state merges only into a new registration, resumes a keyed failed merge after refresh, and is discarded on existing-account login or ordinary restore.
+- Onboarding/preferences and privacy-controlled interaction analytics are implemented. Recommendation requests carry request/list attribution and are fetched only on pages that render them.
+- Checkout, offline recommendation evaluation, and payments are not implemented.
 - Vitest, React Testing Library, Playwright, and axe provide unit, component, browser, responsive, and accessibility coverage.
 
 ## Canonical Source And Folder Boundary

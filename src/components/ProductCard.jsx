@@ -32,6 +32,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
       surface,
       recommendationContext,
       dedupeKey: `impression:${globalThis.location?.pathname || ''}:${surface}:${recommendationContext.requestId}:${record.id}`,
+      dedupeWindowMs: Number.POSITIVE_INFINITY,
     });
     if (!globalThis.IntersectionObserver) {
       emit();

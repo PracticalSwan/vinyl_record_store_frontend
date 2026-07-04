@@ -36,51 +36,70 @@ const selectRecommendations = (response) => ({
   recommendationLogged: response.data.recommendationLogged,
 });
 
-function useRemoteResource(loader, select, initialState) {
-  const [state, setState] = useState(initialState);
+function useRemoteResource(loader, select, initialState, {
+  enabled = true,
+  resourceKey = 'default',
+} = {}) {
+  const [state, setState] = useState({ ...initialState, resourceKey: null });
   const controllerRef = useRef(null);
 
   const load = useCallback(async (signal) => {
     try {
       const response = await loader({ signal });
-      setState(select(response));
+      setState({ ...select(response), resourceKey });
     } catch (error) {
       if (error.name === 'AbortError') return;
-      setState({ ...initialState, status: 'error', error });
+      setState({ ...initialState, status: 'error', error, resourceKey });
     }
-  }, [initialState, loader, select]);
+  }, [initialState, loader, resourceKey, select]);
 
   const reload = useCallback(() => {
+    if (!enabled) return;
     // Abort any in-flight request (initial mount or a prior reload) so a stale
     // response can never settle after unmount or overwrite a newer attempt.
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
-    setState(initialState);
+    setState({ ...initialState, resourceKey });
     load(controller.signal);
-  }, [initialState, load]);
+  }, [enabled, initialState, load, resourceKey]);
 
   useEffect(() => {
+    if (!enabled) {
+      controllerRef.current?.abort();
+      controllerRef.current = null;
+      return undefined;
+    }
     const controller = new AbortController();
     controllerRef.current = controller;
     Promise.resolve().then(() => load(controller.signal));
     return () => controller.abort();
-  }, [load]);
+  }, [enabled, load]);
 
-  return { ...state, reload };
+  const visibleState = enabled && state.resourceKey === resourceKey ? state : initialState;
+  return { ...visibleState, reload };
 }
 
 export function CatalogProvider({ children }) {
   const location = useLocation();
-  const recommendationSurface = location.pathname === '/recommendations' ? 'recommendations' : 'home';
+  const recommendationSurface = location.pathname === '/'
+    ? 'home'
+    : location.pathname.startsWith('/recommendations') ? 'recommendations' : null;
   const loadDemoRecommendations = useCallback(
-    (options) => fetchUserRecommendations('demo-user', { ...options, surface: recommendationSurface }),
+    (options) => fetchUserRecommendations('demo-user', {
+      ...options,
+      surface: recommendationSurface || 'home',
+    }),
     [recommendationSurface],
   );
   const recommendation = useRemoteResource(
     loadDemoRecommendations,
     selectRecommendations,
     INITIAL_RECOMMENDATIONS,
+    {
+      enabled: recommendationSurface !== null,
+      resourceKey: recommendationSurface || 'disabled',
+    },
   );
 
   const value = useMemo(() => ({

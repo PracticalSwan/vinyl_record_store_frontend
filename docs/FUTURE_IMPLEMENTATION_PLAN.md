@@ -1,6 +1,6 @@
 # Frontend Future Implementation Plan
 
-Status: FFP-04 and FFP-05 completed on 2026-07-03. The remaining frontend plans are approved future work and are not in progress.
+Status: FFP-01 through FFP-05 are complete. FFP-06 through FFP-08 remain approved future work and are not in progress.
 
 Audience: developers implementing the Groovehaus Vite/React storefront and backend developers maintaining the shared API contracts.
 
@@ -11,7 +11,7 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 - Use backend-enforced seeded customer and administrator sessions before durable user persistence.
 - Add simple customer registration only after authentication and protected user-write routes exist. The MongoDB user repository boundary is now implemented, but registration is not.
 - Keep numeric product IDs in URLs, API requests, and client state.
-- Merge guest wishlist and cart state into authenticated state automatically.
+- Keep guest state session-only. Merge it only into a brand-new registration; discard it on existing-account login or ordinary restore, while resuming a keyed failed registration merge.
 - Enable anonymous interaction tracking by default with a visible opt-out, no direct personal information, and a 90-day backend retention target.
 - Put administrator pages under protected `/admin` routes in the existing app.
 - Use MusicBrainz and Cover Art Archive as the artwork source, with local vinyl placeholders as the fallback.
@@ -22,9 +22,9 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 
 | ID | Plan | Status | Main Gate |
 | --- | --- | --- | --- |
-| FFP-01 | Recommendation interaction analytics | Planned | Backend event ingestion and retention are required for durable data. |
-| FFP-02 | User onboarding and preference capture | Planned | Seeded login can demonstrate it; registration and saved preferences require backend user persistence. |
-| FFP-03 | Local-to-server state migration | Planned | Requires authentication and wishlist/cart/rating write APIs. |
+| FFP-01 | Recommendation interaction analytics | Completed | Privacy control, bounded queue, attribution, and browser coverage completed 2026-07-05. |
+| FFP-02 | User onboarding and preference capture | Completed | Three-step onboarding and profile preference editing completed 2026-07-05. |
+| FFP-03 | Local-to-server state migration | Completed | Session guest adapter, sign-up merge, and authenticated server adapter completed 2026-07-05. |
 | FFP-04 | Browser, integration, and accessibility testing | Completed | Vitest, React Testing Library, Playwright, and axe gate established 2026-07-03. |
 | FFP-05 | Full server-side search and pagination | Completed | Query-driven backend and frontend contract completed 2026-07-03. |
 | FFP-06 | Artwork and image handling | Planned | Requires approved MusicBrainz/Cover Art mappings from the backend. |
@@ -33,19 +33,19 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 
 ## Approved Cross-Repository Implementation Order
 
-The first three plans are complete. Continue the remaining plans in this order so each later surface builds on verified contracts and regression coverage:
+The first nine ordered items are complete. Continue the remaining plans in this order so each later surface builds on verified contracts and regression coverage:
 
 | Order | Plan | Dependency-safe outcome |
 | --- | --- | --- |
 | 1 | FFP-04: browser, integration, and accessibility testing | Completed 2026-07-03. |
 | 2 | BFP-01: MongoDB persistence | Completed 2026-07-03 with seed default preserved. |
 | 3 | FFP-05: server-side search and pagination | Completed 2026-07-03. |
-| 4 | BFP-04: simple authentication and authorization | Establish real server-enforced customer/admin identity and registration through the user repository. |
-| 5 | BFP-03: write APIs | Add protected wishlist, cart, rating, preference, merge, and interaction contracts. |
-| 6 | FFP-03: local-to-server state migration | Move guest state only after identity and write contracts are stable. |
-| 7 | FFP-02: onboarding and preferences | Add the customer flow against the implemented session and preference APIs. |
-| 8 | BFP-02 Part A: recommendation-request logging | Persist request IDs, served lists, modes, and algorithm versions before collecting recommendation interactions. |
-| 9 | FFP-01: recommendation interaction analytics | Emit privacy-controlled events that can be joined to the logged recommendation requests. |
+| 4 | BFP-04: simple authentication and authorization | Completed 2026-07-04. |
+| 5 | BFP-03: write APIs | Completed 2026-07-04. |
+| 6 | FFP-03: local-to-server state migration | Completed 2026-07-05 with the revised session-only, sign-up-only merge decision. |
+| 7 | FFP-02: onboarding and preferences | Completed 2026-07-05. |
+| 8 | BFP-02 Part A: recommendation-request logging | Completed 2026-07-05. |
+| 9 | FFP-01: recommendation interaction analytics | Completed 2026-07-05. |
 | 10 | BFP-06: catalog ingestion and metadata quality | Add validated preview/apply imports and approved metadata enrichment. |
 | 11 | FFP-06: artwork and image handling | Consume only backend-approved artwork mappings with resilient fallbacks. |
 | 12 | BFP-02 Part B: offline evaluation dataset and benchmark | Evaluate only after the minimum interaction threshold and leakage-safe split are available. |
@@ -55,6 +55,8 @@ The first three plans are complete. Continue the remaining plans in this order s
 BFP-05 remains on hold and is excluded from this order until the user selects a recommender approach. Deployment, real payments, and a production order system remain out of scope.
 
 ## FFP-01: Recommendation Interaction Analytics
+
+Status: Completed and verified on 2026-07-05. See `INTERACTION_LOGGING_PLAN.md` for the active implementation record.
 
 This plan defines the recommendation-specific evidence captured by the storefront.
 
@@ -137,6 +139,8 @@ The frontend never sends an authenticated user ID. The backend attaches session 
 
 ## FFP-02: User Onboarding And Preference Capture
 
+Status: Completed and verified on 2026-07-05. Preferences remain future-facing and do not alter the active demo recommender.
+
 This plan defines the customer preference workflow without selecting a future recommender method.
 
 ### Goal
@@ -202,6 +206,8 @@ Registration appears only after the backend user repository is implemented and h
 
 ## FFP-03: Local-To-Server State Migration
 
+Status: Completed and verified on 2026-07-05 under the revised session-only, sign-up-only guest policy.
+
 This plan defines the transition from guest browser state to authenticated persistence.
 
 ### Goal
@@ -210,14 +216,14 @@ Move wishlist, cart, quantity, and rating state from temporary React state to ac
 
 ### State Ownership
 
-- Guest state persists in versioned `localStorage` rather than starting from hard-coded demo items.
+- Guest state persists in versioned `sessionStorage` for the current tab rather than starting from hard-coded demo items.
 - Authenticated state is authoritative on the backend.
 - The frontend keeps one Store interface so pages do not know whether the active adapter is guest or authenticated.
 - Logout removes user-specific memory and starts a fresh guest store. It must never reveal the previous user's lists.
 
 ### Automatic Merge Decision
 
-After successful login, automatically call `POST /api/me/merge-guest-state` when guest state is non-empty.
+After successful new-account registration, call `POST /api/me/merge-guest-state` when guest state is non-empty. Existing-account login and ordinary session restore discard guest state. A stored keyed merge resumes after refresh when a registration merge previously failed.
 
 - Wishlist uses set union.
 - Matching cart quantities are added and capped at 99.
@@ -255,7 +261,7 @@ After successful login, automatically call `POST /api/me/merge-guest-state` when
 
 ### Validation And Definition Of Done
 
-- Guest state survives refresh and malformed local data falls back safely.
+- Guest state survives same-tab refresh and malformed local data falls back safely; closing the tab clears it by design.
 - Login merges exactly once even if the request or component retries.
 - Failed merge or write never destroys the last known client state.
 - Refresh after a successful authenticated write returns the same state from the backend.
@@ -345,7 +351,7 @@ Installed versions are recorded in `package-lock.json`. Browser binaries and gen
 
 ## FFP-05: Full Server-Side Search And Pagination
 
-Status: Completed on 2026-07-03. Recommendation result-click analytics remains part of FFP-01 because interaction ingestion is not implemented.
+Status: Completed on 2026-07-03. Recommendation/search result-click analytics was added by completed FFP-01 on 2026-07-05.
 
 This plan defines the complete move from a preloaded catalog to query-driven backend results.
 

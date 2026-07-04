@@ -10,8 +10,8 @@ These files describe the implemented Groovehaus storefront and its current backe
 - `RECOMMENDER_SYSTEM_PLAN.md`: recommendation presentation and honesty rules.
 - `ARCHITECTURE_PLAN.md`: current source and state ownership.
 - `EVALUATION_PLAN.md`: automated and manual frontend checks.
-- `FUTURE_IMPLEMENTATION_PLAN.md`: completed testing/search plans plus approved future analytics, onboarding, state, artwork, admin, and demo-checkout plans and the cross-repository order.
-- `INTERACTION_LOGGING_PLAN.md`: low-level general tracking plan, supplemented by FFP-01 in the future plan.
+- `FUTURE_IMPLEMENTATION_PLAN.md`: completed FFP-01 through FFP-05 records plus approved artwork, admin, and demo-checkout plans and the cross-repository order.
+- `INTERACTION_LOGGING_PLAN.md`: implemented FFP-01 queue, privacy, attribution, and verification design.
 - `ROADMAP.md` and `TASK_BACKLOG.md`: completed implementation and explicitly deferred work.
 - `DECISION_LOG.md`, `RISK_REGISTER.md`, and `PRESENTATION_NOTES.md`: durable decisions, risks, and course-facing summary.
 - `SETUP_LATER.md`: deferred setup that has not started.

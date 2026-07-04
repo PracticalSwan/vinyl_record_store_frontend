@@ -22,6 +22,7 @@ let flushTimer = null;
 let retryTimer = null;
 let flushing = false;
 let initialized = false;
+let identityGeneration = 0;
 const dedupe = new Map();
 
 function storage() {
@@ -130,8 +131,8 @@ export function track(type, payload = {}) {
   if (dedupeKey) {
     const now = Date.now();
     const windowMs = payload.dedupeWindowMs ?? 2_000;
-    const last = dedupe.get(dedupeKey) || 0;
-    if (now - last < windowMs) return false;
+    const last = dedupe.get(dedupeKey);
+    if (last !== undefined && now - last < windowMs) return false;
     dedupe.set(dedupeKey, now);
   }
   if (debug) {
@@ -146,6 +147,7 @@ export function track(type, payload = {}) {
 
 export async function flush({ keepalive = false } = {}) {
   if (flushing || !enabled() || !queue.length) return;
+  const generation = identityGeneration;
   flushing = true;
   const batch = queue.splice(0, BATCH_SIZE);
   persistQueue();
@@ -155,9 +157,11 @@ export async function flush({ keepalive = false } = {}) {
       batch.length,
       Number(response.data.accepted || 0) + Number(response.data.duplicates || 0),
     ));
-    if (handled < batch.length && enabled()) requeue(batch.slice(handled));
+    if (generation === identityGeneration && handled < batch.length && enabled()) {
+      requeue(batch.slice(handled));
+    }
   } catch {
-    if (!enabled()) return;
+    if (generation !== identityGeneration || !enabled()) return;
     const retriable = requeue(batch);
     if (retriable.length && enabled()) {
       const attempts = Math.max(...retriable.map((event) => event._attempts || 0));
@@ -168,8 +172,19 @@ export async function flush({ keepalive = false } = {}) {
     }
   } finally {
     flushing = false;
-    if (queue.length && !retryTimer) scheduleFlush();
+    if (generation === identityGeneration && queue.length && !retryTimer) scheduleFlush();
   }
+}
+
+export async function prepareTrackingIdentityChange() {
+  identityGeneration += 1;
+  clearTimers();
+  await flush();
+  clearTimers();
+  queue = [];
+  dedupe.clear();
+  persistQueue([]);
+  try { storage()?.removeItem(TRACKING_QUEUE_KEY); } catch { /* ignored */ }
 }
 
 function flushOnHide() {
@@ -204,5 +219,6 @@ export function resetTrackingForTests() {
   flushing = false;
   dedupe.clear();
   initialized = false;
+  identityGeneration = 0;
   resetTrackingPreferenceForTests();
 }

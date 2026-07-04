@@ -47,6 +47,11 @@ function fromGuest(value) {
   };
 }
 
+function shouldMergeGuestState(authMethod) {
+  if (authMethod === 'register') return true;
+  return authMethod === 'restore' && Boolean(readGuestStore().mergeId);
+}
+
 export function StoreProvider({ children }) {
   const auth = useAuth();
   const tracking = useTracking();
@@ -88,10 +93,9 @@ export function StoreProvider({ children }) {
       let guest = readGuestStore();
       let next;
       // Guest data merges only when a brand-new account is created (sign-up).
-      // Signing in to an existing account, or restoring an authenticated
-      // session, discards any guest data and loads the account's own server
-      // state, so a visitor's guest cart is never copied onto an existing
-      // account (for example on a shared device).
+      // Signing in to an existing account, or an ordinary session restore,
+      // discards guest data. A restore resumes only a previously keyed sign-up
+      // merge, preserving retry safety if the page refreshed after failure.
       if (merge && hasGuestState(guest)) {
         guest = ensureGuestMerge(guest);
         if (!writeGuestStore(guest)) {
@@ -148,8 +152,18 @@ export function StoreProvider({ children }) {
       pendingRef.current.clear();
       setPending([]);
       if (auth.status === 'authenticated') {
-        loadAuthenticated(auth.user, controller.signal, { merge: auth.authMethod === 'register' });
-      } else if (auth.status === 'anonymous' || auth.status === 'error') {
+        loadAuthenticated(auth.user, controller.signal, {
+          merge: shouldMergeGuestState(auth.authMethod),
+        });
+      } else if (auth.status === 'anonymous') {
+        syncGeneration.current += 1;
+        const guest = readGuestStore();
+        const resetGuest = guest.mergeId ? { ...guest, mergeId: null } : guest;
+        if (guest.mergeId) writeGuestStore(resetGuest);
+        commit(fromGuest(resetGuest));
+        setStatus('guest');
+        setError(null);
+      } else if (auth.status === 'error') {
         syncGeneration.current += 1;
         commit(fromGuest(readGuestStore()));
         setStatus('guest');
@@ -337,7 +351,9 @@ export function StoreProvider({ children }) {
     // effect uses. Otherwise retry would take the discard branch and wipe the
     // never-merged guest data.
     if (auth.status === 'authenticated') {
-      loadAuthenticated(auth.user, undefined, { merge: auth.authMethod === 'register' });
+      loadAuthenticated(auth.user, undefined, {
+        merge: shouldMergeGuestState(auth.authMethod),
+      });
     }
   }, [auth.status, auth.user, auth.authMethod, loadAuthenticated]);
 

@@ -7,6 +7,7 @@ The backend owns candidate generation, scoring, diversity, exclusions, and expla
 - Home recommendation row from `/api/recommendations/user/demo-user`.
 - Recommendation demo page with profile summary, mode label, ranking order, and reasons.
 - Product detail similarity row from `/api/recommendations/product/:id`.
+- Request/list metadata flattened into cards for impression, click, and downstream attribution.
 
 ## Modes
 
@@ -22,6 +23,8 @@ The backend owns candidate generation, scoring, diversity, exclusions, and expla
 - Keep reasons tied to actual artist, genre, era, label, or availability matches.
 - Do not expose score as a quality guarantee.
 - Preserve loading, empty, error, and success states.
+- Request user recommendations only on Home and Recommendations so logged lists correspond to rendered output.
+- Deduplicate impressions by request/list/product/surface for the full page view.
 - Never infer or display private interaction history that the backend did not return.
 
 ## Evaluation Boundary

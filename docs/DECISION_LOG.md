@@ -34,6 +34,8 @@ Decision: Wishlist, cart, quantity, and rating remain local demo state; checkout
 
 Rationale: No identity or user-state write API exists. Optional backend catalog persistence does not make these actions durable.
 
+Status update, 2026-07-05: Superseded by FDEC-008 after the backend identity/write contracts were implemented.
+
 ## FDEC-005: Label Recommendation Context
 
 Date: 2026-07-02
@@ -57,3 +59,19 @@ Date: 2026-07-03
 Decision: Use Vitest and React Testing Library for unit/component checks and Playwright plus axe for critical multi-browser, responsive, failure, history, and accessibility flows.
 
 Rationale: Static lint and build checks cannot verify interactive behavior, stale responses, browser history, responsive filters, or accessible rendered states.
+
+## FDEC-008: Use Session Guests And Account-Backed Authenticated State
+
+Date: 2026-07-05
+
+Decision: Keep guest wishlist/cart/rating state in versioned `sessionStorage`. Merge it only into a brand-new registration, discard it on existing-account login or ordinary restore, and resume a persisted keyed registration merge after failure/refresh. Authenticated mutations use the server APIs behind the same Store interface.
+
+Rationale: This preserves a useful guest session without copying a shared-device visitor's state onto an existing account. A persisted key and backend receipt make registration retries idempotent.
+
+## FDEC-009: Keep Analytics Optional And Identity-Bounded
+
+Date: 2026-07-05
+
+Decision: Enable bounded pseudonymous interaction capture by default with a visible immediate opt-out. Fetch recommendation lists only where rendered, join actions by request/list context, and flush or discard queued events before authentication changes.
+
+Rationale: The course needs reconstructable recommendation evidence, but direct personal information, unseen-list logs, and capture-time events assigned to a later identity would invalidate both privacy and evaluation data.

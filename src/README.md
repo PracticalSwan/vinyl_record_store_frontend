@@ -4,7 +4,7 @@ This is the canonical Groovehaus application source.
 
 - `pages/`: routed screens.
 - `components/`: reusable UI and state surfaces.
-- `context/`: shared recommendation state and local demo store state.
+- `context/`: authentication, recommendation, tracking, and guest/authenticated store state.
 - `hooks/`: URL-backed catalog queries, product requests, and recommendation requests.
 - `lib/api.js`: backend client boundary.
 - `lib/catalogQuery.js`: canonical catalog query parsing and serialization.

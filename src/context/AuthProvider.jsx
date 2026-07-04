@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as api from '../lib/api';
+import { prepareTrackingIdentityChange } from '../lib/tracking';
 import { AuthContext } from './authContext';
 
 async function resolveSessionState({ signal } = {}) {
@@ -40,6 +41,7 @@ export function AuthProvider({ children }) {
   // advance the counter, so a pending session restore can still settle.
   const signIn = useCallback(async (credentials) => {
     const before = operation.current;
+    await prepareTrackingIdentityChange();
     const response = await api.login(credentials);
     if (operation.current !== before) return response.data.user;
     operation.current += 1;
@@ -49,6 +51,7 @@ export function AuthProvider({ children }) {
 
   const signUp = useCallback(async (account) => {
     const before = operation.current;
+    await prepareTrackingIdentityChange();
     const response = await api.register(account);
     if (operation.current !== before) return response.data.user;
     operation.current += 1;
@@ -58,6 +61,7 @@ export function AuthProvider({ children }) {
 
   const signOut = useCallback(async () => {
     const before = operation.current;
+    await prepareTrackingIdentityChange();
     await api.logout();
     if (operation.current !== before) return;
     operation.current += 1;

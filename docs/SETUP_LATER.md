@@ -6,9 +6,9 @@ The approved design and dependency gates are documented in `FUTURE_IMPLEMENTATIO
 
 ## Deferred
 
-- Authentication and identity-aware state.
-- Persistent wishlist, cart, rating, interaction, and order APIs.
-- Checkout and payment integration.
+- Offline recommendation dataset/report consumption.
+- Demo checkout and order UI.
+- Real checkout and payment integration.
 - TypeScript migration.
 - Approved artwork and responsive image pipeline.
 

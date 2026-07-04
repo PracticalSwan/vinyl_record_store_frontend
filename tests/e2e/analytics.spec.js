@@ -62,3 +62,26 @@ test('recommendation metadata is surfaced and usage-data opt-out stops event del
   await page.goto('/recommendations');
   expect((await requestAfterOptOut).headers()['x-tracking-enabled']).toBe('false');
 });
+
+test('recommendation requests are made only on pages that render their lists', async ({ page }) => {
+  const requests = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/api/recommendations/user/')) requests.push(request);
+  });
+
+  await page.goto('/catalog');
+  await page.waitForTimeout(1_000);
+  expect(requests).toHaveLength(0);
+
+  await page.goto('/');
+  await expect.poll(() => requests.length).toBe(1);
+  expect(new URL(requests[0].url()).searchParams.get('surface')).toBe('home');
+
+  await page.goto('/catalog');
+  await page.waitForTimeout(500);
+  expect(requests).toHaveLength(1);
+
+  await page.goto('/recommendations');
+  await expect.poll(() => requests.length).toBe(2);
+  expect(new URL(requests[1].url()).searchParams.get('surface')).toBe('recommendations');
+});

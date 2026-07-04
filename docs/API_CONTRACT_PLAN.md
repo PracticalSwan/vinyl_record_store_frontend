@@ -23,13 +23,15 @@ Error:
 | Catalog | `GET` | `/api/products` | Catalog, Search, Home, and cart suggestions use bounded server queries. |
 | Product detail | `GET` | `/api/products/:id` | Detail and ID-based local-list hydration. |
 | Search alias | `GET` | `/api/search` | Shares the product query service and response shape. |
-| Similar products | `GET` | `/api/recommendations/product/:id?limit=6` | Product detail recommendation row. |
-| User recommendations | `GET` | `/api/recommendations/user/demo-user?limit=12` | Home and recommendation demo routes. |
+| Similar products | `GET` | `/api/recommendations/product/:id?limit=6&surface=product-detail` | Product detail row with request/list attribution. |
+| User recommendations | `GET` | `/api/recommendations/user/demo-user?limit=12&surface=...` | Home and recommendation routes only, with request/list attribution. |
 | Health | `GET` | `/api/health` | Operational check. |
 
 Product query parameters are `q`, repeated `genre`, repeated `era`, repeated `condition`, `minPrice`, `maxPrice`, `inStock`, `sort`, `page`, and `limit`. Search is a bounded, case-insensitive literal substring. Supported sorts are `newest`, `price-asc`, `price-desc`, and `artist-asc`.
 
 Product-list metadata includes `page`, `limit`, `total`, `totalPages`, `sort`, and full-active-catalog facets for genres, conditions, stock, prices, and years. Repeated values are ORed within a facet and different facets are ANDed.
+
+Recommendation responses include `requestId`, `listId`, `algorithmVersion`, `mode`, ordered ranked items, and `recommendationLogged`. The client sends `X-Tracking-Enabled`; enabled user requests also send a pseudonymous `X-Anonymous-Id`. Opt-out suppresses both interaction capture and MongoDB recommendation-request logging.
 
 ## Implemented Authentication Calls
 
@@ -47,18 +49,18 @@ Registration accepts `{ username, password, displayName? }`; login accepts `{ us
 
 | Frontend Need | Method | Path | API Helper Status |
 | --- | --- | --- | --- |
-| Preferences | `PATCH` | `/api/me/preferences` | Implemented; onboarding UI remains FFP-02. |
-| Interactions | `POST` | `/api/interactions` | Implemented; capture/queue remains FFP-01. |
-| Wishlist | `GET`, `PUT`, `DELETE` | `/api/wishlist`, `/api/wishlist/:productId` | Implemented; local UI migration remains FFP-03. |
-| Cart | `GET`, `PUT`, `DELETE` | `/api/cart`, `/api/cart/:productId` | Implemented; local UI migration remains FFP-03. |
-| Ratings | `GET`, `PUT`, `DELETE` | `/api/ratings`, `/api/ratings/:productId` | Implemented; local UI migration remains FFP-03. |
-| Guest state merge | `POST` | `/api/me/merge-guest-state` | Implemented; automatic login merge remains FFP-03. |
+| Preferences | `PATCH` | `/api/me/preferences` | Used by onboarding and profile preference editing. |
+| Interactions | `POST` | `/api/interactions` | Used by the bounded analytics queue. |
+| Wishlist | `GET`, `PUT`, `DELETE` | `/api/wishlist`, `/api/wishlist/:productId` | Used by authenticated `StoreProvider`. |
+| Cart | `GET`, `PUT`, `DELETE` | `/api/cart`, `/api/cart/:productId` | Used by authenticated `StoreProvider`. |
+| Ratings | `GET`, `PUT`, `DELETE` | `/api/ratings`, `/api/ratings/:productId` | Used by authenticated `StoreProvider`. |
+| Guest state merge | `POST` | `/api/me/merge-guest-state` | Used only after new-account registration; keyed failure retries survive refresh. |
 
 The backend derives ownership from the session, requires the exact configured origin for mutations, rejects unexpected fields, and returns stable safe errors. Guest merge requires a stable `mergeId`; interaction batches require unique stable event IDs.
 
 ## Deferred Calls
 
-Demo orders, recommendation-request logs, and administrator catalog endpoints are not implemented. The current wishlist/cart/rating pages remain local and must not claim server persistence until FFP-03 wires the implemented helpers into the store providers.
+Demo orders and administrator catalog endpoints are not implemented. Recommendation-request logs are an internal MongoDB persistence side effect of recommendation GET routes, not a public route. Guest state is session-only; authenticated wishlist/cart/rating state is server-backed.
 
 ## Error Handling
 

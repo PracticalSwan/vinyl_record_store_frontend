@@ -1,6 +1,6 @@
 # Frontend Product Requirements
 
-Requirement status reflects the integrated academic demo as of 2026-07-03.
+Requirement status reflects the integrated academic demo as of 2026-07-05.
 
 ## Goal
 
@@ -13,24 +13,27 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 | FFR-001 | Display backend product listing. | Implemented | Abortable, paginated catalog query and catalog route. |
 | FFR-002 | Display product details. | Implemented | Record detail route requests the backend product endpoint. |
 | FFR-003 | Search, filter, and sort products. | Implemented | URL-backed literal server search, repeated facets, deterministic sort, and pagination. |
-| FFR-004 | Display wishlist and cart actions. | Demo only | State is local and intentionally not persisted. |
+| FFR-004 | Display wishlist, cart, quantity, and rating actions. | Implemented | Session guest adapter and authenticated server adapter with optimistic rollback. |
 | FFR-005 | Display product-based recommendations. | Implemented | Detail route consumes backend similarity results. |
 | FFR-006 | Display user-based recommendations. | Demo only | Uses the documented `demo-user` sample profile. |
 | FFR-007 | Show recommendation explanations. | Implemented | Cards display backend reasons. |
 | FFR-008 | Handle loading, empty, error, and success states. | Implemented | Independent route query and recommendation states. |
 | FFR-009 | Verify critical browser and accessibility behavior. | Implemented | Vitest, React Testing Library, Playwright browser matrix, and axe. |
+| FFR-010 | Register, restore, and protect customer accounts. | Implemented | Signed-cookie auth provider and protected routes. |
+| FFR-011 | Capture and edit future-facing preferences. | Implemented | Three-step onboarding and profile editor. |
+| FFR-012 | Capture privacy-controlled interaction analytics. | Implemented | Visible opt-out, bounded queue, recommendation attribution, and auth-boundary isolation. |
 
 ## Non-Functional Requirements
 
 - Responsive product grids and filters.
 - Keyboard-visible focus and accessible names for icon actions.
 - Text labels as well as color for stock and recommendation meaning.
-- No frontend secrets or private interaction data.
+- No frontend secrets or direct personal information in analytics payloads.
 - No false claims of persistence or personal history.
 
 ## Out Of Scope
 
-Authentication, payments, production checkout, frontend database access, write APIs, scraping, and admin tools remain outside the current implemented demo.
+Payments, production checkout, frontend database access, scraping, admin tools, and offline recommender evaluation remain outside the current implemented demo.
 
 ## Success Criteria
 
