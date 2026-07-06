@@ -13,6 +13,7 @@ Read this file before every frontend session.
 - Recommendation copy must label sample-profile and cold-start behavior honestly.
 - Fetch user recommendations only on Home and Recommendations, where the lists render; otherwise request logs falsely describe unseen lists.
 - Flush or discard queued analytics before login, registration, or logout so the backend cannot attach capture-time events to the wrong identity.
+- `ProductImage` is the only remote artwork boundary. Accept only the complete backend-approved image envelope, use local metadata for alt text, keep repeated card/list images decorative, and fall back once without retry loops.
 
 ## Working Rules
 
@@ -23,6 +24,7 @@ Read this file before every frontend session.
 - Treat the URL as the catalog and search query source of truth. Canonicalize repeated facets, reset invalid pages, and cancel superseded requests.
 - Run the Vitest and Playwright suites for behavior changes; lint and build alone do not cover responsive flows, browser history, or accessibility.
 - Preserve loading, empty, error, and success states when changing API-backed screens.
+- Keep image boxes dimensionally stable, lazy-load card/list art, reserve eager high-priority loading for the main detail image, and render explicit fallbacks for nullable imported metadata.
 - Derive catalog counts from API data; do not reintroduce fictional inventory statistics.
 - Run `npm run lint` and `npm run build` after source or integration changes.
 

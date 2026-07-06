@@ -4,7 +4,8 @@ import { useStore } from '../context/useStore';
 import { useProductRecommendations } from '../hooks/useProductRecommendations';
 import { useProduct } from '../hooks/useRemoteProducts';
 import { RecScroll } from '../components/ProductGrid';
-import { IconVinyl, IconHeart, IconStar } from '../components/Icons';
+import { IconHeart, IconStar } from '../components/Icons';
+import ProductImage from '../components/ProductImage';
 import { useTracking } from '../context/useTracking';
 
 function StockBadge({ stock }) {
@@ -77,15 +78,15 @@ export default function DetailPage() {
         <nav aria-label="Breadcrumb" className="breadcrumb">
           <Link to="/catalog">Catalog</Link>
           <span className="breadcrumb-sep" aria-hidden="true">›</span>
-          <Link to="/catalog">{record.genre}</Link>
+          <Link to="/catalog">{record.genre || 'Uncategorized'}</Link>
           <span className="breadcrumb-sep" aria-hidden="true">›</span>
           <span aria-current="page">{record.title}</span>
         </nav>
 
         {/* Detail layout */}
         <div className="detail-layout">
-          <div className="detail-cover" aria-hidden="true">
-            <IconVinyl size={120} opacity={0.25} />
+          <div className="detail-cover">
+            <ProductImage record={record} variant="detail" priority showAttribution />
           </div>
 
           <div className="detail-info">
@@ -95,23 +96,23 @@ export default function DetailPage() {
             </div>
 
             <div className="detail-meta-row" aria-label="Record details">
-              <span className="badge badge-genre">{record.genre}</span>
-              <span className="badge badge-era">{record.year}</span>
+              <span className="badge badge-genre">{record.genre || 'Uncategorized'}</span>
+              <span className="badge badge-era">{record.year || 'Year unknown'}</span>
               <StockBadge stock={record.stock} />
               <span className="badge badge-cond">{record.condition}</span>
             </div>
 
             <p className="detail-price" aria-label={`Price: $${record.price}`}>${record.price}</p>
-            <p className="detail-desc">{record.description}</p>
+            <p className="detail-desc">{record.description || 'No description is available.'}</p>
 
             <table className="detail-table" aria-label="Record specifications">
               <tbody>
                 {[
-                  ['Label',     record.label],
+                  ['Label',     record.label || 'Not provided'],
                   ['Format',    record.format],
-                  ['Pressing',  record.pressing],
+                  ['Pressing',  record.pressing || 'Not provided'],
                   ['Condition', record.condition],
-                  ['Genre',     record.genre],
+                  ['Genre',     record.genre || 'Uncategorized'],
                   ['Stock',     record.stock === 'in' ? 'In stock' : record.stock === 'low' ? 'Low stock' : 'Out of stock'],
                 ].map(([k, v]) => (
                   <tr key={k}><td>{k}</td><td>{v}</td></tr>

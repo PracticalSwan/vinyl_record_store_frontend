@@ -1,6 +1,6 @@
 # Frontend Product Requirements
 
-Requirement status reflects the integrated academic demo as of 2026-07-05.
+Requirement status reflects the integrated academic demo as of 2026-07-06.
 
 ## Goal
 
@@ -22,6 +22,7 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 | FFR-010 | Register, restore, and protect customer accounts. | Implemented | Signed-cookie auth provider and protected routes. |
 | FFR-011 | Capture and edit future-facing preferences. | Implemented | Three-step onboarding and profile editor. |
 | FFR-012 | Capture privacy-controlled interaction analytics. | Implemented | Visible opt-out, bounded queue, recommendation attribution, and auth-boundary isolation. |
+| FFR-013 | Display approved artwork safely. | Implemented | Shared validated image component with responsive loading, attribution, accessibility, and fallbacks. |
 
 ## Non-Functional Requirements
 
@@ -33,7 +34,7 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 
 ## Out Of Scope
 
-Payments, production checkout, frontend database access, scraping, admin tools, and offline recommender evaluation remain outside the current implemented demo.
+Payments, production checkout, frontend database access, scraping, and admin tools remain outside the current implemented demo. Offline recommender evaluation belongs to the backend and currently reports insufficient evidence rather than quality metrics.
 
 ## Success Criteria
 

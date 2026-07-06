@@ -1,7 +1,7 @@
 import { useStore } from '../context/useStore';
 import { useProductQuery, useProductsByIds } from '../hooks/useRemoteProducts';
 import { RecScroll, SkeletonGrid } from '../components/ProductGrid';
-import { IconVinylDark } from '../components/Icons';
+import ProductImage from '../components/ProductImage';
 
 const SHIPPING = 6;
 const SUGGESTION_QUERY = {
@@ -32,8 +32,8 @@ export default function CartPage() {
       {products.status === 'empty' && <div className="state-box" role="status"><p className="state-title">Your cart is empty</p><p className="state-desc">Browse the catalog and add records to your cart.</p></div>}
       {cartItems.length > 0 && <><div className="list-items" role="list" aria-label="Your cart">
         {cartItems.map(({ record, qty }) => <article key={record.id} className="list-item" role="listitem" aria-label={`${record.title} by ${record.artist}`}>
-          <div className="list-item-cover" aria-hidden="true"><IconVinylDark /></div>
-          <div className="list-item-info"><p className="list-item-title">{record.title}</p><p className="list-item-artist">{record.artist}</p><div className="list-item-meta"><span className="badge badge-genre">{record.genre}</span><span className="badge badge-era">{record.year}</span><span className="badge badge-cond">{record.condition}</span></div></div>
+          <div className="list-item-cover"><ProductImage record={record} variant="list" decorative /></div>
+          <div className="list-item-info"><p className="list-item-title">{record.title}</p><p className="list-item-artist">{record.artist}</p><div className="list-item-meta"><span className="badge badge-genre">{record.genre || 'Uncategorized'}</span><span className="badge badge-era">{record.year || 'Year unknown'}</span><span className="badge badge-cond">{record.condition}</span></div></div>
           <div className="list-item-actions"><div className="qty-control" role="group" aria-label={`Quantity for ${record.title}`}><button className="qty-btn" aria-label="Decrease quantity" disabled={store.isPending('cart', record.id)} onClick={() => updateQty(record.id, -1)}>-</button><span className="qty-val" aria-live="polite">{qty}</span><button className="qty-btn" aria-label="Increase quantity" disabled={store.isPending('cart', record.id)} onClick={() => updateQty(record.id, 1)}>+</button></div><span className="list-item-price" aria-label={`Price: $${record.price * qty}`}>${record.price * qty}</span><button className="btn btn-ghost btn-sm" aria-label={`Remove ${record.title} from cart`} disabled={store.isPending('cart', record.id)} onClick={() => removeFromCart(record.id)}>Remove</button></div>
         </article>)}
       </div><div className="cart-summary" aria-label="Order summary"><h2>Order summary</h2><div className="cart-summary-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div><div className="cart-summary-row"><span>Shipping</span><span>${SHIPPING.toFixed(2)}</span></div><div className="cart-summary-row total"><span>Total</span><span>${total.toFixed(2)}</span></div><button className="btn btn-accent checkout-button" disabled title="Checkout is outside the academic demo scope">Checkout unavailable in demo</button></div></>}

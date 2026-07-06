@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/useStore';
 import { useProductsByIds } from '../hooks/useRemoteProducts';
-import { IconVinylDark, IconHeart } from '../components/Icons';
+import { IconHeart } from '../components/Icons';
+import ProductImage from '../components/ProductImage';
 import { SkeletonGrid } from '../components/ProductGrid';
 
 function StockBadge({ stock }) {
@@ -27,8 +28,8 @@ export default function WishlistPage() {
         <div className="list-items" role="list" aria-label="Your wishlist">
           {products.items.map((record) => (
             <article key={record.id} className="list-item" role="listitem" aria-label={`${record.title} by ${record.artist}`}>
-              <div className="list-item-cover" aria-hidden="true"><IconVinylDark /></div>
-              <div className="list-item-info"><p className="list-item-title">{record.title}</p><p className="list-item-artist">{record.artist}</p><div className="list-item-meta"><span className="badge badge-genre">{record.genre}</span><span className="badge badge-era">{record.year}</span><StockBadge stock={record.stock} /><span className="badge badge-cond">{record.condition}</span></div></div>
+              <div className="list-item-cover"><ProductImage record={record} variant="list" decorative /></div>
+              <div className="list-item-info"><p className="list-item-title">{record.title}</p><p className="list-item-artist">{record.artist}</p><div className="list-item-meta"><span className="badge badge-genre">{record.genre || 'Uncategorized'}</span><span className="badge badge-era">{record.year || 'Year unknown'}</span><StockBadge stock={record.stock} /><span className="badge badge-cond">{record.condition}</span></div></div>
               <div className="list-item-actions"><span className="list-item-price" aria-label={`Price: $${record.price}`}>${record.price}</span>{record.stock === 'out' ? <button className="btn btn-outline btn-sm" disabled>Out of stock</button> : <button className="btn btn-primary btn-sm" disabled={store.isPending('cart', record.id)} onClick={() => addToCart(record.id)}>Add to cart</button>}<button className="btn btn-ghost btn-sm" aria-label={`Remove ${record.title} from wishlist`} disabled={store.isPending('wishlist', record.id)} onClick={() => removeFromWishlist(record.id)}>Remove</button></div>
             </article>
           ))}

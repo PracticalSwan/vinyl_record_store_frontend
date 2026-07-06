@@ -7,13 +7,16 @@ These are the current API, authentication, and client-only shapes used by the st
 | Field | Type | Use |
 | --- | --- | --- |
 | `id` | number | Routing and local state references. |
-| `title`, `artist`, `genre`, `label` | string | Product identity and filtering. |
-| `year` | number | Display, sorting, and era filtering. |
+| `title`, `artist` | string | Required product identity. |
+| `genre`, `label` | string or null | Filtering and metadata; explicit UI fallback when absent. |
+| `year` | number or null | Display, sorting, and era filtering; explicit UI fallback when absent. |
 | `price` | number | USD display and cart totals. |
 | `currency` | string | Current API returns `USD`. |
 | `stock` | `in`, `low`, or `out` | Availability and action state. |
-| `condition`, `format`, `pressing`, `description` | string | Card or detail metadata. |
-| `imageUrl` | string or null | Reserved for approved artwork; placeholders are used now. |
+| `condition`, `format` | string | Required store metadata. |
+| `pressing`, `description` | string or null | Optional imported detail metadata with explicit fallbacks. |
+| `imageUrl` | string or null | Compatibility detail image URL. |
+| `image` | object or null | Approved thumbnail/detail URLs, `cover-art-archive` source, and MusicBrainz source link. |
 
 ## Recommendation Item
 

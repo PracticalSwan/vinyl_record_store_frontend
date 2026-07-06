@@ -6,11 +6,11 @@ This plan records the automated release evidence for the storefront. It does not
 
 | Check | Command | Current Evidence |
 | --- | --- | --- |
-| Unit and component tests | `npm run test:unit` | 57 tests passed on 2026-07-05. |
-| Browser and integration tests | `npm run test:e2e` | 47 passed, 1 intentional mobile-only skip across Chromium desktop/mobile/tablet, Firefox, and WebKit on 2026-07-05. |
-| Accessibility subset | `npm run test:a11y` | Representative axe checks passed within the full matrix on 2026-07-05. |
-| ESLint | `npm run lint` | Passed on 2026-07-05. |
-| Production bundle | `npm run build` | Passed on 2026-07-05. |
+| Unit and component tests | `npm run test:unit` | 61 tests passed on 2026-07-06, including artwork success/missing/broken/decorative cases. |
+| Browser and integration tests | `npm run test:e2e` | 49 passed, 1 intentional mobile-only skip across Chromium desktop/mobile/tablet, Firefox, and WebKit on 2026-07-06. |
+| Accessibility subset | `npm run test:a11y` | Representative axe checks passed within the full matrix on 2026-07-06. |
+| ESLint | `npm run lint` | Passed on 2026-07-06. |
+| Production bundle | `npm run build` | Passed on 2026-07-06. |
 
 ## Browser Scenarios
 
@@ -30,6 +30,7 @@ This plan records the automated release evidence for the storefront. It does not
 | FE-012 | Existing account signs in or restores. | Guest state is discarded and account state loads without cross-account leakage. |
 | FE-013 | Usage-data opt-out or auth change. | Capture stops immediately; queued events cannot cross identity boundaries. |
 | FE-014 | Non-recommendation route loads. | No user-recommendation request or unseen-list request log is created. |
+| FE-015 | Approved, missing, slow, or broken artwork renders. | The correct responsive image or stable local placeholder appears without loops, layout loss, or inaccessible duplicate text. |
 
 ## Recommendation Comprehension
 

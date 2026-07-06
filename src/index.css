@@ -163,6 +163,13 @@ button, input, select { font-family: inherit; font-size: inherit; }
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg, var(--groove) 0%, var(--groove-mid) 100%);
 }
+.product-image { position: relative; width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--groove); }
+.product-image-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--groove) 0%, var(--groove-mid) 100%); }
+.product-image-placeholder-list { background: var(--groove); }
+.product-image-artwork { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .2s ease; }
+.product-image.is-loaded .product-image-artwork { opacity: 1; }
+.product-image-attribution { position: absolute; right: .65rem; bottom: .65rem; z-index: 1; padding: .3rem .5rem; border-radius: var(--radius-sm); background: rgba(31, 25, 21, .86); font-size: 11px; }
+.product-image-attribution a { color: var(--cream); text-decoration: underline; text-underline-offset: 2px; }
 .card-wishlist-btn {
   position: absolute; top: 8px; right: 8px;
   background: rgba(255,255,255,.92); border: none;
@@ -434,6 +441,10 @@ button, input, select { font-family: inherit; font-size: inherit; }
 
 /* ── Focus ─────────────────────────────────────────── */
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .product-image-artwork { transition: none; }
+}
 
 /* ── Responsive ────────────────────────────────────── */
 @media (max-width: 900px) {

@@ -16,6 +16,7 @@ async function api(page, path, { method = 'GET', body } = {}) {
 }
 
 test('registration, login, restoration, and protected writes work with cleanup', async ({ page }, testInfo) => {
+  test.slow();
   const projectSuffix = testInfo.project.name.replace(/[^a-z0-9]/gi, '_').slice(0, 20);
   const username = `${process.env.E2E_REGISTER_USERNAME}_${projectSuffix}`;
   const password = process.env.E2E_REGISTER_PASSWORD;

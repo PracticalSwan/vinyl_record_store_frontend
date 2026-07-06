@@ -1,89 +1,70 @@
-# Vinyl Record Store Frontend
+# Groovehaus — Vinyl Record Store Frontend
 
-Groovehaus is the React storefront for the CSX4207 Vinyl Record Store Recommender System. It is an implemented academic demo that consumes the separate Next.js backend.
+Groovehaus is the customer-facing storefront for the **Vinyl Record Store Recommender System**, an academic project for CSX4207 (Decision Support and Recommender Systems) at Assumption University. It is a React single-page application for browsing a curated vinyl catalog and receiving explainable recommendations from the companion backend service.
 
-## Implemented Features
+## About
 
-- Home, catalog, product detail, search, recommendation, wishlist, cart, registration, login, protected account, onboarding, and profile-preferences routes.
-- Responsive product grid, mobile filters, keyboard-visible focus, empty/error/loading states, and horizontal recommendation rows.
-- URL-backed server search, repeated filters, deterministic sorting, pagination, and full-catalog facet counts.
-- Route-specific product queries with cancellation of stale search responses.
-- Product-similarity and sample-profile recommendations with backend-generated explanations.
-- Session-only guest wishlist/cart/rating state and server-backed authenticated state. A keyed guest merge runs only for a new registration and safely resumes after refresh; existing-account login and ordinary restore discard unrelated guest state.
-- Customer registration/login/logout, signed-cookie session restoration, safe post-login return paths, protected account routing, and authenticated navigation state.
-- Three-step onboarding plus editable/clearable account preferences, with honest wording that the current algorithm does not consume them.
-- Privacy-controlled interaction analytics with a durable bounded queue, visible opt-out, recommendation attribution, and auth-boundary isolation.
-- Unit and component tests with Vitest and React Testing Library; multi-browser, responsive, and axe checks with Playwright.
+Groovehaus demonstrates how a recommender-powered storefront feels end to end: browsing, searching, and discovering records, with recommendations that explain why each title was suggested. The recommendation engine, catalog, and customer accounts all live in the separate Next.js backend; this repository is the user interface that consumes those APIs.
 
-The backend can serve the catalog from its safe seed default or explicit MongoDB mode. Authentication, registered identity, and authenticated customer state are server-backed. Guest state remains intentionally session-only. Checkout, payments, offline recommendation evaluation, and measured real-customer personalization remain unimplemented.
+Two things worth knowing up front:
 
-## Run Locally
+- Recommendations are explicitly labeled `demo-profile` or `cold-start`. They are deterministic demonstration profiles, not real-customer personalization.
+- Product surfaces display backend-approved Cover Art Archive images when available, with traceable source links and stable local fallbacks when artwork is missing or broken.
+- `code_for_website/` is an early design-import snapshot kept for reference, not the running application. The active source lives in `src/`.
 
-Start the backend first from `../vinyl_record_store_backend`:
+## What you can do
 
-```bash
-npm install
-npm run dev
-```
+- Browse the catalog with genre, condition, era, price, and stock filters, with sorting and pagination.
+- Search records by text and open detailed product pages.
+- View similar records and demo recommendations, each with a short explanation.
+- View responsive release artwork without losing product details or actions when an image is slow, missing, or unavailable.
+- Save records to a wishlist and cart as a guest or a signed-in customer.
+- Register, sign in, and manage an account with onboarding preferences.
 
-Then start this frontend:
+## Tech stack
 
-```bash
-npm install
-npm run dev
-```
+React 19, Vite, React Router, and Tailwind CSS, tested with Vitest, React Testing Library, Playwright, and axe.
 
-The default URLs are `http://localhost:3000` for the backend and `http://localhost:5173` for the frontend.
+## Run locally
 
-## Environment
+The frontend depends on the backend, so start the backend first.
 
-Copy `.env.example` to `.env.local` only when local overrides are needed:
+1. From `../vinyl_record_store_backend`:
 
-```text
-VITE_APP_NAME=Groovehaus
-VITE_APP_URL=http://localhost:5173
-VITE_API_BASE_URL=http://localhost:3000
-```
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-Vite only exposes variables prefixed with `VITE_`. Do not place secrets in frontend environment variables.
+2. Then from this repository:
 
-## Test Auth Users
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-The site has two roles only: `customer` and `admin`. Showcase demo customer accounts are seeded into MongoDB and their (intentionally public) credentials are listed below. The administrator account is environment-backed on the backend (`.env.local`).
+The app opens at `http://localhost:5173` and expects the backend at `http://localhost:3000`. If your backend runs elsewhere, set `VITE_API_BASE_URL` in `.env.local`.
 
-- Customer (demo, jazz): `jazzlistener` / `jazz-groove-2026`
-- Customer (demo, rock): `rockcollector` / `rock-groove-2026`
-- Customer (demo, soul): `soulseeker` / `soul-groove-2026`
+## Demo accounts
+
+Two roles exist: `customer` and `admin`. Showcase demo customer accounts are seeded into the backend database for classroom use.
+
+- Customer (jazz): `jazzlistener` / `jazz-groove-2026`
+- Customer (rock): `rockcollector` / `rock-groove-2026`
+- Customer (soul): `soulseeker` / `soul-groove-2026`
 - Admin: `admin` / `groovehaus-admin`
 
-The three demo customer accounts start with empty preferences. Distinct per-account preference profiles (for example a jazz listener, a rock collector, and a soul seeker) will be added once recommender algorithm selection is finalized; see the backend `docs/FUTURE_IMPLEMENTATION_PLAN.md`. The demo customer usernames are reserved, so visitors cannot register them. Registered customers choose their own username and password through the Create Account page.
+Visitors can also register their own customer account. Demo logins require the backend to reach its database; see the backend README for details.
 
-The demo customer logins require the backend to reach MongoDB. The local backend runs against Atlas, so they work in development; in pure seed-catalog mode without a configured `MONGODB_URI` they are unavailable, though registration still creates MongoDB-backed customers when `MONGODB_URI` is set.
+## Project structure
 
-## Validation
-
-Run the complete frontend quality gate before committing source or integration changes.
-
-```bash
-npm run test:all
-```
-
-Targeted commands are `npm run test:unit`, `npm run test:e2e`, `npm run test:a11y`, `npm run lint`, and `npm run build`.
-
-## Source Layout
-
-- `src/pages/`: route-level screens.
-- `src/components/`: reusable storefront UI and API state surfaces.
-- `src/context/`: authentication, recommendation, tracking, and guest/authenticated store state.
-- `src/hooks/`: URL query, catalog request, product-detail, and recommendation loading logic.
-- `src/lib/api.js`: the backend client boundary.
-- `docs/`: current frontend contracts, decisions, limitations, and evaluation notes.
-- `code_for_website/`: retained design-import snapshot, not the active application.
-
-## Backend Boundary
-
-The backend owns catalog and customer-state persistence, authentication/authorization, API validation, search execution, recommendation scoring, and explanations. Contract changes must be documented in both repositories.
+- `src/pages/` — route-level screens.
+- `src/components/` — reusable UI and API-state surfaces.
+- `src/context/` — authentication, store, recommendation, and tracking state.
+- `src/hooks/` — catalog, product, and recommendation data loading.
+- `src/lib/api.js` — the backend client boundary.
+- `docs/` — contracts, decisions, and evaluation notes.
 
 ## License
 
-MIT, copyright Sithu Win San.
+MIT, copyright Sithu Win San and Phone Khant Aung.

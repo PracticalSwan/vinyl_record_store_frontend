@@ -75,3 +75,11 @@ Date: 2026-07-05
 Decision: Enable bounded pseudonymous interaction capture by default with a visible immediate opt-out. Fetch recommendation lists only where rendered, join actions by request/list context, and flush or discard queued events before authentication changes.
 
 Rationale: The course needs reconstructable recommendation evidence, but direct personal information, unseen-list logs, and capture-time events assigned to a later identity would invalidate both privacy and evaluation data.
+
+## FDEC-010: Centralize Approved Artwork Rendering
+
+Date: 2026-07-06
+
+Decision: Route every card, recommendation, detail, wishlist, and cart image through `ProductImage`. Accept only a complete structured mapping from approved Cover Art Archive and MusicBrainz hosts, reserve dimensions before load, lazy-load repeated images, use local product metadata for accessibility, show source attribution on detail, and fall back locally once on missing or broken art.
+
+Rationale: One validation and recovery boundary prevents host drift, broken-image loops, inconsistent alt text, and layout shifts while keeping product text and actions usable during external failures.

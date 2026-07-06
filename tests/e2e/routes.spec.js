@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('@smoke current routes load against the real backend', async ({ page }) => {
+  test.slow();
   const routes = [
     ['/', /Find the record/],
     ['/catalog', /Showing 24 of 116 records/],
@@ -38,6 +39,42 @@ test('keyboard search, not-found, and out-of-stock states behave safely', async 
 
   await page.goto('/records/4');
   await expect(page.getByRole('button', { name: 'Out of stock' })).toBeDisabled();
+});
+
+test('approved artwork renders with traceability and a broken image falls back without blocking actions', async ({ page }) => {
+  let breakImage = false;
+  await page.route('**/api/products/1', async (route) => {
+    const response = await route.fetch();
+    const payload = await response.json();
+    payload.data.product.image = {
+      thumbnailUrl: 'https://coverartarchive.org/release/test/cover-500.jpg',
+      detailUrl: 'https://coverartarchive.org/release/test/cover-1200.jpg',
+      source: 'cover-art-archive',
+      sourceUrl: 'https://musicbrainz.org/release/test',
+    };
+    await route.fulfill({ response, json: payload });
+  });
+  await page.route('https://coverartarchive.org/**', async (route) => {
+    if (breakImage) {
+      await route.abort('failed');
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200"><rect width="1200" height="1200" fill="#4d2f23"/></svg>',
+    });
+  });
+
+  await page.goto('/records/1');
+  await expect(page.getByRole('img', { name: 'Cover art for Kind of Blue by Miles Davis.' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Artwork source' })).toHaveAttribute('href', 'https://musicbrainz.org/release/test');
+
+  breakImage = true;
+  await page.reload();
+  await expect(page.locator('.detail-cover').getByTestId('product-image-placeholder')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Add to cart' })).toBeEnabled();
+  await expect(page.getByText('Kind of Blue').first()).toBeVisible();
 });
 
 test('wishlist removal and cart quantity floor remain stable', async ({ page }) => {

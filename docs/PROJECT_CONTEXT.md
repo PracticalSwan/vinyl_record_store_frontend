@@ -4,7 +4,7 @@ This is the frontend source of truth for the Vinyl Record Store Recommender Syst
 
 ## Current State
 
-Groovehaus is an implemented Vite 8.1 and React 19.2.7 storefront with twelve routes. It loads catalog and recommendation results, restores signed-cookie authentication, persists authenticated customer state, and sends privacy-controlled interaction events through `VITE_API_BASE_URL`.
+Groovehaus is an implemented Vite 8.1 and React 19.2.7 storefront with twelve routes. It loads catalog, structured artwork, and recommendation results, restores signed-cookie authentication, persists authenticated customer state, and sends privacy-controlled interaction events through `VITE_API_BASE_URL`.
 
 ## Responsibilities
 
@@ -14,8 +14,9 @@ Groovehaus is an implemented Vite 8.1 and React 19.2.7 storefront with twelve ro
 - Keep guest wishlist/cart/rating state in versioned `sessionStorage` and authenticated state behind one `StoreProvider` interface.
 - Merge guest state only into a brand-new registration. A persisted merge key resumes a failed merge after refresh; existing-account login and ordinary restore discard unrelated guest state.
 - Capture bounded pseudonymous analytics with an immediate visible opt-out and recommendation request/list attribution.
+- Render backend-approved Cover Art Archive mappings through one resilient `ProductImage` component with responsive sizing, attribution, accessibility, and local fallbacks.
 
-The frontend does not own database access, API route implementation, scoring algorithms, raw private interaction rows, or offline evaluation.
+The frontend does not own database access, catalog ingestion/enrichment, API route implementation, scoring algorithms, raw private interaction rows, or offline evaluation.
 
 ## Canonical Source
 
@@ -29,7 +30,7 @@ The frontend does not own database access, API route implementation, scoring alg
 - Preferences are saved for future recommendation work but do not change the active deterministic demo ranking.
 - User results remain explicitly `demo-profile` or `cold-start`; no measured real-customer personalization is claimed.
 - Guest state ends with the tab by design. Existing-account login never imports guest state.
-- No checkout, payment, administrator workspace, artwork pipeline, or offline recommendation benchmark.
+- No checkout, payment, or administrator workspace. The backend evaluation pipeline exists, but its current report is `insufficient-evidence` and the frontend displays no quality claim.
 - Interaction and recommendation logs use 90-day eventual TTL retention in MongoDB mode; seed mode does not persist recommendation request logs.
 
 ## Academic Focus

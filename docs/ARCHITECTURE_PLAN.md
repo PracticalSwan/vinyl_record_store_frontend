@@ -11,11 +11,12 @@ This document describes the implemented client structure and data flow.
 5. `AuthProvider` restores sessions, prevents stale restore/auth races, supplies registration/login/logout/preferences state, and clears the analytics identity boundary before auth changes; `RequireAuth` protects account/onboarding routes.
 6. `CatalogProvider` requests demo-profile recommendations only on Home and Recommendations. `StoreProvider` presents one interface over session guests and authenticated server state.
 7. Product detail routes request backend similarity results through `useProductRecommendations`.
+8. Product card, detail, recommendation, wishlist, and cart surfaces route structured remote artwork through `ProductImage`, which validates the public mapping and owns loading/fallback behavior.
 
 ## Layers
 
 - Pages: route-specific rendering and URL-backed search/filter decisions.
-- Components: reusable cards, grids, navigation, filters, loading, error, and empty states.
+- Components: reusable cards, resilient product images, grids, navigation, filters, loading, error, and empty states.
 - Context: signed-session identity, shared recommendation state, guest/authenticated Store adapters, and tracking preference.
 - Hooks: canonical query state, abortable product requests, detail lookups, and recommendation requests.
 - API client: URL construction, error normalization, and fetch calls.

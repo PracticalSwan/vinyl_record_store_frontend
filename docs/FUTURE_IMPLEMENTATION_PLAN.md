@@ -1,6 +1,6 @@
 # Frontend Future Implementation Plan
 
-Status: FFP-01 through FFP-05 are complete. FFP-06 through FFP-08 remain approved future work and are not in progress.
+Status: FFP-01 through FFP-06 are complete. FFP-07 and FFP-08 remain approved future work and are not in progress.
 
 Audience: developers implementing the Groovehaus Vite/React storefront and backend developers maintaining the shared API contracts.
 
@@ -27,7 +27,7 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 | FFP-03 | Local-to-server state migration | Completed | Session guest adapter, sign-up merge, and authenticated server adapter completed 2026-07-05. |
 | FFP-04 | Browser, integration, and accessibility testing | Completed | Vitest, React Testing Library, Playwright, and axe gate established 2026-07-03. |
 | FFP-05 | Full server-side search and pagination | Completed | Query-driven backend and frontend contract completed 2026-07-03. |
-| FFP-06 | Artwork and image handling | Planned | Requires approved MusicBrainz/Cover Art mappings from the backend. |
+| FFP-06 | Artwork and image handling | Completed | Backend-approved mappings, shared rendering, attribution, accessibility, and fallbacks completed 2026-07-06. |
 | FFP-07 | Integrated admin mode | Planned | Requires backend sessions, `admin` authorization, persistence, and admin routes. |
 | FFP-08 | Simulated checkout and order demonstration | Planned | Can remain client-only; no payment or deployment dependency. |
 
@@ -46,9 +46,9 @@ The first nine ordered items are complete. Continue the remaining plans in this 
 | 7 | FFP-02: onboarding and preferences | Completed 2026-07-05. |
 | 8 | BFP-02 Part A: recommendation-request logging | Completed 2026-07-05. |
 | 9 | FFP-01: recommendation interaction analytics | Completed 2026-07-05. |
-| 10 | BFP-06: catalog ingestion and metadata quality | Add validated preview/apply imports and approved metadata enrichment. |
-| 11 | FFP-06: artwork and image handling | Consume only backend-approved artwork mappings with resilient fallbacks. |
-| 12 | BFP-02 Part B: offline evaluation dataset and benchmark | Evaluate only after the minimum interaction threshold and leakage-safe split are available. |
+| 10 | BFP-06: catalog ingestion and metadata quality | Completed 2026-07-06 with validated preview/apply imports and approved metadata enrichment. |
+| 11 | FFP-06: artwork and image handling | Completed 2026-07-06 with backend-approved mappings and resilient fallbacks. |
+| 12 | BFP-02 Part B: offline evaluation dataset and benchmark | Completed 2026-07-06; current evidence remains below the metric-reporting threshold. |
 | 13 | BFP-07, then FFP-07: integrated admin mode | Implement protected backend administration before exposing its frontend workspace. |
 | 14 | FFP-08: simulated checkout and order demonstration | Add the low-risk classroom flow last, after catalog, state, identity, and testing are stable. |
 
@@ -422,6 +422,8 @@ Changing query, filter, sort, or page size resets `page` to 1. Back/forward navi
 
 This plan defines approved artwork flow, rendering, attribution, and fallback behavior.
 
+Status: completed and verified on 2026-07-06.
+
 ### Goal
 
 Display approved album artwork from MusicBrainz and Cover Art Archive while preserving the current placeholder for missing, ambiguous, slow, or broken images.
@@ -438,7 +440,7 @@ Display approved album artwork from MusicBrainz and Cover Art Archive while pres
 
 ### Product Image Shape
 
-The future product response may add:
+The product response may add:
 
 ```json
 {
@@ -451,11 +453,11 @@ The future product response may add:
 }
 ```
 
-`imageUrl` may remain temporarily for compatibility, but the structured shape becomes canonical after both contracts and components migrate.
+`imageUrl` remains for compatibility, while the structured shape is canonical for responsive rendering and attribution.
 
 ### Frontend Components
 
-- Add `ProductImage` as the only component responsible for artwork, loading state, fallback, size selection, and broken-image recovery.
+- `ProductImage` is the only component responsible for artwork, loading state, fallback, size selection, and broken-image recovery.
 - Use width and height or `aspect-ratio` to prevent layout shifts.
 - Use lazy loading for off-screen catalog cards and eager/high-priority loading only for the main visible hero/detail image when justified.
 - Alt text uses local product metadata, for example “Cover art for Kind of Blue by Miles Davis.” Decorative repeated thumbnails may use empty alt text when the surrounding card already has the same accessible name.

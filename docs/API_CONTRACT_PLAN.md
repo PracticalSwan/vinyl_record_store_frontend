@@ -18,6 +18,8 @@ Error:
 
 ## Implemented Catalog And Recommendation Calls
 
+Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceUrl }` only after backend approval. `imageUrl` remains a nullable compatibility field. The client rejects incomplete or unapproved-host mappings and renders its local placeholder instead.
+
 | Frontend Need | Method | Path | Current Use |
 | --- | --- | --- | --- |
 | Catalog | `GET` | `/api/products` | Catalog, Search, Home, and cart suggestions use bounded server queries. |
@@ -60,7 +62,7 @@ The backend derives ownership from the session, requires the exact configured or
 
 ## Deferred Calls
 
-Demo orders and administrator catalog endpoints are not implemented. Recommendation-request logs are an internal MongoDB persistence side effect of recommendation GET routes, not a public route. Guest state is session-only; authenticated wishlist/cart/rating state is server-backed.
+Demo orders and administrator catalog endpoints are not implemented. Recommendation-request logs, catalog imports, metadata enrichment, and offline evaluation are backend operator/internal paths rather than public frontend calls. Guest state is session-only; authenticated wishlist/cart/rating state is server-backed.
 
 ## Error Handling
 

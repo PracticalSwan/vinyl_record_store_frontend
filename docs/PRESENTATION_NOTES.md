@@ -25,5 +25,6 @@ The React frontend owns presentation, URL query state, tab-scoped guest state, a
 - The active user recommendation profile is synthetic or cold-start.
 - Saved onboarding preferences do not alter the current deterministic ranker.
 - Guest state ends with the tab and never merges into an existing account.
-- No checkout, payment, admin workspace, or offline quality result exists.
+- Approved release artwork has resilient fallbacks and traceable source links.
+- No checkout, payment, admin workspace, or offline quality result exists; the backend evaluator currently reports insufficient evidence.
 - Automated behavior tests and logged events do not equal recommendation-quality evidence.

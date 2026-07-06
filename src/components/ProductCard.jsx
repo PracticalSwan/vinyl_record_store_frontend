@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/useStore';
 import { useTracking } from '../context/useTracking';
-import { IconHeart, IconVinyl } from './Icons';
+import { IconHeart } from './Icons';
+import ProductImage from './ProductImage';
 
 function StockBadge({ stock }) {
   if (stock === 'in')  return <span className="badge badge-in">In stock</span>;
@@ -77,9 +78,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
       aria-label={`${record.title} by ${record.artist}`}
     >
       <div className="card-cover">
-        <div className="card-cover-placeholder">
-          <IconVinyl size={64} opacity={0.3} />
-        </div>
+        <ProductImage record={record} decorative />
         <StockDot stock={record.stock} />
         <button
           className={`card-wishlist-btn${saved ? ' active' : ''}`}
@@ -95,8 +94,8 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
         <h3 className="card-title">{record.title}</h3>
         <p className="card-artist">{record.artist}</p>
         <div className="card-meta" aria-label="Record details">
-          <span className="badge badge-genre">{record.genre}</span>
-          <span className="badge badge-era">{record.year}</span>
+          <span className="badge badge-genre">{record.genre || 'Uncategorized'}</span>
+          <span className="badge badge-era">{record.year || 'Year unknown'}</span>
           <StockBadge stock={record.stock} />
         </div>
         <div className="card-footer">
