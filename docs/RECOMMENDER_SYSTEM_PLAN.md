@@ -30,3 +30,7 @@ The backend owns candidate generation, scoring, diversity, exclusions, and expla
 ## Evaluation Boundary
 
 UI review can measure comprehension and accessibility. Ranking-quality metrics belong to the backend evaluation protocol and require held-out interactions, baselines, and a leakage-safe split.
+
+## Personalization Roadmap (Planned)
+
+`PERSONALIZATION_IMPLEMENTATION_PLAN.md` plans, without implementing, the frontend half of a genuine personalization system scheduled after BFP-07, FFP-07, and FFP-08. It switches the storefront to a session-owned endpoint, renders new modes truthfully (`preference-profile`, `behavior-profile`, `popularity`, `personalized-hybrid`, `anonymous-fallback`), refreshes on preference save, adds first-class negative-feedback controls, and keeps attribution intact. The honesty wording above stays in force until personalization is actually implemented; no quality claim is made.

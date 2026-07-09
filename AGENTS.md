@@ -16,7 +16,7 @@ The Groovehaus storefront is an implemented API-backed academic demo, not a Vite
 - `StoreProvider` uses session-only guest state and server-backed authenticated state. Guest state merges only into a new registration, resumes a keyed failed merge after refresh, and is discarded on existing-account login or ordinary restore.
 - Onboarding/preferences and privacy-controlled interaction analytics are implemented. Recommendation requests carry request/list attribution and are fetched only on pages that render them.
 - FFP-06 structured artwork is implemented through one `ProductImage` boundary with approved-host validation, stable layout, lazy/eager sizing, source attribution, and loading/missing/broken fallbacks. The backend owns ingestion and offline evaluation; its current report is `insufficient-evidence` without quality metrics.
-- Checkout, administrator UI, and payments are not implemented.
+- FFP-07 integrated administrator mode and FFP-08 simulated checkout are implemented. The admin workspace (`RequireRole` guard, `AdminLayout`, dashboard, product table, create/edit form, import UX, artwork refresh) consumes role-gated `/api/admin/*` routes whose writes are mongodb-only. The checkout (`/checkout`, `/orders/demo/:reference`) is a client-only classroom demo with no real payment, no backend order, and sessionStorage persistence; it clears the cart on confirm. Real payments and order APIs are intentionally out of scope.
 - Vitest, React Testing Library, Playwright, and axe provide unit, component, browser, responsive, and accessibility coverage.
 
 ## Canonical Source And Folder Boundary

@@ -64,6 +64,14 @@ The backend derives ownership from the session, requires the exact configured or
 
 Demo orders and administrator catalog endpoints are not implemented. Recommendation-request logs, catalog imports, metadata enrichment, and offline evaluation are backend operator/internal paths rather than public frontend calls. Guest state is session-only; authenticated wishlist/cart/rating state is server-backed.
 
+## Planned Calls (Personalization Roadmap)
+
+The following are planned in `PERSONALIZATION_IMPLEMENTATION_PLAN.md`, scheduled after BFP-07, FFP-07, and FFP-08. None is implemented.
+
+- `GET /api/recommendations/me` (PERS-02 / FFP-09): replaces the hard-coded `/api/recommendations/user/demo-user` call for authenticated users; anonymous visitors use the documented fallback. The client never sends a user id.
+- `PUT`, `DELETE /api/me/feedback/:productId` and `GET /api/me/feedback` (PERS-05 / FFP-11): not-interested, already-own, optional show-fewer-like-this, and undo.
+- New mode labels rendered honestly: `preference-profile`, `behavior-profile`, `popularity`, `personalized-hybrid`, and `anonymous-fallback`, in addition to existing `demo-profile`, `content-similarity`, and `cold-start`. No raw weights are displayed.
+
 ## Error Handling
 
 `src/lib/api.js` converts connection, abort, malformed payload, and backend envelope failures into safe client behavior. API-backed screens preserve loading, empty, error, retry, and success behavior; superseded search requests cannot replace newer results.

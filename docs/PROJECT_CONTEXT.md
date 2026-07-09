@@ -4,7 +4,7 @@ This is the frontend source of truth for the Vinyl Record Store Recommender Syst
 
 ## Current State
 
-Groovehaus is an implemented Vite 8.1 and React 19.2.7 storefront with twelve routes. It loads catalog, structured artwork, and recommendation results, restores signed-cookie authentication, persists authenticated customer state, and sends privacy-controlled interaction events through `VITE_API_BASE_URL`.
+Groovehaus is an implemented Vite 8.1 and React 19.2.7 storefront. It loads catalog, structured artwork, and recommendation results, restores signed-cookie authentication, persists authenticated customer state, sends privacy-controlled interaction events, exposes a role-gated administrator workspace, and runs a client-only simulated checkout through `VITE_API_BASE_URL`.
 
 ## Responsibilities
 
@@ -15,6 +15,7 @@ Groovehaus is an implemented Vite 8.1 and React 19.2.7 storefront with twelve ro
 - Merge guest state only into a brand-new registration. A persisted merge key resumes a failed merge after refresh; existing-account login and ordinary restore discard unrelated guest state.
 - Capture bounded pseudonymous analytics with an immediate visible opt-out and recommendation request/list attribution.
 - Render backend-approved Cover Art Archive mappings through one resilient `ProductImage` component with responsive sizing, attribution, accessibility, and local fallbacks.
+- FFP-07 administrator workspace: a `RequireRole`-guarded `/admin` area (dashboard, product table with soft-delete/restore, create/edit form with optimistic-concurrency conflict re-fetch, import preview/apply, artwork refresh) consumes role-gated `/api/admin/*` routes. FFP-08 simulated checkout: a `/checkout` wizard and `/orders/demo/:reference` confirmation with sessionStorage persistence, availability blocking, and cart clear on confirm. No real payment or backend order.
 
 The frontend does not own database access, catalog ingestion/enrichment, API route implementation, scoring algorithms, raw private interaction rows, or offline evaluation.
 
@@ -30,8 +31,9 @@ The frontend does not own database access, catalog ingestion/enrichment, API rou
 - Preferences are saved for future recommendation work but do not change the active deterministic demo ranking.
 - User results remain explicitly `demo-profile` or `cold-start`; no measured real-customer personalization is claimed.
 - Guest state ends with the tab by design. Existing-account login never imports guest state.
-- No checkout, payment, or administrator workspace. The backend evaluation pipeline exists, but its current report is `insufficient-evidence` and the frontend displays no quality claim.
+- The simulated checkout is a classroom demo only: no real payment, no backend order, sessionStorage-only order persistence. The administrator workspace requires the MongoDB catalog source for writes; in seed-catalog mode, admin reads work but create/edit/delete/restore/import/artwork surface a persistence-unavailable error.
 - Interaction and recommendation logs use 90-day eventual TTL retention in MongoDB mode; seed mode does not persist recommendation request logs.
+- Genuine personalization is planned (PERS-00 through PERS-09), scheduled after BFP-07, FFP-07, and FFP-08. See `PERSONALIZATION_IMPLEMENTATION_PLAN.md`. Until then the storefront keeps honest `demo-profile`/`cold-start` language; no quality claim is made.
 
 ## Academic Focus
 

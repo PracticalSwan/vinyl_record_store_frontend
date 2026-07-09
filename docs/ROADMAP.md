@@ -23,5 +23,6 @@ This file records current completion and deferred scope. It does not authorize c
 - Simulated checkout and demo orders.
 - Sufficient backend evidence for a recommendation-quality result; the implemented evaluator currently reports no metrics.
 - Real payments, deployment automation, and production commerce.
+- Genuine personalization (PERS-00 through PERS-09 / FFP-09 through FFP-14), scheduled after BFP-07, FFP-07, and FFP-08. See `PERSONALIZATION_IMPLEMENTATION_PLAN.md`. No milestone is in progress; no quality claim is made.
 
-Detailed plans and the approved cross-repository order are in `FUTURE_IMPLEMENTATION_PLAN.md`. FFP-01 through FFP-05 are complete. Deferred items require a separate explicit implementation task.
+Detailed plans and the approved cross-repository order are in `FUTURE_IMPLEMENTATION_PLAN.md`. FFP-01 through FFP-06 are complete. Deferred items require a separate explicit implementation task.

@@ -40,6 +40,18 @@ export default function Navbar() {
         </div>
 
         <ul className="nav-links" role="list">
+          {auth.status === 'authenticated' && auth.user?.role === 'admin' && (
+            <li>
+              <button
+                className={`nav-link${location.pathname.startsWith('/admin') ? ' active' : ''}`}
+                onClick={() => navigate('/admin')}
+                aria-label="Administration"
+                aria-current={location.pathname.startsWith('/admin') ? 'page' : undefined}
+              >
+                <span>Admin</span>
+              </button>
+            </li>
+          )}
           <li>
             <button
               className={`nav-link${is('/catalog') ? ' active' : ''}`}

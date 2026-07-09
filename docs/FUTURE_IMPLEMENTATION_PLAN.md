@@ -1,6 +1,6 @@
 # Frontend Future Implementation Plan
 
-Status: FFP-01 through FFP-06 are complete. FFP-07 and FFP-08 remain approved future work and are not in progress.
+Status: FFP-01 through FFP-08 are complete. Personalization (FFP-09+, in `PERSONALIZATION_IMPLEMENTATION_PLAN.md`) remains future work pending a separate explicit task.
 
 Audience: developers implementing the Groovehaus Vite/React storefront and backend developers maintaining the shared API contracts.
 
@@ -28,8 +28,8 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 | FFP-04 | Browser, integration, and accessibility testing | Completed | Vitest, React Testing Library, Playwright, and axe gate established 2026-07-03. |
 | FFP-05 | Full server-side search and pagination | Completed | Query-driven backend and frontend contract completed 2026-07-03. |
 | FFP-06 | Artwork and image handling | Completed | Backend-approved mappings, shared rendering, attribution, accessibility, and fallbacks completed 2026-07-06. |
-| FFP-07 | Integrated admin mode | Planned | Requires backend sessions, `admin` authorization, persistence, and admin routes. |
-| FFP-08 | Simulated checkout and order demonstration | Planned | Can remain client-only; no payment or deployment dependency. |
+| FFP-07 | Integrated admin mode | Completed 2026-07-09 | Administrator workspace is implemented: `RequireRole` guard, `AdminLayout` + nav, dashboard (summary + recent audit), product table (soft-delete with confirm/restore), create/edit form with `updatedAt` optimistic concurrency and conflict re-fetch, import preview/apply UX, artwork refresh, and mongodb-only-write handling. |
+| FFP-08 | Simulated checkout and order demonstration | Completed 2026-07-09 | Client-only demo checkout is implemented: cart review, shipping, demonstration-payment, review, and confirmation steps with a `DEMO-` reference, sessionStorage persistence, availability blocking, and cart clear on confirm. No real payment or backend order. |
 
 ## Approved Cross-Repository Implementation Order
 
@@ -483,6 +483,8 @@ The product response may add:
 
 ## FFP-07: Integrated Admin Mode
 
+> Completed 2026-07-09. Implementation summary: a `RequireRole` guard (mirrors `RequireAuth`; customers see a forbidden page, anonymous redirect to login) wraps an `AdminLayout` with Dashboard/Products/Import navigation, shown only for `auth.user.role === 'admin'`. Dashboard renders the admin summary and recent safe audit actions. The products page paginates the admin product list, toggles soft-deleted rows, and soft-deletes (named confirmation modal with focus management and Escape) or restores. The shared create/edit form covers all catalog fields plus artwork refresh; edits send `updatedAt` for optimistic concurrency and re-fetch the current record on `409 CONFLICT`. The import page previews CSV/JSON (creates/updates/skips/warnings/errors/conflicts + an action sample) and applies via the one-time preview token. All admin API helpers live in `src/lib/api.js`. Verified: vitest 73/73, eslint clean, vite build green, Playwright admin + checkout specs pass on desktop and mobile (full suite 57 passed / 1 skipped / 0 failed). The backend `requireRole('admin')` is the real security boundary; catalog writes surface `PERSISTENCE_UNAVAILABLE` in seed-catalog mode.
+
 This plan defines the administrator experience inside the existing storefront application.
 
 ### Goal
@@ -556,6 +558,8 @@ No user-management, role-management, payment, deployment, or analytics-surveilla
 
 ## FFP-08: Simulated Checkout And Order Demonstration
 
+> Completed 2026-07-09. Implementation summary: `/checkout` (RequireAuth-gated) runs a four-step wizard (cart review, shipping, demonstration payment, review) then a `/orders/demo/:reference` confirmation page. `src/lib/checkout.js` owns pure helpers (shipping validation, totals, blocking-item detection, `DEMO-` reference generation, order snapshot, and sessionStorage draft/order read-write). Shipping details are never sent to analytics; the only event is a privacy-safe `demo_checkout_complete` with reference, item count, and total. Availability changes (out-of-stock or missing records) block confirmation; an empty cart waits for the authenticated store to sync then redirects to `/cart` with a notice; the place-order button is disabled while a cart mutation is pending; and the cart is cleared via `StoreProvider.clearCart` on confirm. No real payment, no backend order, sessionStorage-only persistence. Verified by `tests/unit/checkout.test.js`, the Playwright checkout spec (places a demo order, reference, cart cleared), and the empty-cart redirect spec.
+
 This plan defines a safe classroom demonstration of checkout without real commerce.
 
 ### Goal
@@ -623,3 +627,28 @@ npm run build
 ```
 
 After FFP-04 establishes the test commands, also run the affected unit, component, browser, and accessibility tests. Any shared API behavior additionally requires the backend test, lint, and build commands. Report browser execution separately from static checks.
+
+## Personalization Roadmap (PERS-00 - PERS-09)
+
+This section records the frontend half of a planned, dependency-safe personalization roadmap. It is scheduled AFTER the entire existing roadmap above: BFP-07, FFP-07, FFP-08, and any backend support planned for the simulated checkout. It does not reorder, replace, remove, or silently redefine any existing plan. The same cross-repository milestone order is in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` and in the backend `FUTURE_IMPLEMENTATION_PLAN.md`. No milestone is in progress; none is marked completed.
+
+The honesty wording that the current ranker is not personalized stays in force until PERS-04 onward actually personalizes. No quality claim is made; the `insufficient-evidence` evaluator status is unchanged.
+
+### Plan Status Summary (Personalization, Frontend Half)
+
+| ID | Plan | Status | Main Gate |
+| --- | --- | --- | --- |
+| PERS-00 / FDEC-011 | Audit and decision freeze | Planned | Records the frontend architecture decisions before any code. |
+| PERS-01 | Identity enforcement (frontend contract only) | Planned | No frontend path can select another user's id. |
+| PERS-02 / FFP-09 | Session-owned endpoint | Planned | Authenticated users use `/api/recommendations/me`; anonymous uses the fallback; loading gated on auth. |
+| PERS-03 | Unified profile surface | Planned | Render safe data-source flags without raw signals. |
+| PERS-04 / FFP-10 | Preference-aware ranking UI | Planned | Honest `preference-profile` label; refresh on preference save. |
+| PERS-05 / FFP-11 | Negative feedback UI | Planned | Accessible not-interested, already-own, undo, show-fewer-like-this. |
+| PERS-06 / FFP-12 | Behavioral mode UI | Planned | Honest `behavior-profile` label; opt-out boundary preserved. |
+| PERS-07 | Popularity and fallback UI | Planned | Honest `popularity`/`anonymous-fallback` labels. |
+| PERS-08 / FFP-13 | Hybrid mode UI | Planned | Honest `personalized-hybrid` label; contribution-based reasons; version attribution. |
+| PERS-09 / FFP-14 | Integration and hardening | Planned | End-to-end integration; accessibility; documentation closure. |
+
+### Dependency-Safe Personalization Order (Appended After FFP-08)
+
+The frontend switches over only after the corresponding backend milestone is stable. The full cross-repository order (PERS-00 through PERS-09, orders 15 through 24) is in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` and the backend `FUTURE_IMPLEMENTATION_PLAN.md`. Each frontend milestone ships behind the matching backend feature flag and is independently reversible. Implementation requires a separate explicit task and must not begin before FFP-08 is complete and the user opens personalization work.

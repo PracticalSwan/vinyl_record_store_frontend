@@ -190,4 +190,70 @@ export function sendInteractions(events, { signal, keepalive = false } = {}) {
   return request('/api/interactions', { method: 'POST', body: { events }, signal, keepalive });
 }
 
+// --- Administrator API (BFP-07). The backend enforces the admin role; these
+// helpers are only called from role-gated routes. Catalog writes are
+// mongodb-only and return PERSISTENCE_UNAVAILABLE (503) in seed-catalog mode. ---
+export function fetchAdminSummary({ signal } = {}) {
+  return request('/api/admin/summary', { signal });
+}
+
+export function fetchAdminProducts({ page = 1, limit = 20, includeDeleted = false } = {}, { signal } = {}) {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (includeDeleted) params.set('includeDeleted', 'true');
+  return request(`/api/admin/products?${params}`, { signal });
+}
+
+export function fetchAdminProduct(id, { signal } = {}) {
+  return request(`/api/admin/products/${encodeURIComponent(id)}`, { signal });
+}
+
+export function createAdminProduct(desired, { signal } = {}) {
+  return request('/api/admin/products', { method: 'POST', body: desired, signal });
+}
+
+export function updateAdminProduct(id, patch, updatedAt, { signal } = {}) {
+  return request(`/api/admin/products/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: { updatedAt, ...patch },
+    signal,
+  });
+}
+
+export function deleteAdminProduct(id, updatedAt, { signal } = {}) {
+  const query = updatedAt ? `?updatedAt=${encodeURIComponent(updatedAt)}` : '';
+  return request(`/api/admin/products/${encodeURIComponent(id)}${query}`, { method: 'DELETE', signal });
+}
+
+export function restoreAdminProduct(id, { signal } = {}) {
+  return request(`/api/admin/products/${encodeURIComponent(id)}/restore`, { method: 'POST', signal });
+}
+
+export function previewCatalogImport({ content, fileName, enrich = false, allowPartial = false }, { signal } = {}) {
+  return request('/api/admin/catalog/import/preview', {
+    method: 'POST',
+    body: { content, fileName, enrich, allowPartial },
+    signal,
+  });
+}
+
+export function applyCatalogImport({ token, allowPartial = false }, { signal } = {}) {
+  return request('/api/admin/catalog/import/apply', {
+    method: 'POST',
+    body: { token, allowPartial },
+    signal,
+  });
+}
+
+export function refreshArtworkPreview(id, { signal } = {}) {
+  return request(`/api/admin/products/${encodeURIComponent(id)}/artwork/refresh`, { method: 'POST', signal });
+}
+
+export function applyArtwork(id, { releaseId, updatedAt }, { signal } = {}) {
+  return request(`/api/admin/products/${encodeURIComponent(id)}/artwork`, {
+    method: 'PATCH',
+    body: { releaseId, updatedAt },
+    signal,
+  });
+}
+
 export { API_BASE_URL };

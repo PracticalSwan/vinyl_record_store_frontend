@@ -357,6 +357,23 @@ export function StoreProvider({ children }) {
     }
   }, [auth.status, auth.user, auth.authMethod, loadAuthenticated]);
 
+  // Clears every cart item. Used by the simulated checkout after a demo order
+  // is confirmed locally. Authenticated carts remove each item through the
+  // serialized cart queue; guest carts persist an empty cart to sessionStorage.
+  const clearCart = useCallback(() => {
+    if (status === 'loading') return Promise.resolve(false);
+    const ids = dataRef.current.cart.map((item) => item.id);
+    if (ids.length === 0) return Promise.resolve(true);
+    if (status !== 'authenticated') {
+      persistGuest({ cart: [] });
+      return Promise.resolve(true);
+    }
+    return ids.reduce(
+      (chain, id) => chain.then(() => removeFromCart(id)),
+      Promise.resolve(true),
+    ).then(() => true);
+  }, [persistGuest, removeFromCart, status]);
+
   const value = useMemo(() => ({
     ...data,
     status,
@@ -370,10 +387,11 @@ export function StoreProvider({ children }) {
     removeFromWishlist,
     setRating,
     removeRating,
+    clearCart,
     retry,
   }), [
     data, status, error, pending, toggleWishlist, addToCart, removeFromCart,
-    updateQty, removeFromWishlist, setRating, removeRating, retry,
+    updateQty, removeFromWishlist, setRating, removeRating, clearCart, retry,
   ]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

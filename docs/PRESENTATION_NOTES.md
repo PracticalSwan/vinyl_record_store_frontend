@@ -28,3 +28,4 @@ The React frontend owns presentation, URL query state, tab-scoped guest state, a
 - Approved release artwork has resilient fallbacks and traceable source links.
 - No checkout, payment, admin workspace, or offline quality result exists; the backend evaluator currently reports insufficient evidence.
 - Automated behavior tests and logged events do not equal recommendation-quality evidence.
+- Genuine personalization is planned (PERS-00 through PERS-09), scheduled after admin mode and simulated checkout. Until it is implemented, the active ranking remains synthetic/cold-start and no quality claim is made.
