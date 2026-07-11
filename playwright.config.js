@@ -12,6 +12,7 @@ process.env.E2E_REGISTER_USERNAME = `e2e_${randomBytes(8).toString('hex')}`;
 export default defineConfig({
   testDir: './tests/e2e',
   outputDir: './output/playwright/results',
+  globalTeardown: './tests/e2e/global-teardown.mjs',
   fullyParallel: false,
   workers: 2,
   forbidOnly: Boolean(process.env.CI),

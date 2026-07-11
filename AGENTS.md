@@ -69,6 +69,8 @@ Use `npm run test:unit`, `npm run test:e2e`, `npm run test:a11y`, `npm run lint`
 
 When backend behavior is involved, also validate the backend tests, lint, and build from the backend repository. Use a live browser check when the environment permits it.
 
+After the suite, the Playwright `globalTeardown` (`tests/e2e/global-teardown.mjs`) automatically removes test-generated documents from the Atlas database; set `E2E_SKIP_CLEANUP=1` to skip it when intentionally accumulating interaction evidence, and clean manually before evaluation. This enforces the root `CLAUDE.md`/`AGENTS.md` "Post-test Atlas cleanup" rule; the underlying tool is `npm run db:clean:test:apply` in the backend.
+
 ## Documentation Synchronization
 
 Update only the files affected by the change, with `docs/PROJECT_CONTEXT.md` as the frontend source of truth. Keep these surfaces current when relevant:
