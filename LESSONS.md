@@ -10,7 +10,9 @@ Read this file before every frontend session.
 - `code_for_website/` is a retained design-import snapshot and must not become a second source of truth.
 - Describe state precisely: guest state lasts for the current tab; new-account registration merges it; existing-account login/ordinary restore discards it; authenticated state persists through server APIs.
 - `AuthProvider` restores the signed-cookie session and guards `/account`. Completed login/register/logout operations must win over stale restoration responses, while failed operations must not strand the provider in `loading`.
-- Recommendation copy must label sample-profile and cold-start behavior honestly.
+- Recommendation copy must label sample-profile, session-owned cold-start, product similarity, and anonymous fallback honestly.
+- Recommendation loading must stay below `AuthProvider`, remain disabled while auth is `loading`, key state by the authenticated public subject, abort on identity change, and generation-check responses because some transports can ignore abort.
+- Production API helpers must never accept a customer ID for recommendations. `/api/recommendations/me` owns identity; the rollback showcase helper is fixed to `demo-user`.
 - Fetch user recommendations only on Home and Recommendations, where the lists render; otherwise request logs falsely describe unseen lists.
 - Flush or discard queued analytics before login, registration, or logout so the backend cannot attach capture-time events to the wrong identity.
 - `ProductImage` is the only remote artwork boundary. Accept only the complete backend-approved image envelope, use local metadata for alt text, keep repeated card/list images decorative, and fall back once without retry loops.

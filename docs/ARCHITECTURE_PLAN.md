@@ -4,12 +4,12 @@ This document describes the implemented client structure and data flow.
 
 ## Runtime Flow
 
-1. `App.jsx` creates the router and wraps routes in `CatalogProvider`, `AuthProvider`, `TrackingProvider`, and `StoreProvider`.
+1. `App.jsx` creates the router and wraps routes in `AuthProvider`, `TrackingProvider`, `CatalogProvider`, and `StoreProvider`, so recommendation loading cannot begin before session restoration resolves.
 2. `src/lib/api.js` makes credentialed calls to the backend configured by `VITE_API_BASE_URL` and validates response envelopes.
 3. Catalog and Search use `useCatalogQuery` for canonical URL state and `useProductQuery` for cancellable server requests.
 4. Home, Detail, Wishlist, and Cart request only the products they need instead of preloading the catalog.
 5. `AuthProvider` restores sessions, prevents stale restore/auth races, supplies registration/login/logout/preferences state, and clears the analytics identity boundary before auth changes; `RequireAuth` protects account/onboarding routes.
-6. `CatalogProvider` requests demo-profile recommendations only on Home and Recommendations. `StoreProvider` presents one interface over session guests and authenticated server state.
+6. `CatalogProvider` requests `/api/recommendations/me` only on Home and Recommendations after auth resolves. Its resource key includes the authenticated public subject; identity changes abort in-flight work and generation guards discard stale responses. `StoreProvider` presents one interface over session guests and authenticated server state.
 7. Product detail routes request backend similarity results through `useProductRecommendations`.
 8. Product card, detail, recommendation, wishlist, and cart surfaces route structured remote artwork through `ProductImage`, which validates the public mapping and owns loading/fallback behavior.
 

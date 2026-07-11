@@ -1,6 +1,6 @@
 # Personalization Implementation Plan (Frontend)
 
-This plan is the frontend half of converting the existing deterministic demo recommender into a genuine personalized recommender system for the Vinyl Record Store (CSX4207). It is a planning document only. It authorizes no implementation by itself and changes no source code.
+This roadmap is the frontend half of converting the existing deterministic demo recommender into a genuine personalized recommender system for the Vinyl Record Store (CSX4207). PERS-00 through PERS-02 / FFP-09 were implemented and verified on 2026-07-10. PERS-03 through PERS-09 remain planning-only and authorize no implementation by themselves.
 
 This plan is scheduled AFTER the entire existing documented roadmap: BFP-07 (admin backend), FFP-07 (admin frontend), FFP-08 (simulated checkout), and any backend support already planned for the simulated checkout. It does not reorder, replace, remove, or silently redefine any existing BFP/FFP plan.
 
@@ -16,22 +16,22 @@ Included: routing and provider ordering for identity-safe recommendation loading
 
 Explicitly excluded (mirroring the backend plan): gathering real users or real-world evaluation data; user studies; any claim of measured recommendation quality; completing the evidence threshold; publishing Precision@k, Recall@k, MAP@k, NDCG@k, or other quality results without evidence; collaborative filtering and matrix factorization. Synthetic fixtures and clearly labelled classroom demo profiles may be used for development and testing, never presented as real evaluation evidence.
 
-## Current State (Verified Against Source On 2026-07-07)
+## Current State (Re-Verified Against Source On 2026-07-10)
 
 These facts were verified by reading `src/`, not by trusting doc status tables.
 
-- Routes are defined in `src/App.jsx:24-56`. Recommendation pages are Home (`/`) and Recommendations (`/recommendations`); neither is protected. Auth pages: login, register, onboarding, account, profile/preferences (the last three are `RequireAuth`). No admin route placeholder exists yet (it arrives with FFP-07).
-- Providers nest as `BrowserRouter > CatalogProvider > AuthProvider > TrackingProvider > AuthRedirect > StoreProvider` (`App.jsx:26-31`). `CatalogProvider` wraps `AuthProvider`, so recommendation loading can start before auth resolves.
-- `fetchUserRecommendations(userId = 'demo-user', { signal, surface })` lives at `src/lib/api.js:101`. The only call site hard-codes `'demo-user'` at `src/context/CatalogProvider.jsx:89`. No authenticated recommendation call exists. `publicId` is referenced zero times in `src/`.
-- `CatalogProvider` recommendation state is `{ data, status, error, mode, profileSummary }` and the resource runs through `useRemoteResource` keyed on `useLocation().pathname` (`CatalogProvider.jsx:6-12, 84-102`). The fetch effect does not depend on auth status (`CatalogProvider.jsx:67-77`).
-- `AuthProvider` (`src/context/AuthProvider.jsx`) restores the session on mount, exposes `authMethod` (`restore`/`login`/`register`), uses a generation guard for writes, clears local state on sign-out, and exposes `user` fields including `username`, `displayName`, `role`, `onboardingComplete`, `seeded`, `preferences`. `publicId` is not currently consumed.
+- Routes include the completed administrator workspace and simulated checkout. Home and Recommendations remain public recommendation surfaces; customer identity comes from the optional-session API rather than route protection.
+- Providers nest as `BrowserRouter > AuthProvider > TrackingProvider > CatalogProvider > StoreProvider`. Recommendation loading is also explicitly disabled while auth status is `loading`.
+- `fetchMyRecommendations` calls `/api/recommendations/me` without a user ID and omits `X-Anonymous-Id` when authenticated. The only legacy helper is fixed to `/api/recommendations/user/demo-user`; it has no user-ID parameter.
+- `CatalogProvider` keys recommendation state by surface, endpoint flag, auth status, and authenticated `publicId`; it aborts identity changes and uses request generations so a transport that ignores abort cannot overwrite current results.
+- `AuthProvider` restores the session, guards auth-operation races, and exposes the safe user. `CatalogProvider` consumes `publicId` only as a local resource key; it is never sent as recommendation identity.
 - `StoreProvider` (`src/context/StoreProvider.jsx`) uses session-only guest state, merges guest state only on sign-up, and tracks wishlist/cart/rating events with recommendation attribution. Preference saves do not refresh recommendations (intentional today).
 - Tracking lives in `src/lib/tracking.js` and `src/context/TrackingProvider.jsx`: anonymous id in localStorage, session id in sessionStorage, a durable queue (max 500, batch 25), opt-out (env + per-user), fire-and-forget, impression dedupe, full recommendation attribution (`requestId`/`listId`/`rank`/`mode`/`algorithmVersion`), and `prepareTrackingIdentityChange` which flushes/discards before identity changes.
-- Mode labels: only `demo-profile` and cold-start are rendered (`RecommendationsPage.jsx:65`, `HomePage.jsx:52`). `content-similarity` is documented in `CLAUDE.md` but not rendered in the UI (doc/code mismatch). Detail page similar-items use `/api/recommendations/product/:id` (`api.js:109`).
+- Home and Recommendations render `demo-profile`, `cold-start`, and `anonymous-fallback` honestly; product detail continues to render product-based similarity separately.
 - No negative-feedback UI exists (no not-interested, already-own, show-fewer-like-this). `recommendation_dismiss` is deferred on the frontend (`INTERACTION_LOGGING_PLAN.md`).
 - Preference UI fields (`src/lib/preferences.js`): `favoriteGenres`, `dislikedGenres`, `favoriteArtists`, `budget.{min,max}`, `conditions`, `formats`. Onboarding is a 3-step wizard; profile preferences is a single page. Visible copy states preferences do not change the current demo ranking.
-- Tests: `tests/unit/` (api, catalogQuery, preferences, guestStore, tracking), `tests/components/` (useProductQuery, PreferencesForm, StoreProvider, AuthProvider, ProductImage), `tests/e2e/` (routes, auth-write, analytics, accessibility).
-- Env: `VITE_API_BASE_URL` (default `http://localhost:3000`), `VITE_TRACKING_ENABLED`, `VITE_TRACKING_DEBUG`.
+- Tests include API and `CatalogProvider` identity/race contracts plus browser coverage for authenticated `/me`, anonymous/tampered fallback, admin denial, cross-user legacy parity, analytics attribution, and prerequisite account cleanup.
+- Env adds default-on `VITE_PERS_ME_ENDPOINT` beside `VITE_API_BASE_URL`, `VITE_TRACKING_ENABLED`, and `VITE_TRACKING_DEBUG`.
 
 ## Dependency-Safe Milestone Order And ID Mapping
 
@@ -66,7 +66,7 @@ PERS-00 — Repository audit and architecture decision freeze (cross-cutting). R
 
 ### Status
 
-Planned. Blocked by the existing roadmap (FFP-08 simulated checkout and its backend support). Ready only after FFP-08 is complete and the user opens personalization work.
+Completed 2026-07-10 after FFP-08; the user explicitly opened PERS-00 through PERS-02.
 
 ### Goal
 
@@ -78,7 +78,7 @@ PERS-02 onward changes provider ordering, the API client, recommendation state, 
 
 ### Current Implementation Gap
 
-No identity-safe recommendation path, no authenticated recommendation call, no feedback UI, no refresh-on-preference-save.
+Closed for identity/session architecture. The authenticated path, anonymous fallback, provider order, resource-key, abort/generation, copy, and rollback decisions are frozen. Feedback and preference-refresh remain assigned to later milestones.
 
 ### Dependencies
 
@@ -178,9 +178,7 @@ PERS-00 is documentation only. Rollback deletes the added plan and entries; no c
 
 ### Decisions Still Requiring Approval
 
-- Confirmation that personalization opens after FFP-08.
-- Confirmation of the opt-out model (explicit functional actions persist regardless of opt-out).
-- Confirmation that provider reordering (or an equivalent gating flag) is acceptable to fix load-before-auth.
+None for PERS-00. The implementation request confirms opening after FFP-08, the opt-out split, and both provider reorder plus auth gating.
 
 ---
 
@@ -192,7 +190,7 @@ PERS-01 — Backend identity enforcement (BFP-08). Frontend contributes no UI in
 
 ### Status
 
-Planned. Blocked by PERS-00. No frontend UI change.
+Completed 2026-07-10 as a contract boundary; no standalone UI was added.
 
 ### Goal
 
@@ -200,11 +198,11 @@ Ensure the frontend cannot choose another registered user's id and that recommen
 
 ### Why It Is Required
 
-Today the frontend hard-codes `demo-user`. Once the backend attaches real profiles, the frontend must never let a client select another account's subject.
+Before PERS-01/02 the frontend hard-coded `demo-user`. The completed contract ensures future profile work cannot let a client select another account's subject.
 
 ### Current Implementation Gap
 
-The recommendation URL is parameterized (`api.js:101`) but the only caller hard-codes `demo-user` (`CatalogProvider.jsx:89`). `publicId` is not read anywhere.
+Closed. Production calls fixed `/me`; the rollback showcase helper is fixed to `demo-user`, and `publicId` is used only as a client resource key, never sent as recommendation identity.
 
 ### Dependencies
 
@@ -221,7 +219,7 @@ See backend plan (BFP-08).
 
 ### Frontend Changes
 
-None in PERS-01. The frontend continues using `demo-user` until FFP-09.
+The final FFP-09 client removes the parameterized helper. No production surface can choose another user's ID.
 
 ### API Contract
 
@@ -253,7 +251,7 @@ No frontend migration in PERS-01.
 
 ### Tests
 
-- A frontend contract note (in `tests/unit/api.test.js` or a new `tests/unit/recommendation-identity.test.js`) asserting `fetchUserRecommendations` is only ever called with `'demo-user'` from production code (grep-style invariant test) until FFP-09 replaces it.
+- `tests/unit/api.test.js` proves `/me` has no identity parameter and the only legacy path is fixed to `demo-user`; browser integration proves an arbitrary legacy ID yields the same cold-start list.
 
 ### Documentation Updates
 
@@ -261,8 +259,7 @@ No frontend migration in PERS-01.
 
 ### Definition Of Done
 
-- No frontend path can select another user's id.
-- The grep-style invariant test passes.
+- Achieved: no frontend path can select another user's ID, and API/browser contract tests pass.
 
 ### Rollback Criteria
 
@@ -286,7 +283,7 @@ PERS-02 / FFP-09 (frontend) + BFP-09 (backend) — Switch the storefront to the 
 
 ### Status
 
-Planned. Blocked by backend BFP-09.
+Completed and verified 2026-07-10 after backend BFP-09.
 
 ### Goal
 
@@ -294,13 +291,11 @@ Make authenticated users receive their own recommendations via `/api/recommendat
 
 ### Why It Is Required
 
-The hard-coded `demo-user` call is the single personalization blocker on the frontend, and provider ordering lets recommendations fire before auth resolves.
+Before FFP-09 the hard-coded `demo-user` call and provider ordering prevented a session-owned, auth-safe request.
 
 ### Current Implementation Gap
 
-- `fetchUserRecommendations('demo-user')` is the only call (`CatalogProvider.jsx:89`).
-- `CatalogProvider` wraps `AuthProvider` (`App.jsx:27-28`).
-- `publicId` is unused.
+- Closed. `/me` is the production call, `AuthProvider` wraps `CatalogProvider`, loading is gated on auth restoration, and `publicId` participates only in stale-safe resource identity.
 
 ### Dependencies
 
@@ -318,11 +313,11 @@ See backend plan (BFP-09).
 
 ### Frontend Changes
 
-- Reorder providers so recommendation loading cannot start before auth restoration: either move the recommendation resource below `AuthProvider`, or gate the loader on `auth.status !== 'loading'`. Decision recorded in FDEC-011; proposed: move `CatalogProvider`'s recommendation resource beneath `AuthProvider` while keeping catalog query hooks where they are.
-- Add `fetchMyRecommendations({ signal, surface })` to `src/lib/api.js` calling `GET /api/recommendations/me` with `credentials: 'include'` and `trackingHeaders()`.
-- Update `CatalogProvider` to choose the loader by auth state: authenticated → `fetchMyRecommendations`; anonymous → the documented anonymous fallback; showcase → the labelled `demo-profile` showcase. The resource key becomes a function of `auth.status` and the authenticated subject (when available) so identity changes invalidate results.
-- Abort in-flight recommendation requests on identity change (sign-in, sign-out, restore resolution).
-- Preserve `useRemoteResource`'s existing stale-response guard and extend its `resourceKey` to include the subject.
+- Implemented provider reorder and an explicit `auth.status !== 'loading'` gate.
+- Added credentialed `fetchMyRecommendations`; anonymous IDs are sent only for anonymous calls.
+- `CatalogProvider` now uses `/me` for authenticated and anonymous states, while the fixed `demo-user` helper remains rollback-only; Home and Recommendations render the returned mode honestly.
+- Identity changes abort in-flight requests and clear mismatched state.
+- The resource key includes the public subject, and a request generation guard prevents stale settlement even when transport ignores abort.
 
 ### API Contract
 
@@ -357,14 +352,13 @@ Parity first: a registered user with no preferences/interactions renders the sam
 
 ### Migration Strategy
 
-- Behind `PERS_ME_ENDPOINT` flag; switch authenticated surfaces after the endpoint is stable.
-- Keep `demo-user` showcase call path for the labelled showcase.
+- `VITE_PERS_ME_ENDPOINT` is enabled by default after the backend endpoint and parity tests passed. Explicit `false` restores the fixed, labelled showcase helper.
 
 ### Tests
 
-- `tests/components/CatalogProvider.test.jsx` (new): auth-restoration-before-load; authenticated endpoint selection; anonymous fallback; sign-in refresh; sign-out cleanup; stale-response prevention; in-flight abort on identity change.
-- `tests/unit/api.test.js`: `fetchMyRecommendations` URL, credentials, tracking headers.
-- `tests/e2e/analytics.spec.js` extended: authenticated user receives `/me` results; anonymous receives fallback.
+- `tests/components/CatalogProvider.test.jsx`: auth-before-load, authenticated/anonymous selection, sign-in abort, sign-out cleanup, stale transport settlement, and retry.
+- `tests/unit/api.test.js`: fixed `/me`, credentials, authenticated anonymous-ID omission, opt-out, and fixed showcase path.
+- Browser tests: authenticated `/me`, anonymous and tampered-cookie fallback, admin denial, legacy cross-user parity, request-only-on-rendered-surfaces, and attribution.
 
 ### Documentation Updates
 
@@ -375,23 +369,20 @@ Parity first: a registered user with no preferences/interactions renders the sam
 
 ### Definition Of Done
 
-- Authenticated users use `/me`; anonymous visitors use the fallback; showcase stays labelled.
-- Recommendation loading never starts before auth resolves.
-- Identity changes abort in-flight requests and invalidate stale results.
-- All existing tests pass.
+- Achieved: authenticated users and anonymous visitors use `/me` with distinct honest modes; recommendation loading waits for auth; identity changes abort and generation-invalidate stale work; regression suites pass.
 
 ### Rollback Criteria
 
-Disable `PERS_ME_ENDPOINT`; revert to `demo-user` call. No data to roll back.
+Disable frontend `VITE_PERS_ME_ENDPOINT` with backend `PERS_ME_ENDPOINT`; revert to the fixed `demo-user` showcase. No data rolls back.
 
 ### Risks
 
-- FR-015: provider reorder breaks catalog state. Mitigation: component regression tests.
-- FR-016: recommendation loading races auth restoration. Mitigation: gate on `auth.status`.
+- FR-014: stale identity responses overwrite current results. Controlled by abort plus generation/resource-key guards.
+- FR-016: recommendation loading races auth restoration. Controlled by provider order, auth gating, and component/browser tests.
 
 ### Decisions Still Requiring Approval
 
-- Provider reorder vs gating flag (proposed reorder).
+None. The implementation uses both provider reorder and an explicit gating condition.
 
 ---
 
@@ -1155,7 +1146,7 @@ Each stage is reversible. Frontend switches over only after the backend endpoint
 
 ## Decision Register (Recorded Or Proposed)
 
-Recorded at PERS-00: FDEC-011 (personalization architecture freeze, mirroring BDEC-016). Additional frontend decisions: FDEC-012 (pessimistic vs optimistic feedback create). Proposed decisions still requiring approval: see each milestone's final section.
+Completed PERS-00 through PERS-02 resolve FDEC-011, provider order plus auth gating, limit 12, customer-only access with administrator rejection, fixed `/me` identity, and default-on reversible endpoint flags. FDEC-012 and other later-milestone decisions remain proposed; see each milestone's final section.
 
 ## Honesty Contract
 

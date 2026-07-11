@@ -5,7 +5,7 @@ This file records current completion and deferred scope. It does not authorize c
 ## Completed
 
 - Twelve-route Groovehaus React storefront and responsive design.
-- API-backed catalog, literal search, repeated facets, sorting, pagination, product details, demo-profile recommendations, and product similarity.
+- API-backed catalog, literal search, repeated facets, sorting, pagination, product details, session-owned customer cold-start, anonymous fallback, restricted demo-profile showcase, and product similarity.
 - Signed-cookie registration/login/logout/restoration and protected account routes.
 - FFP-03 session-only guest Store adapter, sign-up-only keyed merge, and authenticated wishlist/cart/rating persistence.
 - FFP-02 three-step onboarding and protected preference editing/clearing.
@@ -16,13 +16,13 @@ This file records current completion and deferred scope. It does not authorize c
 - Loading, empty, error, retry, optimistic rollback, and warning states.
 - Vitest/React Testing Library plus Playwright Chromium, Firefox, WebKit, responsive, history, failure, and axe coverage.
 - Honest demo-profile/cold-start wording and current documentation.
+- FFP-07 integrated administrator workspace and FFP-08 client-only simulated checkout.
+- PERS-00/01/02 and FFP-09 architecture freeze, fixed identity contract, auth-gated `/api/recommendations/me` consumption, stale-response protection, and honest anonymous fallback.
 
 ## Deferred And Not Started
 
-- Integrated administrator UI.
-- Simulated checkout and demo orders.
 - Sufficient backend evidence for a recommendation-quality result; the implemented evaluator currently reports no metrics.
 - Real payments, deployment automation, and production commerce.
-- Genuine personalization (PERS-00 through PERS-09 / FFP-09 through FFP-14), scheduled after BFP-07, FFP-07, and FFP-08. See `PERSONALIZATION_IMPLEMENTATION_PLAN.md`. No milestone is in progress; no quality claim is made.
+- Remaining personalization (PERS-03 through PERS-09 / FFP-10 through FFP-14): unified profile presentation, preference ranking, explicit feedback, behavior, popularity, hybrid orchestration, and closure. No quality claim is made.
 
-Detailed plans and the approved cross-repository order are in `FUTURE_IMPLEMENTATION_PLAN.md`. FFP-01 through FFP-06 are complete. Deferred items require a separate explicit implementation task.
+Detailed plans and the approved cross-repository order are in `FUTURE_IMPLEMENTATION_PLAN.md`. FFP-01 through FFP-09 are complete. Deferred items require a separate explicit implementation task.

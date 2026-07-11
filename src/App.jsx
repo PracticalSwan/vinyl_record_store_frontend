@@ -32,42 +32,42 @@ import AdminImportPage from './pages/admin/AdminImportPage';
 export default function App() {
   return (
     <BrowserRouter>
-      <CatalogProvider>
-        <AuthProvider>
-          <TrackingProvider>
+      <AuthProvider>
+        <TrackingProvider>
+          <CatalogProvider>
             <AuthRedirect />
             <StoreProvider>
-            <Navbar />
-            <div className="container global-store-status"><StoreStatus /></div>
-            <Routes>
-              <Route path="/"                element={<HomePage />} />
-              <Route path="/catalog"         element={<CatalogPage />} />
-              <Route path="/records/:id"     element={<DetailPage />} />
-              <Route path="/search"          element={<SearchPage />} />
-              <Route path="/recommendations" element={<RecommendationsPage />} />
-              <Route path="/wishlist"        element={<WishlistPage />} />
-              <Route path="/cart"            element={<CartPage />} />
-              <Route path="/checkout"        element={<RequireAuth><CheckoutPage /></RequireAuth>} />
-              <Route path="/orders/demo/:reference" element={<RequireAuth><DemoOrderConfirmationPage /></RequireAuth>} />
-              <Route path="/login"           element={<LoginPage />} />
-              <Route path="/register"        element={<RegisterPage />} />
-              <Route path="/account" element={<RequireAuth><AccountPage /></RequireAuth>} />
-              <Route path="/onboarding" element={<RequireAuth><OnboardingPage /></RequireAuth>} />
-              <Route path="/profile/preferences" element={<RequireAuth><ProfilePreferencesPage /></RequireAuth>} />
-              <Route path="/admin" element={<RequireRole><AdminLayout /></RequireRole>}>
-                <Route index element={<AdminDashboardPage />} />
-                <Route path="products" element={<AdminProductsPage />} />
-                <Route path="products/new" element={<AdminProductFormPage />} />
-                <Route path="products/:id/edit" element={<AdminProductFormPage />} />
-                <Route path="import" element={<AdminImportPage />} />
-              </Route>
-              <Route path="*"                element={<Navigate to="/" replace />} />
-            </Routes>
-            <Footer />
+              <Navbar />
+              <div className="container global-store-status"><StoreStatus /></div>
+              <Routes>
+                <Route path="/"                element={<HomePage />} />
+                <Route path="/catalog"         element={<CatalogPage />} />
+                <Route path="/records/:id"     element={<DetailPage />} />
+                <Route path="/search"          element={<SearchPage />} />
+                <Route path="/recommendations" element={<RecommendationsPage />} />
+                <Route path="/wishlist"        element={<WishlistPage />} />
+                <Route path="/cart"            element={<CartPage />} />
+                <Route path="/checkout"        element={<RequireAuth><CheckoutPage /></RequireAuth>} />
+                <Route path="/orders/demo/:reference" element={<RequireAuth><DemoOrderConfirmationPage /></RequireAuth>} />
+                <Route path="/login"           element={<LoginPage />} />
+                <Route path="/register"        element={<RegisterPage />} />
+                <Route path="/account" element={<RequireAuth><AccountPage /></RequireAuth>} />
+                <Route path="/onboarding" element={<RequireAuth><OnboardingPage /></RequireAuth>} />
+                <Route path="/profile/preferences" element={<RequireAuth><ProfilePreferencesPage /></RequireAuth>} />
+                <Route path="/admin" element={<RequireRole><AdminLayout /></RequireRole>}>
+                  <Route index element={<AdminDashboardPage />} />
+                  <Route path="products" element={<AdminProductsPage />} />
+                  <Route path="products/new" element={<AdminProductFormPage />} />
+                  <Route path="products/:id/edit" element={<AdminProductFormPage />} />
+                  <Route path="import" element={<AdminImportPage />} />
+                </Route>
+                <Route path="*"                element={<Navigate to="/" replace />} />
+              </Routes>
+              <Footer />
             </StoreProvider>
-          </TrackingProvider>
-        </AuthProvider>
-      </CatalogProvider>
+          </CatalogProvider>
+        </TrackingProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

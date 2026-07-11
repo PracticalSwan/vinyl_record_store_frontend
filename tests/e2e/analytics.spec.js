@@ -12,7 +12,7 @@ test('recommendation metadata is surfaced and usage-data opt-out stops event del
     });
   });
 
-  const recommendationResponse = page.waitForResponse((response) => response.url().includes('/api/recommendations/user/'));
+  const recommendationResponse = page.waitForResponse((response) => response.url().includes('/api/recommendations/me'));
   await page.goto('/recommendations');
   const response = await recommendationResponse;
   const payload = await response.json();
@@ -58,7 +58,7 @@ test('recommendation metadata is surfaced and usage-data opt-out stops event del
   expect(batches.flat()).toHaveLength(delivered);
   expect(await page.evaluate(() => localStorage.getItem('groovehaus.interaction-queue.v1'))).toBeNull();
 
-  const requestAfterOptOut = page.waitForRequest((request) => request.url().includes('/api/recommendations/user/'));
+  const requestAfterOptOut = page.waitForRequest((request) => request.url().includes('/api/recommendations/me'));
   await page.goto('/recommendations');
   expect((await requestAfterOptOut).headers()['x-tracking-enabled']).toBe('false');
 });
@@ -66,7 +66,7 @@ test('recommendation metadata is surfaced and usage-data opt-out stops event del
 test('recommendation requests are made only on pages that render their lists', async ({ page }) => {
   const requests = [];
   page.on('request', (request) => {
-    if (request.url().includes('/api/recommendations/user/')) requests.push(request);
+    if (request.url().includes('/api/recommendations/me')) requests.push(request);
   });
 
   await page.goto('/catalog');
@@ -84,4 +84,23 @@ test('recommendation requests are made only on pages that render their lists', a
   await page.goto('/recommendations');
   await expect.poll(() => requests.length).toBe(2);
   expect(new URL(requests[1].url()).searchParams.get('surface')).toBe('recommendations');
+});
+
+test('a tampered recommendation session fails closed to the anonymous fallback', async ({ context, page }) => {
+  await context.addCookies([{
+    name: 'groovehaus_session',
+    value: 'tampered.payload',
+    domain: 'localhost',
+    path: '/',
+    httpOnly: true,
+    sameSite: 'Lax',
+  }]);
+  const recommendationResponse = page.waitForResponse((response) => (
+    response.url().includes('/api/recommendations/me') && response.request().method() === 'GET'
+  ));
+  await page.goto('/recommendations');
+  const response = await recommendationResponse;
+  expect(response.status()).toBe(200);
+  expect((await response.json()).data.mode).toBe('anonymous-fallback');
+  await expect(page.getByText('Anonymous fallback')).toBeVisible();
 });

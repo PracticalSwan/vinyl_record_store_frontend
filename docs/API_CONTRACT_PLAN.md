@@ -26,7 +26,8 @@ Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceU
 | Product detail | `GET` | `/api/products/:id` | Detail and ID-based local-list hydration. |
 | Search alias | `GET` | `/api/search` | Shares the product query service and response shape. |
 | Similar products | `GET` | `/api/recommendations/product/:id?limit=6&surface=product-detail` | Product detail row with request/list attribution. |
-| User recommendations | `GET` | `/api/recommendations/user/demo-user?limit=12&surface=...` | Home and recommendation routes only, with request/list attribution. |
+| Session-owned recommendations | `GET` | `/api/recommendations/me?limit=12&surface=...` | Home and recommendation routes only; customer identity comes from the cookie, otherwise anonymous fallback. |
+| Legacy showcase | `GET` | `/api/recommendations/user/demo-user?limit=12&surface=...` | Fixed rollback/showcase path only; no production helper accepts another user ID. |
 | Health | `GET` | `/api/health` | Operational check. |
 
 Product query parameters are `q`, repeated `genre`, repeated `era`, repeated `condition`, `minPrice`, `maxPrice`, `inStock`, `sort`, `page`, and `limit`. Search is a bounded, case-insensitive literal substring. Supported sorts are `newest`, `price-asc`, `price-desc`, and `artist-asc`.
@@ -62,15 +63,15 @@ The backend derives ownership from the session, requires the exact configured or
 
 ## Deferred Calls
 
-Demo orders and administrator catalog endpoints are not implemented. Recommendation-request logs, catalog imports, metadata enrichment, and offline evaluation are backend operator/internal paths rather than public frontend calls. Guest state is session-only; authenticated wishlist/cart/rating state is server-backed.
+Backend order/payment calls are not implemented. Administrator catalog calls are implemented under `/api/admin/*`. Recommendation-request logs, catalog imports outside the admin UI, metadata enrichment, and offline evaluation are backend operator/internal paths rather than public frontend calls. Guest state is session-only; authenticated wishlist/cart/rating state is server-backed.
 
-## Planned Calls (Personalization Roadmap)
+## Personalization Calls
 
-The following are planned in `PERSONALIZATION_IMPLEMENTATION_PLAN.md`, scheduled after BFP-07, FFP-07, and FFP-08. None is implemented.
+PERS-00 through PERS-02 / FFP-09 are implemented. Remaining entries in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` stay planned.
 
-- `GET /api/recommendations/me` (PERS-02 / FFP-09): replaces the hard-coded `/api/recommendations/user/demo-user` call for authenticated users; anonymous visitors use the documented fallback. The client never sends a user id.
+- `GET /api/recommendations/me` (implemented PERS-02 / FFP-09): verified customers receive `cold-start`, visitors or invalid/expired sessions receive `anonymous-fallback`, and administrators receive `403`. The client never sends a user ID; authenticated requests omit `X-Anonymous-Id`.
 - `PUT`, `DELETE /api/me/feedback/:productId` and `GET /api/me/feedback` (PERS-05 / FFP-11): not-interested, already-own, optional show-fewer-like-this, and undo.
-- New mode labels rendered honestly: `preference-profile`, `behavior-profile`, `popularity`, `personalized-hybrid`, and `anonymous-fallback`, in addition to existing `demo-profile`, `content-similarity`, and `cold-start`. No raw weights are displayed.
+- Current mode labels render `demo-profile`, `content-similarity`, `cold-start`, and `anonymous-fallback` honestly. Future milestones add `preference-profile`, `behavior-profile`, `popularity`, and `personalized-hybrid`; no raw weights are displayed.
 
 ## Error Handling
 

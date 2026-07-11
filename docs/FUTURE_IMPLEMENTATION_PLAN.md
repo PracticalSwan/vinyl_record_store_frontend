@@ -1,6 +1,6 @@
 # Frontend Future Implementation Plan
 
-Status: FFP-01 through FFP-08 are complete. Personalization (FFP-09+, in `PERSONALIZATION_IMPLEMENTATION_PLAN.md`) remains future work pending a separate explicit task.
+Status: FFP-01 through FFP-09 are complete. Personalization from FFP-10 onward remains future work pending a separate explicit task.
 
 Audience: developers implementing the Groovehaus Vite/React storefront and backend developers maintaining the shared API contracts.
 
@@ -174,7 +174,7 @@ Registration appears only after the backend user repository is implemented and h
 
 - Saving preferences does not by itself change recommendations.
 - Until the recommender decision is reopened and implemented, the UI says “Preferences saved for future recommendations.”
-- Existing results continue to use `demo-profile`, `content-similarity`, or `cold-start` wording.
+- Existing results continue to use truthful `demo-profile`, `content-similarity`, `cold-start`, or `anonymous-fallback` wording.
 - When a chosen algorithm later consumes preferences, it must introduce a distinct documented mode such as `preference-profile` and explanations tied to actual fields used.
 
 ### Proposed Files
@@ -303,7 +303,7 @@ Installed versions are recorded in `package-lock.json`. Browser binaries and gen
 
 1. Home, catalog, product detail, search, recommendations, wishlist, and cart load from the backend.
 2. Catalog loading, empty, API unavailable, retry, and success states render correctly.
-3. Recommendation mode and explanation copy remain honest for demo-profile, similarity, and cold-start results.
+3. Recommendation mode and explanation copy remain honest for demo-profile, similarity, session-owned cold-start, and anonymous-fallback results.
 4. Product route not found, out-of-stock action, cart quantities, and wishlist removal behave safely.
 5. Server search handles rapid typing, filters, pagination, empty results, back/forward navigation, and stale response cancellation.
 6. Login, logout, expired/tampered session, seeded customer, seeded administrator, registration unavailable, and persistent registration states.
@@ -630,7 +630,7 @@ After FFP-04 establishes the test commands, also run the affected unit, componen
 
 ## Personalization Roadmap (PERS-00 - PERS-09)
 
-This section records the frontend half of a planned, dependency-safe personalization roadmap. It is scheduled AFTER the entire existing roadmap above: BFP-07, FFP-07, FFP-08, and any backend support planned for the simulated checkout. It does not reorder, replace, remove, or silently redefine any existing plan. The same cross-repository milestone order is in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` and in the backend `FUTURE_IMPLEMENTATION_PLAN.md`. No milestone is in progress; none is marked completed.
+This section records the frontend half of the dependency-safe personalization roadmap. PERS-00 through PERS-02 / FFP-09 were completed on 2026-07-10 after BFP-07, FFP-07, and FFP-08; PERS-03 through PERS-09 remain planned. The same cross-repository order is in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` and the backend plan.
 
 The honesty wording that the current ranker is not personalized stays in force until PERS-04 onward actually personalizes. No quality claim is made; the `insufficient-evidence` evaluator status is unchanged.
 
@@ -638,9 +638,9 @@ The honesty wording that the current ranker is not personalized stays in force u
 
 | ID | Plan | Status | Main Gate |
 | --- | --- | --- | --- |
-| PERS-00 / FDEC-011 | Audit and decision freeze | Planned | Records the frontend architecture decisions before any code. |
-| PERS-01 | Identity enforcement (frontend contract only) | Planned | No frontend path can select another user's id. |
-| PERS-02 / FFP-09 | Session-owned endpoint | Planned | Authenticated users use `/api/recommendations/me`; anonymous uses the fallback; loading gated on auth. |
+| PERS-00 / FDEC-011 | Audit and decision freeze | Completed 2026-07-10 | Frontend endpoint, provider, identity-key, rollback, copy, and no-quality-claim decisions are frozen. |
+| PERS-01 | Identity enforcement (frontend contract only) | Completed 2026-07-10 | Production has no arbitrary-user selection; the legacy helper is fixed to `demo-user`. |
+| PERS-02 / FFP-09 | Session-owned endpoint | Completed 2026-07-10 | `/me`, auth gating, anonymous fallback, abort/generation stale protection, and browser coverage are active. |
 | PERS-03 | Unified profile surface | Planned | Render safe data-source flags without raw signals. |
 | PERS-04 / FFP-10 | Preference-aware ranking UI | Planned | Honest `preference-profile` label; refresh on preference save. |
 | PERS-05 / FFP-11 | Negative feedback UI | Planned | Accessible not-interested, already-own, undo, show-fewer-like-this. |
@@ -651,4 +651,4 @@ The honesty wording that the current ranker is not personalized stays in force u
 
 ### Dependency-Safe Personalization Order (Appended After FFP-08)
 
-The frontend switches over only after the corresponding backend milestone is stable. The full cross-repository order (PERS-00 through PERS-09, orders 15 through 24) is in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` and the backend `FUTURE_IMPLEMENTATION_PLAN.md`. Each frontend milestone ships behind the matching backend feature flag and is independently reversible. Implementation requires a separate explicit task and must not begin before FFP-08 is complete and the user opens personalization work.
+The frontend switched to the stable backend identity/session endpoint in PERS-02 and keeps a default-on reversible flag. The full cross-repository order (PERS-00 through PERS-09, orders 15 through 24) remains in both personalization plans. PERS-03 onward requires a separate explicit task and matching backend stability before frontend consumption.

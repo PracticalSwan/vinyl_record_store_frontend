@@ -19,7 +19,7 @@ Statuses are `done` or `deferred`. Deferred items are not active work.
 | F-013 | Move catalog search, filters, sort, and pagination to the backend. | done | FFP-05 completed 2026-07-03 with URL-backed server queries. |
 | F-014 | Add approved Cover Art Archive images and fallbacks. | done | FFP-06 shared image component, validation, attribution, and fallbacks completed 2026-07-06. |
 | F-015 | Add the integrated administrator UI. | done | Completed 2026-07-09 in FFP-07: RequireRole guard, AdminLayout/dashboard/product table/create-edit form with conflict re-fetch/import UX/artwork refresh. |
-| F-016 | Switch the storefront to the session-owned recommendation endpoint. | deferred | PERS-02 / FFP-09; `GET /api/recommendations/me`, auth-aware loading, stale-response prevention. |
+| F-016 | Switch the storefront to the session-owned recommendation endpoint. | done | PERS-02 / FFP-09 completed 2026-07-10 with `/api/recommendations/me`, auth gating, subject keys, abort/generation stale protection, anonymous-only IDs, honest copy, and browser coverage. |
 | F-017 | Render the unified profile summary safely. | deferred | PERS-03; surface safe data-source flags without raw signals. |
 | F-018 | Add preference-aware mode labels and refresh on preference save. | deferred | PERS-04 / FFP-10; `preference-profile` copy and reload after save. |
 | F-019 | Add negative-feedback controls. | deferred | PERS-05 / FFP-11; not-interested, already-own, undo, show-fewer-like-this, accessible and robust. |

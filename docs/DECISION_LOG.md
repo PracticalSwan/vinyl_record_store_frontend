@@ -84,7 +84,7 @@ Decision: Route every card, recommendation, detail, wishlist, and cart image thr
 
 Rationale: One validation and recovery boundary prevents host drift, broken-image loops, inconsistent alt text, and layout shifts while keeping product text and actions usable during external failures.
 
-## FDEC-011: Personalization Architecture Freeze (Planned)
+## FDEC-011: Personalization Architecture Freeze
 
 Date: 2026-07-07
 
@@ -92,7 +92,7 @@ Decision: Plan, without implementing, the frontend half of the personalization r
 
 Rationale: Provider ordering, the API client, recommendation state, and feedback UI all change across milestones; fixing these decisions up front avoids rework. No quality claim is made.
 
-Status: Planned. No source code changed. Enables FDEC-012 to be recorded when PERS-05 lands.
+Status: Frozen and completed 2026-07-10. The user opened PERS-00 through PERS-02 after FFP-08. The implementation uses both provider order and an auth-status gate, limit 12, customer-only access with administrator rejection, subject-key plus abort/generation stale protection, and a default-on `VITE_PERS_ME_ENDPOINT` rollback switch. Preference/behavior ranking and quality claims remain inactive.
 
 ## FDEC-012: Administrator Workspace And Client-Only Simulated Checkout
 

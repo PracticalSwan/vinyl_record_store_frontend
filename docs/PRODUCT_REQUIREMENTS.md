@@ -40,4 +40,4 @@ Payments, production checkout, frontend database access, scraping, and admin too
 
 - Unit, component, multi-browser, accessibility, lint, and production-build checks pass.
 - A running frontend can load the backend catalog and recommendation responses.
-- Users can distinguish demo-profile, content-similarity, and cold-start recommendation contexts.
+- Users can distinguish demo-profile, content-similarity, session-owned cold-start, and anonymous-fallback recommendation contexts.

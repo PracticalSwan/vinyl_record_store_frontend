@@ -8,10 +8,26 @@ const HOME_QUERY = {
   minPrice: null, maxPrice: null, inStock: false, sort: 'newest',
 };
 
+const recommendationLabel = (mode) => ({
+  'demo-profile': 'Explainable demo profile',
+  'anonymous-fallback': 'Anonymous catalog fallback',
+  'cold-start': 'Session-owned cold-start',
+}[mode] || 'Explainable ranked suggestions');
+
+const recommendationAriaLabel = (mode) => mode === 'demo-profile'
+  ? 'Recommended records for the demo profile'
+  : 'Current ranked record recommendations';
+
 export default function HomePage() {
   const navigate = useNavigate();
   const catalog = useProductQuery(HOME_QUERY);
-  const { recommendations, recommendationStatus, recommendationError, reloadRecommendations } = useCatalog();
+  const {
+    recommendations,
+    recommendationStatus,
+    recommendationError,
+    recommendationMode,
+    reloadRecommendations,
+  } = useCatalog();
   const genreCount = catalog.meta?.facets?.genres?.filter(({ count }) => count > 0).length ?? 0;
   const inStockCount = catalog.meta?.facets?.stock
     ?.filter(({ value }) => value !== 'out')
@@ -49,12 +65,12 @@ export default function HomePage() {
           {catalog.items.length > 0 && <ProductGrid records={catalog.items} surface="home" />}
         </section>
         <section aria-labelledby="rec-home-heading" className="rec-section">
-          <h2 className="section-heading" id="rec-home-heading">Recommendation picks <small>Explainable demo profile</small></h2>
+          <h2 className="section-heading" id="rec-home-heading">Recommendation picks <small>{recommendationLabel(recommendationMode)}</small></h2>
           <hr className="section-rule" aria-hidden="true" />
           {recommendationStatus === 'loading' && <p className="inline-state">Loading recommendations...</p>}
           {recommendationStatus === 'error' && <div className="inline-state" role="alert"><span>{recommendationError?.message}</span><button className="btn btn-outline btn-sm" onClick={reloadRecommendations}>Try again</button></div>}
           {recommendationStatus === 'empty' && <p className="inline-state">No recommendations are available.</p>}
-          {recommendationStatus === 'success' && <RecScroll records={recommendations.slice(0, 5)} ariaLabel="Recommended records for the demo profile" surface="home" />}
+          {recommendationStatus === 'success' && <RecScroll records={recommendations.slice(0, 5)} ariaLabel={recommendationAriaLabel(recommendationMode)} surface="home" />}
         </section>
       </div>
     </main>

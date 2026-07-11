@@ -34,7 +34,7 @@ This plan records the automated release evidence for the storefront. It does not
 
 ## Recommendation Comprehension
 
-Confirm that a reviewer can distinguish sample-profile results, product similarity, and cold-start suggestions. Do not treat UI behavior checks as ranking-quality evidence.
+Confirm that a reviewer can distinguish sample-profile results, product similarity, session-owned cold-start, and anonymous fallback. Verify auth restoration gating and identity-transition stale-response protection. Do not treat UI behavior checks as ranking-quality evidence.
 
 ## Release Evidence Rule
 

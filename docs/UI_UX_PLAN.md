@@ -10,7 +10,7 @@ This document records the implemented Groovehaus experience and its required sta
 | `/catalog` | URL-backed product grid, repeated filters, sorting, pagination, and no-result state. |
 | `/records/:id` | Product metadata, guest/authenticated rating/cart actions, and backend similarity results. |
 | `/search?q=` | Debounced literal server search with shared filters, sorting, and pagination. |
-| `/recommendations` | Explainable demo-profile or cold-start recommendation results. |
+| `/recommendations` | Explainable session-owned cold-start, anonymous-fallback, or labelled showcase results. |
 | `/wishlist` | Guest-session or authenticated server-backed wishlist. |
 | `/cart` | Guest-session or authenticated server-backed cart with disabled checkout. |
 | `/register`, `/login` | Customer account creation and existing-account access. |
@@ -46,6 +46,8 @@ Groovehaus uses a cream surface, dark brown navigation and cards, rust accent, s
 
 - Use “demo profile” for the sample profile.
 - Use “cold-start” when no history exists.
+- Use “anonymous fallback” when no verified customer session resolves; do not imply account history.
+- Describe session ownership separately from ranking personalization: the request can be customer-owned while preferences and behavior remain inactive.
 - Describe guest state as current-tab-only and authenticated state as account-backed.
 - State that saved preferences do not alter the current demo ranking.
 - Keep the usage-data opt-out visible and immediately authoritative.

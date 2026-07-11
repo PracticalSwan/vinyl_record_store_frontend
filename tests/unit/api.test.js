@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   ApiError,
+  fetchMyRecommendations,
   fetchProductRecommendations,
   fetchProducts,
-  fetchUserRecommendations,
+  fetchShowcaseRecommendations,
   login,
   setCartProduct,
 } from '../../src/lib/api';
@@ -82,10 +83,28 @@ describe('API client', () => {
     });
 
     storeTrackingPreference(false);
-    await fetchUserRecommendations();
+    await fetchMyRecommendations({ anonymous: true });
 
     expect(fetchMock.mock.calls[0][1].headers).toEqual({ 'X-Tracking-Enabled': 'false' });
     storageWrite.mockRestore();
+  });
+
+  it('uses the session-owned endpoint without sending a client-selected identity', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: vi.fn().mockResolvedValue({ data: { recommendations: [] } }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await fetchMyRecommendations({ surface: 'home', anonymous: false });
+    await fetchShowcaseRecommendations({ surface: 'recommendations', userId: 'another-user' });
+
+    const sessionUrl = new URL(fetchMock.mock.calls[0][0]);
+    expect(sessionUrl.pathname).toBe('/api/recommendations/me');
+    expect(sessionUrl.searchParams.get('surface')).toBe('home');
+    expect(fetchMock.mock.calls[0][1].headers).toEqual({ 'X-Tracking-Enabled': 'true' });
+    expect(new URL(fetchMock.mock.calls[1][0]).pathname).toBe('/api/recommendations/user/demo-user');
   });
 
   it('sends credentialed JSON for authentication and absolute cart writes', async () => {

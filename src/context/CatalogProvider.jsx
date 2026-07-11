@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { fetchUserRecommendations } from '../lib/api';
+import { fetchMyRecommendations, fetchShowcaseRecommendations } from '../lib/api';
+import { personalizationMeEndpointEnabled } from '../lib/features';
 import { useLocation } from 'react-router-dom';
 import { CatalogContext } from './catalogContext';
+import { useAuth } from './useAuth';
 
 const INITIAL_RECOMMENDATIONS = {
   data: [],
@@ -42,13 +44,15 @@ function useRemoteResource(loader, select, initialState, {
 } = {}) {
   const [state, setState] = useState({ ...initialState, resourceKey: null });
   const controllerRef = useRef(null);
+  const generationRef = useRef(0);
 
-  const load = useCallback(async (signal) => {
+  const load = useCallback(async (signal, generation) => {
     try {
       const response = await loader({ signal });
+      if (generation !== generationRef.current) return;
       setState({ ...select(response), resourceKey });
     } catch (error) {
-      if (error.name === 'AbortError') return;
+      if (generation !== generationRef.current || error.name === 'AbortError') return;
       setState({ ...initialState, status: 'error', error, resourceKey });
     }
   }, [initialState, loader, resourceKey, select]);
@@ -60,20 +64,27 @@ function useRemoteResource(loader, select, initialState, {
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
+    const generation = ++generationRef.current;
     setState({ ...initialState, resourceKey });
-    load(controller.signal);
+    load(controller.signal, generation);
   }, [enabled, initialState, load, resourceKey]);
 
   useEffect(() => {
     if (!enabled) {
+      generationRef.current += 1;
       controllerRef.current?.abort();
       controllerRef.current = null;
       return undefined;
     }
     const controller = new AbortController();
     controllerRef.current = controller;
-    Promise.resolve().then(() => load(controller.signal));
-    return () => controller.abort();
+    const generation = ++generationRef.current;
+    Promise.resolve().then(() => load(controller.signal, generation));
+    return () => {
+      controller.abort();
+      if (generationRef.current === generation) generationRef.current += 1;
+      if (controllerRef.current === controller) controllerRef.current = null;
+    };
   }, [enabled, load]);
 
   const visibleState = enabled && state.resourceKey === resourceKey ? state : initialState;
@@ -82,23 +93,37 @@ function useRemoteResource(loader, select, initialState, {
 
 export function CatalogProvider({ children }) {
   const location = useLocation();
+  const auth = useAuth();
+  const meEndpointEnabled = personalizationMeEndpointEnabled();
   const recommendationSurface = location.pathname === '/'
     ? 'home'
     : location.pathname.startsWith('/recommendations') ? 'recommendations' : null;
-  const loadDemoRecommendations = useCallback(
-    (options) => fetchUserRecommendations('demo-user', {
-      ...options,
-      surface: recommendationSurface || 'home',
-    }),
-    [recommendationSurface],
+  const authenticatedSubject = auth.status === 'authenticated'
+    ? auth.user?.publicId || 'missing-public-id'
+    : auth.status;
+  const loadRecommendations = useCallback(
+    (options) => meEndpointEnabled
+      ? fetchMyRecommendations({
+          ...options,
+          surface: recommendationSurface || 'home',
+          anonymous: auth.status !== 'authenticated',
+        })
+      : fetchShowcaseRecommendations({
+          ...options,
+          surface: recommendationSurface || 'home',
+          anonymous: auth.status !== 'authenticated',
+        }),
+    [auth.status, meEndpointEnabled, recommendationSurface],
   );
   const recommendation = useRemoteResource(
-    loadDemoRecommendations,
+    loadRecommendations,
     selectRecommendations,
     INITIAL_RECOMMENDATIONS,
     {
-      enabled: recommendationSurface !== null,
-      resourceKey: recommendationSurface || 'disabled',
+      enabled: recommendationSurface !== null && auth.status !== 'loading',
+      resourceKey: recommendationSurface
+        ? `${recommendationSurface}:${meEndpointEnabled ? 'me' : 'showcase'}:${authenticatedSubject}`
+        : 'disabled',
     },
   );
 

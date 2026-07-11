@@ -32,20 +32,29 @@ test('a registered customer is denied the administrator area', async ({ page }, 
   const password = process.env.E2E_REGISTER_PASSWORD;
   // Establish the storefront origin first so credentialed fetches carry it.
   await page.goto('/');
-  await api(page, '/api/auth/register', {
+  const registration = await api(page, '/api/auth/register', {
     method: 'POST',
     body: { username, password, displayName: 'Admin E2E Customer' },
   });
-  await page.goto('/admin');
-  await expect(page.getByText('Administrator access required')).toBeVisible();
-  // The customer never reaches administrator data.
-  await expect(page.getByText('Active products')).toHaveCount(0);
+  expect(registration.status).toBe(200);
+  try {
+    await page.goto('/admin');
+    await expect(page.getByText('Administrator access required')).toBeVisible();
+    // The customer never reaches administrator data.
+    await expect(page.getByText('Active products')).toHaveCount(0);
+  } finally {
+    const deletion = await api(page, '/api/me', { method: 'DELETE' });
+    expect(deletion.status).toBe(200);
+  }
 });
 
 test('the administrator sees the dashboard and product catalog', async ({ page }) => {
   test.slow();
   await page.goto('/');
   await login(page, ADMIN_USERNAME, ADMIN_PASSWORD);
+  const customerRecommendations = await api(page, '/api/recommendations/me?surface=home');
+  expect(customerRecommendations.status).toBe(403);
+  expect(customerRecommendations.payload.error.code).toBe('FORBIDDEN');
   await page.goto('/admin');
   // Administrator data is reachable for a verified admin session.
   await expect(page.getByText('Active products')).toBeVisible();

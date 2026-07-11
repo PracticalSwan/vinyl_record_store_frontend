@@ -90,19 +90,35 @@ export async function fetchProductsByIds(productIds, { signal } = {}) {
   };
 }
 
-function trackingHeaders() {
+function trackingHeaders({ includeAnonymousId = true } = {}) {
   const enabled = isTrackingEnabled();
   return {
     'X-Tracking-Enabled': String(enabled),
-    ...(enabled ? { 'X-Anonymous-Id': getAnonymousId() } : {}),
+    ...(enabled && includeAnonymousId ? { 'X-Anonymous-Id': getAnonymousId() } : {}),
   };
 }
 
-export function fetchUserRecommendations(userId = 'demo-user', { signal, surface = 'recommendations' } = {}) {
+export function fetchShowcaseRecommendations({
+  signal,
+  surface = 'recommendations',
+  anonymous = true,
+} = {}) {
   const params = new URLSearchParams({ limit: '12', surface });
-  return request(`/api/recommendations/user/${encodeURIComponent(userId)}?${params}`, {
+  return request(`/api/recommendations/user/demo-user?${params}`, {
     signal,
-    extraHeaders: trackingHeaders(),
+    extraHeaders: trackingHeaders({ includeAnonymousId: anonymous }),
+  });
+}
+
+export function fetchMyRecommendations({
+  signal,
+  surface = 'recommendations',
+  anonymous = true,
+} = {}) {
+  const params = new URLSearchParams({ limit: '12', surface });
+  return request(`/api/recommendations/me?${params}`, {
+    signal,
+    extraHeaders: trackingHeaders({ includeAnonymousId: anonymous }),
   });
 }
 

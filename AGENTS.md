@@ -15,6 +15,7 @@ The Groovehaus storefront is an implemented API-backed academic demo, not a Vite
 - Authentication and registered identity are backend-backed through credentialed signed-cookie sessions restored by `AuthProvider`.
 - `StoreProvider` uses session-only guest state and server-backed authenticated state. Guest state merges only into a new registration, resumes a keyed failed merge after refresh, and is discarded on existing-account login or ordinary restore.
 - Onboarding/preferences and privacy-controlled interaction analytics are implemented. Recommendation requests carry request/list attribution and are fetched only on pages that render them.
+- PERS-00 through PERS-02 / FFP-09 are implemented. `AuthProvider` resolves before `CatalogProvider`; Home and Recommendations use `GET /api/recommendations/me`, key state by the authenticated public subject, abort and generation-guard identity changes, omit anonymous IDs for signed-in requests, and render `cold-start` or `anonymous-fallback` honestly. Ranking is still `content-demo-v1`, not preference/behavior personalization.
 - FFP-06 structured artwork is implemented through one `ProductImage` boundary with approved-host validation, stable layout, lazy/eager sizing, source attribution, and loading/missing/broken fallbacks. The backend owns ingestion and offline evaluation; its current report is `insufficient-evidence` without quality metrics.
 - FFP-07 integrated administrator mode and FFP-08 simulated checkout are implemented. The admin workspace (`RequireRole` guard, `AdminLayout`, dashboard, product table, create/edit form, import UX, artwork refresh) consumes role-gated `/api/admin/*` routes whose writes are mongodb-only. The checkout (`/checkout`, `/orders/demo/:reference`) is a client-only classroom demo with no real payment, no backend order, and sessionStorage persistence; it clears the cart on confirm. Real payments and order APIs are intentionally out of scope.
 - Vitest, React Testing Library, Playwright, and axe provide unit, component, browser, responsive, and accessibility coverage.
@@ -42,9 +43,10 @@ Read `../AGENT_MEMORY.md` at session start and append a dated entry at session e
 - Keep requests in `src/lib/api.js`. `AuthProvider` owns session restoration and identity, query hooks own route-specific catalog data, and `CatalogProvider` owns shared recommendation state only.
 - Every remote-data surface must handle loading, empty, error, and success states.
 - Every product image surface must use `ProductImage`; never render an unvalidated remote product URL directly.
-- Recommendation copy must distinguish `demo-profile`, `content-similarity`, and `cold-start` modes.
-- Never imply a real user's history or personalization unless authenticated persistence is actually implemented.
+- Recommendation copy must distinguish `demo-profile`, `content-similarity`, `cold-start`, and `anonymous-fallback` modes.
+- Session ownership is implemented, but preference/behavior ranking is not. Never imply measured quality or personalization beyond the active backend mode.
 - Credentialed auth/write requests depend on exact backend/frontend origin alignment. Preserve safe same-origin `returnTo` handling and ensure stale restoration responses cannot overwrite completed auth operations.
+- `VITE_PERS_ME_ENDPOINT` defaults on and is the frontend rollback switch for FFP-09; disabling it restores only the fixed, labelled `demo-user` showcase path.
 - API contract changes require matching updates in both repositories' `docs/API_CONTRACT_PLAN.md`.
 
 ## UI And Accessibility Rules

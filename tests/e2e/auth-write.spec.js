@@ -65,6 +65,23 @@ test('registration, login, restoration, and protected writes work with cleanup',
     await page.reload();
     await expect(page.getByText('Authenticated session')).toBeVisible();
 
+    const recommendationResponse = page.waitForResponse((response) => (
+      response.url().includes('/api/recommendations/me') && response.request().method() === 'GET'
+    ));
+    await page.goto('/recommendations');
+    const sessionOwnedRecommendations = await recommendationResponse;
+    expect(sessionOwnedRecommendations.status()).toBe(200);
+    const recommendationPayload = await sessionOwnedRecommendations.json();
+    expect(recommendationPayload.data.mode).toBe('cold-start');
+    expect(recommendationPayload.data).not.toHaveProperty('userId');
+    const legacyAttempt = await api(page, '/api/recommendations/user/another-user?limit=12&surface=recommendations');
+    expect(legacyAttempt.status).toBe(200);
+    expect(legacyAttempt.payload.data.mode).toBe('cold-start');
+    expect(legacyAttempt.payload.data.recommendations.map((item) => item.product.id)).toEqual(
+      recommendationPayload.data.recommendations.map((item) => item.product.id),
+    );
+    await page.goto('/account');
+
     const preferences = await api(page, '/api/me/preferences', {
       method: 'PATCH',
       body: {
