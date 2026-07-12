@@ -50,7 +50,7 @@ test('recommendation metadata is surfaced and usage-data opt-out stops event del
     expect.arrayContaining(['product_view', 'wishlist_add']),
   );
 
-  const preference = page.getByRole('checkbox', { name: /Share pseudonymous usage data/ });
+  const preference = page.getByRole('checkbox', { name: /pseudonymous usage data/i });
   await preference.uncheck();
   const delivered = batches.flat().length;
   await page.getByRole('button', { name: 'Add to cart' }).click();

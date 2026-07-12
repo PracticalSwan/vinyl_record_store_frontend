@@ -30,7 +30,7 @@ export default function AccountPage() {
           <div><dt>Role</dt><dd>{auth.user.role}</dd></div>
           <div><dt>Preferences</dt><dd>{auth.user.onboardingComplete ? 'Completed' : 'Not completed'}</dd></div>
         </dl>
-        <p className="account-note">Wishlist, cart, and ratings are saved to this account. Preferences are stored for future recommendation work and do not change the current demo ranking.</p>
+        <p className="account-note">Manage your saved records, cart, ratings, and listening preferences from your Groovehaus account.</p>
         <div className="account-actions">
           <button className="btn btn-primary" type="button" onClick={() => navigate('/profile/preferences')}>Edit preferences</button>
           {!auth.user.onboardingComplete && <button className="btn btn-outline" type="button" onClick={() => navigate('/onboarding')}>Complete onboarding</button>}

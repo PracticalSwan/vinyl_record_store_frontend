@@ -39,7 +39,7 @@ export default function RegisterPage() {
       <section className="auth-card" aria-labelledby="register-heading">
         <p className="auth-eyebrow">Customer registration</p>
         <h1 id="register-heading">Create an account</h1>
-        <p className="auth-intro">Registration creates a customer account. Administrator roles are never selectable here.</p>
+        <p className="auth-intro">Create your Groovehaus account to save records, manage your cart, rate releases, and set listening preferences.</p>
         <form className="auth-form" onSubmit={submit}>
           <label htmlFor="register-username">Username</label>
           <input id="register-username" autoComplete="username" required minLength={3} maxLength={64} pattern="[A-Za-z0-9_-]+" value={form.username} onChange={update('username')} />

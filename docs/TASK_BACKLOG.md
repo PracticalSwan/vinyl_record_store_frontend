@@ -12,7 +12,7 @@ Statuses are `done` or `deferred`. Deferred items are not active work.
 | F-006 | Align docs with implementation. | done | Updated through the 2026-07-06 artwork and evaluation-contract pass. |
 | F-007 | Validate tests, lint, and production build. | done | Unit, browser, accessibility, lint, and build commands pass. |
 | F-008 | Add authenticated persistence and guest-state merge. | done | FFP-03 completed with session guests and sign-up-only keyed merge. |
-| F-009 | Add simulated checkout and order demonstration. | done | Completed 2026-07-09 in FFP-08: four-step demo checkout wizard, `DEMO-` reference confirmation, sessionStorage persistence, availability blocking, and cart clear. No real payment or backend order. |
+| F-009 | Add checkout and order preview. | done | Completed 2026-07-09 and copy-refined 2026-07-12: four-step preview wizard, `PREVIEW-` reference confirmation, sessionStorage persistence, availability blocking, and cart clear. No real payment or backend order. |
 | F-010 | Add the browser, integration, and accessibility test matrix. | done | FFP-04 completed 2026-07-03 with Vitest, Playwright, and axe. |
 | F-011 | Add recommendation interaction analytics. | done | FFP-01 completed with opt-out, bounded delivery, and request attribution. |
 | F-012 | Add onboarding and preference management. | done | FFP-02 completed with onboarding and protected editing. |

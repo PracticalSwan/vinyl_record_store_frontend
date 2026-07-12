@@ -15,7 +15,7 @@ async function api(page, path, { method = 'GET', body } = {}) {
   }, { url: `${apiBaseUrl}${path}`, method, body });
 }
 
-test('simulated checkout places a demo order, shows a reference, and clears the cart', async ({ page }, testInfo) => {
+test('simulated checkout creates an order preview, shows a reference, and clears the cart', async ({ page }, testInfo) => {
   test.slow();
   const suffix = testInfo.project.name.replace(/[^a-z0-9]/gi, '_').slice(0, 20);
   const username = `${process.env.E2E_REGISTER_USERNAME}_checkout_${suffix}`;
@@ -47,19 +47,19 @@ test('simulated checkout places a demo order, shows a reference, and clears the 
     await page.getByLabel('Country').selectOption('Thailand');
     await page.getByRole('button', { name: 'Continue to payment' }).click();
 
-    // Payment step: no fields, demonstration only
-    await expect(page.getByText('Demonstration payment')).toBeVisible();
+    // Payment step: no fields and no charge
+    await expect(page.getByText('Payment preview')).toBeVisible();
     await page.getByRole('button', { name: 'Continue to review' }).click();
 
     // Review and confirm
     await expect(page.getByRole('heading', { name: 'Review and confirm' })).toBeVisible();
-    await page.getByRole('button', { name: 'Place demo order' }).click();
+    await page.getByRole('button', { name: 'Confirm order preview' }).click();
 
     // Confirmation
-    await expect(page).toHaveURL(/\/orders\/demo\/DEMO-/);
-    await expect(page.getByText('Demo order placed')).toBeVisible();
-    await expect(page.getByText(/DEMO-/)).toBeVisible();
-    await expect(page.getByText('PENDING')).toBeVisible();
+    await expect(page).toHaveURL(/\/orders\/preview\/PREVIEW-/);
+    await expect(page.getByText('Order preview ready')).toBeVisible();
+    await expect(page.getByText(/PREVIEW-/)).toBeVisible();
+    await expect(page.getByText('PREVIEW ONLY')).toBeVisible();
 
     // Cart was cleared by the confirmation flow.
     await page.goto('/cart');

@@ -45,4 +45,11 @@ describe('preferences', () => {
       schemaVersion: 1,
     });
   });
+
+  it('accepts every multi-disc format supported by the backend preference contract', () => {
+    expect(validatePreferences({
+      ...emptyPreferences(),
+      formats: ['8xLP', '11xLP'],
+    }, { completed: false })).toMatchObject({ valid: true, errors: {} });
+  });
 });

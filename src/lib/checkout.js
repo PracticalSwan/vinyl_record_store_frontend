@@ -2,7 +2,7 @@
 // order, no persistence beyond the current browser session.
 
 export const DEMO_SHIPPING = 6;
-export const DEMO_PAYMENT_LABEL = 'Demonstration payment';
+export const DEMO_PAYMENT_LABEL = 'Payment preview';
 
 export const COUNTRY_OPTIONS = [
   'Thailand',
@@ -16,7 +16,7 @@ export const COUNTRY_OPTIONS = [
 ];
 
 const DRAFT_KEY = 'groovehaus.checkout-draft.v1';
-const ORDER_KEY_PREFIX = 'groovehaus.demo-order.';
+const ORDER_KEY_PREFIX = 'groovehaus.order-preview.';
 
 export const STEPS = ['cart', 'shipping', 'payment', 'review'];
 
@@ -60,10 +60,10 @@ export function generateDemoReference() {
       .join('')
       .toUpperCase()
       .slice(0, 8);
-    return `DEMO-${code}`;
+    return `PREVIEW-${code}`;
   }
   // Deterministic fallback (rare path; crypto.getRandomValues is widely available).
-  return `DEMO-${Date.now().toString(36).toUpperCase().slice(-8)}`;
+  return `PREVIEW-${Date.now().toString(36).toUpperCase().slice(-8)}`;
 }
 
 export function snapshotOrder({ cartItems, shipping, totals, reference }) {

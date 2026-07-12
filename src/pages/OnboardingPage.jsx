@@ -27,11 +27,9 @@ export default function OnboardingPage() {
       <section className="preferences-card" aria-labelledby="onboarding-heading">
         <p className="auth-eyebrow">Optional profile setup</p>
         <h1 id="onboarding-heading">Tell us what belongs in your crate</h1>
-        <p className="auth-intro">These preferences are saved for future recommendations. The current demo algorithm does not use them yet.</p>
-        {auth.user.seeded && <p className="account-note">This shared classroom account keeps preferences only for the current session.</p>}
+        <p className="auth-intro">Keep your preferred genres, artists, formats, conditions, and budget together in your Groovehaus profile.</p>
         <PreferencesForm initial={auth.user.preferences} onSave={save} onSkip={() => navigate('/account', { replace: true })} wizard submitting={submitting} requestError={error} />
       </section>
     </main>
   );
 }
-

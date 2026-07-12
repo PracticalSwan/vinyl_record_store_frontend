@@ -59,8 +59,8 @@ describe('checkout helpers', () => {
   });
 
   describe('generateDemoReference', () => {
-    it('produces a DEMO- prefixed alphanumeric reference', () => {
-      expect(generateDemoReference()).toMatch(/^DEMO-[A-Z0-9]{8}$/);
+    it('produces a PREVIEW- prefixed alphanumeric reference', () => {
+      expect(generateDemoReference()).toMatch(/^PREVIEW-[A-Z0-9]{8}$/);
     });
   });
 
@@ -70,9 +70,9 @@ describe('checkout helpers', () => {
         cartItems: [{ record: { id: 1, title: 'Kind of Blue', artist: 'Miles Davis', price: 48 }, qty: 2 }],
         shipping: { name: 'Mira', address1: '12 Sukhumvit', address2: '', city: 'Bangkok', postalCode: '10110', country: 'Thailand' },
         totals: { subtotal: 96, shipping: 6, total: 102 },
-        reference: 'DEMO-ABCD1234',
+        reference: 'PREVIEW-ABCD1234',
       });
-      expect(order.reference).toBe('DEMO-ABCD1234');
+      expect(order.reference).toBe('PREVIEW-ABCD1234');
       expect(order.items[0]).toEqual({ id: 1, title: 'Kind of Blue', artist: 'Miles Davis', price: 48, qty: 2 });
       expect(order.totals.total).toBe(102);
       expect(order.shipping.name).toBe('Mira');

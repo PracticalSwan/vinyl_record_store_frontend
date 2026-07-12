@@ -16,6 +16,10 @@ Read this file before every frontend session.
 - Fetch user recommendations only on Home and Recommendations, where the lists render; otherwise request logs falsely describe unseen lists.
 - Flush or discard queued analytics before login, registration, or logout so the backend cannot attach capture-time events to the wrong identity.
 - `ProductImage` is the only remote artwork boundary. Accept only the complete backend-approved image envelope, use local metadata for alt text, keep repeated card/list images decorative, and fall back once without retry loops.
+- Live search may update after 300 ms, but recent history and `search_submit` analytics are committed only by submit or recent-term replay. Keep at most five terms and scope storage by guest or authenticated public ID.
+- Preference clearing changes the draft only. Saving empty preferences marks onboarding incomplete. Guard dirty state at the React Router data-router boundary, not on one button: Navbar navigation and browser history must enter the same focus-contained save/discard/cancel flow, preserve the pending destination, and restore the trigger on cancel.
+- Keep the application root as a flex column with growing main content so the footer follows short pages without overlaying long pages. Filter controls scroll independently from the product grid, and paired price fields must never overflow.
+- Checkout is a client-only preview with `/orders/preview/:reference` and `PREVIEW-` references. Do not rename compatibility analytics identifiers unless the stored-evidence contract is intentionally migrated.
 
 ## Working Rules
 
@@ -24,6 +28,7 @@ Read this file before every frontend session.
 - Use `VITE_API_BASE_URL`, not `NEXT_PUBLIC_` variables, for Vite configuration.
 - Keep remote requests in `src/lib/api.js`; use `AuthProvider` for session identity, query hooks for route-specific catalog state, and `CatalogProvider` for shared recommendation state.
 - Treat the URL as the catalog and search query source of truth. Canonicalize repeated facets, reset invalid pages, and cancel superseded requests.
+- Do not record every debounced search prefix. Only a committed term belongs in recent history or submit analytics.
 - Run the Vitest and Playwright suites for behavior changes; lint and build alone do not cover responsive flows, browser history, or accessibility.
 - Preserve loading, empty, error, and success states when changing API-backed screens.
 - Keep image boxes dimensionally stable, lazy-load card/list art, reserve eager high-priority loading for the main detail image, and render explicit fallbacks for nullable imported metadata.

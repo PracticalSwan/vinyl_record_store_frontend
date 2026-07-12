@@ -15,7 +15,7 @@ function ProfileSummary({ signals }) {
 }
 
 const modeLabel = (mode) => ({
-  'demo-profile': 'Demo profile',
+  'demo-profile': 'Showcase profile',
   'anonymous-fallback': 'Anonymous fallback',
   'cold-start': 'Session-owned cold-start',
 }[mode] || 'Current ranking mode');
@@ -71,7 +71,7 @@ function recommendationIntro(mode) {
     return 'The storefront will label the active recommendation mode when the ranked list is ready.';
   }
   if (mode === 'demo-profile') {
-    return 'These explainable results use the documented sample profile, not a signed-in customer.';
+    return 'These explainable results use a curated showcase profile rather than a signed-in customer.';
   }
   if (mode === 'anonymous-fallback') {
     return 'No customer session is active, so these are catalog-based fallback suggestions without account history.';
@@ -87,7 +87,7 @@ export default function RecommendationsPage() {
   return (
     <main>
       <div className="container rec-page">
-        <h1 className="section-heading" style={{ fontSize: 28 }}>Recommendation demo</h1>
+        <h1 className="section-heading" style={{ fontSize: 28 }}>Recommendations</h1>
         <p className="rec-page-intro">{recommendationIntro(catalog.recommendationMode)}</p>
         <ProfileSummary signals={catalog.profileSummary} />
         <RecommendationState

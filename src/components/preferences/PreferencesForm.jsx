@@ -4,6 +4,7 @@ import {
   FORMATS,
   GENRES,
   emptyPreferences,
+  hasPreferenceValues,
   normalizePreferences,
   toPreferenceRequest,
 } from '../../lib/preferences';
@@ -81,15 +82,30 @@ function Review({ form }) {
   return <dl className="preference-review">{rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>;
 }
 
-export default function PreferencesForm({ initial, onSave, onSkip, onClear, wizard = false, submitting = false, requestError = null }) {
+export default function PreferencesForm({
+  initial,
+  onSave,
+  onSkip,
+  onDraftChange,
+  onValidationError,
+  formId,
+  showClear = false,
+  wizard = false,
+  submitting = false,
+  requestError = null,
+}) {
   const [form, setForm] = useState(() => normalizePreferences(initial));
   const [artistDraft, setArtistDraft] = useState(() => normalizePreferences(initial).favoriteArtists.join(', '));
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
-  const update = (field, value) => setForm((current) => ({ ...current, [field]: value }));
+  const update = (field, value) => {
+    const next = { ...form, [field]: value };
+    setForm(next);
+    onDraftChange?.(next);
+  };
 
   const validate = () => {
-    const result = toPreferenceRequest(form, { completed: true });
+    const result = toPreferenceRequest(form, { completed: wizard || hasPreferenceValues(form) });
     setErrors(result.errors);
     return result;
   };
@@ -104,11 +120,23 @@ export default function PreferencesForm({ initial, onSave, onSkip, onClear, wiza
       return;
     }
     const result = validate();
-    if (result.valid) await onSave(result.request);
+    if (result.valid) {
+      await onSave(result.request);
+    } else {
+      onValidationError?.();
+    }
+  };
+
+  const clear = () => {
+    const next = emptyPreferences();
+    setForm(next);
+    setArtistDraft('');
+    setErrors({});
+    onDraftChange?.(next);
   };
 
   return (
-    <form className="preferences-form" onSubmit={submit} noValidate>
+    <form className="preferences-form" id={formId} onSubmit={submit} noValidate>
       {wizard && <p className="preference-progress" aria-live="polite">Step {step} of 3</p>}
       {(!wizard || step === 1) && <GenreStep form={form} update={update} errors={errors} />}
       {(!wizard || step === 2) && <DetailStep form={form} update={update} errors={errors} artistDraft={artistDraft} setArtistDraft={setArtistDraft} />}
@@ -117,7 +145,7 @@ export default function PreferencesForm({ initial, onSave, onSkip, onClear, wiza
       <div className="preference-actions">
         {wizard && step > 1 && <button className="btn btn-outline" type="button" onClick={() => setStep((value) => value - 1)}>Back</button>}
         {wizard && onSkip && <button className="btn btn-ghost" type="button" onClick={onSkip}>Skip for now</button>}
-        {!wizard && onClear && <button className="btn btn-ghost" type="button" onClick={() => { setForm(emptyPreferences()); setArtistDraft(''); setErrors({}); onClear(); }}>Clear preferences</button>}
+        {!wizard && showClear && <button className="btn btn-ghost" type="button" onClick={clear}>Clear preferences</button>}
         <button className="btn btn-accent" type="submit" disabled={submitting}>
           {submitting ? 'Saving...' : wizard && step < 3 ? 'Continue' : 'Save preferences'}
         </button>

@@ -32,7 +32,7 @@ export default function LoginPage() {
       <section className="auth-card" aria-labelledby="login-heading">
         <p className="auth-eyebrow">Account access</p>
         <h1 id="login-heading">Sign in to Groovehaus</h1>
-        <p className="auth-intro">Use a classroom account or a registered customer account.</p>
+        <p className="auth-intro">Access your saved records, cart, ratings, and listening preferences.</p>
         <form className="auth-form" onSubmit={submit}>
           <label htmlFor="login-username">Username</label>
           <input

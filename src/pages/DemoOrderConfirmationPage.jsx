@@ -5,9 +5,9 @@ import { readOrder, DEMO_SHIPPING } from '../lib/checkout';
 // All demo orders stay PENDING: there is no fulfillment, payment, or backend
 // persistence, so the timeline is illustrative rather than a real shipment.
 const TIMELINE = [
-  { key: 'received', label: 'Demo order received', state: 'complete' },
-  { key: 'preparing', label: 'Preparing for demonstration dispatch', state: 'current' },
-  { key: 'shipped', label: 'Shipped (demonstration only — never fulfilled)', state: 'pending' },
+  { key: 'received', label: 'Order preview created', state: 'complete' },
+  { key: 'preparing', label: 'No fulfillment scheduled', state: 'current' },
+  { key: 'shipped', label: 'Not shipped', state: 'pending' },
 ];
 
 export default function DemoOrderConfirmationPage() {
@@ -20,14 +20,14 @@ export default function DemoOrderConfirmationPage() {
   useEffect(() => {
     if (!reference) return;
     if (!readOrder(reference)) {
-      navigate('/cart', { state: { notice: 'That demo order could not be found.' }, replace: true });
+      navigate('/cart', { state: { notice: 'That order preview could not be found.' }, replace: true });
     }
   }, [reference, navigate]);
 
   if (!order) {
     return (
       <main><div className="container catalog-state">
-        <p className="inline-state" aria-busy="true">Looking up demo order...</p>
+        <p className="inline-state" aria-busy="true">Looking up order preview...</p>
       </div></main>
     );
   }
@@ -37,19 +37,19 @@ export default function DemoOrderConfirmationPage() {
   return (
     <main><div className="container checkout-confirmation">
       <div className="state-box confirmation-hero" role="status">
-        <p className="state-title">Demo order placed</p>
+        <p className="state-title">Order preview ready</p>
         <p className="state-desc">
           Thank you, {shipping.name || 'music lover'}. No payment was taken and no real order was placed.
         </p>
       </div>
 
       <div className="confirmation-reference">
-        <span className="confirmation-reference-label">Demo order reference</span>
+        <span className="confirmation-reference-label">Preview reference</span>
         <code className="confirmation-reference-value">{order.reference}</code>
       </div>
 
       <p className="confirmation-status" aria-live="polite">
-        Status: <strong>PENDING</strong> (demonstration only)
+        Status: <strong>PREVIEW ONLY</strong>
       </p>
 
       <ol className="confirmation-timeline" role="list">
@@ -76,7 +76,7 @@ export default function DemoOrderConfirmationPage() {
           </ul>
         </section>
         <section className="confirmation-block" aria-labelledby="confirmation-shipping">
-          <h2 className="section-heading" id="confirmation-shipping">Shipping (demo)</h2>
+          <h2 className="section-heading" id="confirmation-shipping">Shipping details</h2>
           <p>{shipping.name}</p>
           <p>{shipping.address1}{shipping.address2 ? `, ${shipping.address2}` : ''}</p>
           <p>{shipping.city} {shipping.postalCode}</p>
@@ -93,7 +93,7 @@ export default function DemoOrderConfirmationPage() {
       </div>
 
       <p className="inline-state">
-        This reference and the details above are kept only in this browser session for the demo and are
+        This reference and the details above are kept only in this browser session for the order preview and are
         not stored on the server.
       </p>
 

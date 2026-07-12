@@ -6,18 +6,19 @@ This is a subtree instruction file. Read the global instructions and the project
 
 ## Current State
 
-The Groovehaus storefront is an implemented API-backed academic demo, not a Vite starter or planning-only scaffold.
+The Groovehaus storefront is an implemented API-backed application, not a Vite starter or planning-only scaffold.
 
 - React 19.2.7, Vite 8.1, and React Router 7.
-- Routes: home, catalog, product detail, search, recommendation demo, wishlist, cart, registration, login, protected account, onboarding, and profile preferences.
-- Catalog pages use URL-backed server queries with literal search, repeated facets, deterministic sorting, pagination, and stale-request cancellation.
+- Routes: home, catalog, product detail, search, recommendations, wishlist, cart, registration, login, protected account, onboarding, profile preferences, administrator workspace, checkout, and order preview.
+- Catalog pages use URL-backed server queries with literal search, repeated facets, deterministic sorting, pagination, and stale-request cancellation. The navigation and Search page debounce live queries by 300 ms, and scoped recent-search history keeps at most five clickable committed terms.
 - Product details and recommendation data come from the separate Next.js backend.
 - Authentication and registered identity are backend-backed through credentialed signed-cookie sessions restored by `AuthProvider`.
 - `StoreProvider` uses session-only guest state and server-backed authenticated state. Guest state merges only into a new registration, resumes a keyed failed merge after refresh, and is discarded on existing-account login or ordinary restore.
-- Onboarding/preferences and privacy-controlled interaction analytics are implemented. Recommendation requests carry request/list attribution and are fetched only on pages that render them.
+- Onboarding/preferences and privacy-controlled interaction analytics are implemented. The React Router data router blocks every dirty preference transition (buttons, Navbar, and browser history) behind one focus-contained save/discard/cancel dialog. Recommendation requests carry request/list attribution and are fetched only on pages that render them.
 - PERS-00 through PERS-02 / FFP-09 are implemented. `AuthProvider` resolves before `CatalogProvider`; Home and Recommendations use `GET /api/recommendations/me`, key state by the authenticated public subject, abort and generation-guard identity changes, omit anonymous IDs for signed-in requests, and render `cold-start` or `anonymous-fallback` honestly. Ranking is still `content-demo-v1`, not preference/behavior personalization.
-- FFP-06 structured artwork is implemented through one `ProductImage` boundary with approved-host validation, stable layout, lazy/eager sizing, source attribution, and loading/missing/broken fallbacks. The backend owns ingestion and offline evaluation; its current report is `insufficient-evidence` without quality metrics.
-- FFP-07 integrated administrator mode and FFP-08 simulated checkout are implemented. The admin workspace (`RequireRole` guard, `AdminLayout`, dashboard, product table, create/edit form, import UX, artwork refresh) consumes role-gated `/api/admin/*` routes whose writes are mongodb-only. The checkout (`/checkout`, `/orders/demo/:reference`) is a client-only classroom demo with no real payment, no backend order, and sessionStorage persistence; it clears the cart on confirm. Real payments and order APIs are intentionally out of scope.
+- FFP-06 structured artwork is implemented through one `ProductImage` boundary with approved-host validation, stable layout, lazy/eager sizing, source attribution, and loading/missing/broken fallbacks. All 116 bundled records currently have reviewed artwork; local fallback remains mandatory for external outages. The backend owns ingestion and offline evaluation; its current report is `insufficient-evidence` without quality metrics.
+- FFP-07 integrated administrator mode and FFP-08 checkout preview are implemented. The admin workspace (`RequireRole` guard, `AdminLayout`, dashboard, product table, create/edit form, import UX, artwork refresh) consumes role-gated `/api/admin/*` routes whose writes are mongodb-only. The checkout (`/checkout`, `/orders/preview/:reference`) is client-only with no real payment or backend order and uses sessionStorage persistence; it clears the cart on confirm. Real payments and order APIs are intentionally out of scope.
+- Filters have independently scrollable controls and bounded price inputs. The page shell keeps the footer below short routes. Preference clearing changes only the draft; dirty navigation uses an accessible save/discard/cancel dialog and provides a direct return to `/account`.
 - Vitest, React Testing Library, Playwright, and axe provide unit, component, browser, responsive, and accessibility coverage.
 
 ## Canonical Source And Folder Boundary

@@ -29,7 +29,7 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 | FFP-05 | Full server-side search and pagination | Completed | Query-driven backend and frontend contract completed 2026-07-03. |
 | FFP-06 | Artwork and image handling | Completed | Backend-approved mappings, shared rendering, attribution, accessibility, and fallbacks completed 2026-07-06. |
 | FFP-07 | Integrated admin mode | Completed 2026-07-09 | Administrator workspace is implemented: `RequireRole` guard, `AdminLayout` + nav, dashboard (summary + recent audit), product table (soft-delete with confirm/restore), create/edit form with `updatedAt` optimistic concurrency and conflict re-fetch, import preview/apply UX, artwork refresh, and mongodb-only-write handling. |
-| FFP-08 | Simulated checkout and order demonstration | Completed 2026-07-09 | Client-only demo checkout is implemented: cart review, shipping, demonstration-payment, review, and confirmation steps with a `DEMO-` reference, sessionStorage persistence, availability blocking, and cart clear on confirm. No real payment or backend order. |
+| FFP-08 | Checkout and order preview | Completed; copy refined 2026-07-12 | Client-only preview is implemented: cart review, shipping, illustrative-payment, review, and confirmation steps with a `PREVIEW-` reference, sessionStorage persistence, availability blocking, and cart clear on confirm. No real payment or backend order. |
 
 ## Approved Cross-Repository Implementation Order
 
@@ -558,7 +558,7 @@ No user-management, role-management, payment, deployment, or analytics-surveilla
 
 ## FFP-08: Simulated Checkout And Order Demonstration
 
-> Completed 2026-07-09. Implementation summary: `/checkout` (RequireAuth-gated) runs a four-step wizard (cart review, shipping, demonstration payment, review) then a `/orders/demo/:reference` confirmation page. `src/lib/checkout.js` owns pure helpers (shipping validation, totals, blocking-item detection, `DEMO-` reference generation, order snapshot, and sessionStorage draft/order read-write). Shipping details are never sent to analytics; the only event is a privacy-safe `demo_checkout_complete` with reference, item count, and total. Availability changes (out-of-stock or missing records) block confirmation; an empty cart waits for the authenticated store to sync then redirects to `/cart` with a notice; the place-order button is disabled while a cart mutation is pending; and the cart is cleared via `StoreProvider.clearCart` on confirm. No real payment, no backend order, sessionStorage-only persistence. Verified by `tests/unit/checkout.test.js`, the Playwright checkout spec (places a demo order, reference, cart cleared), and the empty-cart redirect spec.
+> Completed 2026-07-09 and copy-refined 2026-07-12. Implementation summary: `/checkout` (RequireAuth-gated) runs a four-step wizard (cart review, shipping, illustrative payment, review) then a `/orders/preview/:reference` confirmation page. `src/lib/checkout.js` owns pure helpers (shipping validation, totals, blocking-item detection, `PREVIEW-` reference generation, order snapshot, and sessionStorage draft/order read-write). Shipping details are never sent to analytics; the compatibility analytics event remains `demo_checkout_complete` with reference, item count, and total. Availability changes (out-of-stock or missing records) block confirmation; an empty cart waits for the authenticated store to sync then redirects to `/cart` with a notice; the confirm button is disabled while a cart mutation is pending; and the cart is cleared via `StoreProvider.clearCart` on confirm. No real payment, no backend order, sessionStorage-only persistence. Verified by `tests/unit/checkout.test.js`, the Playwright checkout spec, and the empty-cart redirect spec.
 
 This plan defines a safe classroom demonstration of checkout without real commerce.
 
@@ -571,8 +571,8 @@ Show the intended checkout and order journey without accepting real payment, res
 1. Cart review confirms items, quantities, availability, subtotal, and demo shipping.
 2. Shipping step collects only temporary demonstration fields: name, address lines, city, postal code, and country.
 3. Payment explanation shows a fixed “Demonstration payment” method. It contains no card-number, bank, wallet, or real payment-provider fields.
-4. Review step displays the entered shipping summary, item snapshots, and total with an explicit “Place demo order” action.
-5. Confirmation displays a generated `DEMO-...` reference and a static example status timeline: confirmed, processing, shipped.
+4. Review step displays the entered shipping summary, item snapshots, and total with an explicit preview confirmation action.
+5. Confirmation displays a generated `PREVIEW-...` reference and an illustrative status timeline: confirmed, processing, shipped.
 
 Every step states that no charge or real order will occur.
 
@@ -590,7 +590,7 @@ Every step states that no charge or real order will occur.
 - Removed, soft-deleted, or out-of-stock items block confirmation and return the user to review.
 - Quantity or price changes require the user to review the recalculated total.
 - Refresh during checkout restores only the active session flow.
-- Direct navigation to confirmation without a completed demo order returns safely to Cart.
+- Direct navigation to confirmation without a completed preview returns safely to Cart.
 - Browser storage failure keeps the flow usable in memory and warns that refresh recovery is unavailable.
 
 ### Proposed Files
@@ -598,7 +598,7 @@ Every step states that no charge or real order will occur.
 - `src/pages/CheckoutPage.jsx` and `DemoOrderConfirmationPage.jsx`.
 - `src/components/checkout/CartReviewStep.jsx`, `ShippingStep.jsx`, `DemoPaymentStep.jsx`, `ReviewStep.jsx`, and `OrderStatusExample.jsx`.
 - `src/lib/checkout.js` for validation, totals, demo reference generation, and session serialization.
-- Routes `/checkout` and `/orders/demo/:reference` plus an enabled Cart checkout link.
+- Routes `/checkout` and `/orders/preview/:reference` plus an enabled Cart checkout link.
 
 ### Implementation Phases
 

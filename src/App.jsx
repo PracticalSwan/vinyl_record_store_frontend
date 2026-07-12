@@ -1,4 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  Navigate,
+  Outlet,
+  RouterProvider,
+} from 'react-router-dom';
 import { StoreProvider } from './context/StoreProvider';
 import { CatalogProvider } from './context/CatalogProvider';
 import { AuthProvider } from './context/AuthProvider';
@@ -29,45 +34,61 @@ import AdminProductsPage from './pages/admin/AdminProductsPage';
 import AdminProductFormPage from './pages/admin/AdminProductFormPage';
 import AdminImportPage from './pages/admin/AdminImportPage';
 
-export default function App() {
+function AppShell() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <TrackingProvider>
-          <CatalogProvider>
-            <AuthRedirect />
-            <StoreProvider>
-              <Navbar />
+    <AuthProvider>
+      <TrackingProvider>
+        <CatalogProvider>
+          <AuthRedirect />
+          <StoreProvider>
+            <Navbar />
+            <div className="site-content">
               <div className="container global-store-status"><StoreStatus /></div>
-              <Routes>
-                <Route path="/"                element={<HomePage />} />
-                <Route path="/catalog"         element={<CatalogPage />} />
-                <Route path="/records/:id"     element={<DetailPage />} />
-                <Route path="/search"          element={<SearchPage />} />
-                <Route path="/recommendations" element={<RecommendationsPage />} />
-                <Route path="/wishlist"        element={<WishlistPage />} />
-                <Route path="/cart"            element={<CartPage />} />
-                <Route path="/checkout"        element={<RequireAuth><CheckoutPage /></RequireAuth>} />
-                <Route path="/orders/demo/:reference" element={<RequireAuth><DemoOrderConfirmationPage /></RequireAuth>} />
-                <Route path="/login"           element={<LoginPage />} />
-                <Route path="/register"        element={<RegisterPage />} />
-                <Route path="/account" element={<RequireAuth><AccountPage /></RequireAuth>} />
-                <Route path="/onboarding" element={<RequireAuth><OnboardingPage /></RequireAuth>} />
-                <Route path="/profile/preferences" element={<RequireAuth><ProfilePreferencesPage /></RequireAuth>} />
-                <Route path="/admin" element={<RequireRole><AdminLayout /></RequireRole>}>
-                  <Route index element={<AdminDashboardPage />} />
-                  <Route path="products" element={<AdminProductsPage />} />
-                  <Route path="products/new" element={<AdminProductFormPage />} />
-                  <Route path="products/:id/edit" element={<AdminProductFormPage />} />
-                  <Route path="import" element={<AdminImportPage />} />
-                </Route>
-                <Route path="*"                element={<Navigate to="/" replace />} />
-              </Routes>
-              <Footer />
-            </StoreProvider>
-          </CatalogProvider>
-        </TrackingProvider>
-      </AuthProvider>
-    </BrowserRouter>
+              <Outlet />
+            </div>
+            <Footer />
+          </StoreProvider>
+        </CatalogProvider>
+      </TrackingProvider>
+    </AuthProvider>
   );
+}
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <AppShell />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: 'catalog', element: <CatalogPage /> },
+      { path: 'records/:id', element: <DetailPage /> },
+      { path: 'search', element: <SearchPage /> },
+      { path: 'recommendations', element: <RecommendationsPage /> },
+      { path: 'wishlist', element: <WishlistPage /> },
+      { path: 'cart', element: <CartPage /> },
+      { path: 'checkout', element: <RequireAuth><CheckoutPage /></RequireAuth> },
+      { path: 'orders/preview/:reference', element: <RequireAuth><DemoOrderConfirmationPage /></RequireAuth> },
+      { path: 'login', element: <LoginPage /> },
+      { path: 'register', element: <RegisterPage /> },
+      { path: 'account', element: <RequireAuth><AccountPage /></RequireAuth> },
+      { path: 'onboarding', element: <RequireAuth><OnboardingPage /></RequireAuth> },
+      { path: 'profile/preferences', element: <RequireAuth><ProfilePreferencesPage /></RequireAuth> },
+      {
+        path: 'admin',
+        element: <RequireRole><AdminLayout /></RequireRole>,
+        children: [
+          { index: true, element: <AdminDashboardPage /> },
+          { path: 'products', element: <AdminProductsPage /> },
+          { path: 'products/new', element: <AdminProductFormPage /> },
+          { path: 'products/:id/edit', element: <AdminProductFormPage /> },
+          { path: 'import', element: <AdminImportPage /> },
+        ],
+      },
+      { path: '*', element: <Navigate to="/" replace /> },
+    ],
+  },
+]);
+
+export default function App() {
+  return <RouterProvider router={router} />;
 }

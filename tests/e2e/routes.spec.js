@@ -7,7 +7,7 @@ test('@smoke current routes load against the real backend', async ({ page }) => 
     ['/catalog', /Showing 24 of 116 records/],
     ['/records/1', /Kind of Blue/],
     ['/search?q=Coltrane', /A Love Supreme/],
-    ['/recommendations', /Recommendation demo/],
+    ['/recommendations', /Recommendations/],
     ['/wishlist', /Wishlist/],
     ['/cart', /Cart/],
     ['/login', /Sign in to Groovehaus/],
@@ -17,6 +17,7 @@ test('@smoke current routes load against the real backend', async ({ page }) => 
   for (const [route, expected] of routes) {
     await page.goto(route);
     await expect(page.locator('main').getByText(expected).first()).toBeVisible();
+    await expect(page.locator('body')).not.toContainText(/\b(?:demo|CSX4207|classroom)\b/i);
   }
 });
 
@@ -24,9 +25,12 @@ test('keyboard search, not-found, and out-of-stock states behave safely', async 
   await page.goto('/');
   const search = page.getByRole('searchbox', { name: 'Search records' });
   await search.fill('Kind of Blue');
-  await search.press('Enter');
   await expect(page).toHaveURL(/\/search\?q=Kind%20of%20Blue$/);
   await expect(page.getByRole('listitem', { name: /Kind of Blue by Miles Davis/ })).toBeVisible();
+  await search.press('Enter');
+  await page.getByRole('button', { name: 'Catalog', exact: true }).click();
+  await search.focus();
+  await expect(page.getByRole('region', { name: 'Recent searches' })).toContainText('Kind of Blue');
 
   let invalidRecommendationRequests = 0;
   await page.route('**/api/recommendations/product/999?*', async (route) => {
@@ -141,6 +145,57 @@ test('server filters, sorting, pagination, focus, and history use the URL as sou
   await expect(page).toHaveURL(/sort=artist-asc/);
   await page.goBack();
   await expect(page).toHaveURL(/page=2/);
+});
+
+test('catalog price inputs stay within a viewport-scrolling filter panel', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 600 });
+  await page.goto('/catalog');
+  await expect(page.getByText(/Showing\s+24\s+of\s+116\s+records/)).toBeVisible();
+  const sidebar = page.getByLabel('Filter records');
+  const minimum = page.getByLabel('Minimum price');
+  const maximum = page.getByLabel('Maximum price');
+  const [sidebarBox, minimumBox, maximumBox] = await Promise.all([
+    sidebar.boundingBox(),
+    minimum.boundingBox(),
+    maximum.boundingBox(),
+  ]);
+
+  expect(sidebarBox).not.toBeNull();
+  expect(minimumBox.x).toBeGreaterThanOrEqual(sidebarBox.x);
+  expect(maximumBox.x + maximumBox.width).toBeLessThanOrEqual(sidebarBox.x + sidebarBox.width + 1);
+  const overflow = await sidebar.evaluate((element) => ({
+    clientHeight: element.clientHeight,
+    scrollHeight: element.scrollHeight,
+    overflowY: getComputedStyle(element).overflowY,
+  }));
+  expect(overflow.overflowY).toBe('auto');
+  expect(overflow.scrollHeight).toBeGreaterThan(overflow.clientHeight);
+});
+
+test('short routes keep the footer at the viewport bottom without trailing page background', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/wishlist');
+  const footer = page.getByRole('contentinfo');
+  const footerBox = await footer.boundingBox();
+  expect(footerBox).not.toBeNull();
+  expect(Math.abs((footerBox.y + footerBox.height) - 1000)).toBeLessThanOrEqual(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1440);
+});
+
+test('recent searches keep five committed entries and replay a prior search', async ({ page }) => {
+  await page.goto('/search');
+  const search = page.getByRole('searchbox', { name: 'Search title, artist, genre, or label' });
+  for (const term of ['Jazz', 'Rock', 'Soul', 'Folk', 'Blues', 'Classical']) {
+    await search.fill(term);
+    await page.getByRole('button', { name: 'Search', exact: true }).click();
+  }
+
+  const recent = page.getByRole('region', { name: 'Recent searches' });
+  await expect(recent.locator('li button')).toHaveCount(5);
+  await expect(recent.getByRole('button', { name: 'Jazz', exact: true })).toHaveCount(0);
+  await recent.getByRole('button', { name: 'Blues', exact: true }).click();
+  await expect(page).toHaveURL(/q=Blues/);
+  await expect(page.getByRole('heading', { name: 'Search results for "Blues"' })).toBeVisible();
 });
 
 test('rapid debounced search never lets an older response replace a newer query', async ({ page }) => {

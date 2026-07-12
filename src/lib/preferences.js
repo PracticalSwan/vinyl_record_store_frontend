@@ -1,6 +1,6 @@
 export const GENRES = ['Jazz', 'Rock', 'Soul', 'Electronic', 'Classical', 'Folk', 'Hip-Hop', 'Blues'];
 export const CONDITIONS = ['M', 'NM', 'VG+', 'VG', 'G'];
-export const FORMATS = ['LP, 33 1/3 rpm', '2xLP', '3xLP', '2xLP + EP'];
+export const FORMATS = ['LP, 33 1/3 rpm', '2xLP', '3xLP', '8xLP', '11xLP', '2xLP + EP'];
 
 export const emptyPreferences = () => ({
   favoriteGenres: [],
@@ -23,6 +23,21 @@ export function normalizePreferences(value = {}) {
     conditions: unique(value.conditions || []),
     formats: unique(value.formats || []),
   };
+}
+
+export function hasPreferenceValues(value = {}) {
+  const preferences = normalizePreferences(value);
+  return preferences.favoriteGenres.length > 0
+    || preferences.dislikedGenres.length > 0
+    || preferences.favoriteArtists.length > 0
+    || preferences.conditions.length > 0
+    || preferences.formats.length > 0
+    || preferences.budget.min !== ''
+    || preferences.budget.max !== '';
+}
+
+export function preferencesEqual(left, right) {
+  return JSON.stringify(normalizePreferences(left)) === JSON.stringify(normalizePreferences(right));
 }
 
 function controlled(values, allowed, name, label, errors) {

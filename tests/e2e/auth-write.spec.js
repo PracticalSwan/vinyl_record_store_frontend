@@ -97,6 +97,42 @@ test('registration, login, restoration, and protected writes work with cleanup',
     expect(preferences.status).toBe(200);
     expect(preferences.payload.data.user.onboardingComplete).toBe(true);
 
+    let preferencePatches = 0;
+    page.on('request', (request) => {
+      if (request.url().endsWith('/api/me/preferences') && request.method() === 'PATCH') preferencePatches += 1;
+    });
+    await page.reload();
+    await page.getByRole('button', { name: 'Edit preferences' }).click();
+    await page.getByRole('button', { name: 'Clear preferences' }).click();
+    await expect(page.getByText('You have unsaved changes.')).toBeVisible();
+    await page.getByRole('button', { name: 'Catalog' }).click();
+    await expect(page.getByRole('dialog', { name: 'Unsaved preference changes' })).toBeVisible();
+    await page.getByRole('button', { name: 'Keep editing' }).click();
+    await expect(page).toHaveURL('/profile/preferences');
+    await page.evaluate(() => window.history.back());
+    await expect(page.getByRole('dialog', { name: 'Unsaved preference changes' })).toBeVisible();
+    await page.getByRole('button', { name: 'Keep editing' }).click();
+    await expect(page).toHaveURL('/profile/preferences');
+    await page.getByRole('button', { name: 'Back to account' }).click();
+    await expect(page.getByRole('dialog', { name: 'Unsaved preference changes' })).toBeVisible();
+    await page.getByRole('button', { name: 'Discard changes' }).click();
+    await expect(page).toHaveURL('/account');
+    expect(preferencePatches).toBe(0);
+
+    await page.getByRole('button', { name: 'Edit preferences' }).click();
+    await page.getByRole('button', { name: 'Clear preferences' }).click();
+    await page.getByRole('button', { name: 'Back to account' }).click();
+    const clearedResponse = page.waitForResponse((response) => (
+      response.url().endsWith('/api/me/preferences') && response.request().method() === 'PATCH'
+    ));
+    await page.getByRole('button', { name: 'Save changes' }).click();
+    expect((await clearedResponse).status()).toBe(200);
+    await expect(page).toHaveURL('/account');
+    expect(preferencePatches).toBe(1);
+    const clearedPreferences = await api(page, '/api/me');
+    expect(clearedPreferences.payload.data.user.preferences.favoriteGenres).toEqual([]);
+    expect(clearedPreferences.payload.data.user.onboardingComplete).toBe(false);
+
     expect((await api(page, '/api/wishlist/1', { method: 'PUT' })).status).toBe(200);
     const wishlist = await api(page, '/api/wishlist/1', { method: 'PUT' });
     expect(wishlist.payload.data.productIds).toEqual(expect.arrayContaining([1, 2]));

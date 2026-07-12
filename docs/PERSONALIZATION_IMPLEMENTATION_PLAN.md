@@ -21,7 +21,7 @@ Explicitly excluded (mirroring the backend plan): gathering real users or real-w
 These facts were verified by reading `src/`, not by trusting doc status tables.
 
 - Routes include the completed administrator workspace and simulated checkout. Home and Recommendations remain public recommendation surfaces; customer identity comes from the optional-session API rather than route protection.
-- Providers nest as `BrowserRouter > AuthProvider > TrackingProvider > CatalogProvider > StoreProvider`. Recommendation loading is also explicitly disabled while auth status is `loading`.
+- `RouterProvider` owns the data router; the root route shell then nests `AuthProvider > TrackingProvider > CatalogProvider > StoreProvider`. Recommendation loading is also explicitly disabled while auth status is `loading`.
 - `fetchMyRecommendations` calls `/api/recommendations/me` without a user ID and omits `X-Anonymous-Id` when authenticated. The only legacy helper is fixed to `/api/recommendations/user/demo-user`; it has no user-ID parameter.
 - `CatalogProvider` keys recommendation state by surface, endpoint flag, auth status, and authenticated `publicId`; it aborts identity changes and uses request generations so a transport that ignores abort cannot overwrite current results.
 - `AuthProvider` restores the session, guards auth-operation races, and exposes the safe user. `CatalogProvider` consumes `publicId` only as a local resource key; it is never sent as recommendation identity.

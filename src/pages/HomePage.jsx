@@ -9,13 +9,13 @@ const HOME_QUERY = {
 };
 
 const recommendationLabel = (mode) => ({
-  'demo-profile': 'Explainable demo profile',
+  'demo-profile': 'Curated showcase profile',
   'anonymous-fallback': 'Anonymous catalog fallback',
   'cold-start': 'Session-owned cold-start',
 }[mode] || 'Explainable ranked suggestions');
 
 const recommendationAriaLabel = (mode) => mode === 'demo-profile'
-  ? 'Recommended records for the demo profile'
+  ? 'Recommended records for the showcase profile'
   : 'Current ranked record recommendations';
 
 export default function HomePage() {
@@ -46,7 +46,7 @@ export default function HomePage() {
           </div>
           <div className="hero-stat-row" role="list" aria-label="Store highlights">
             {[
-              [String(catalog.meta?.total ?? 0), 'Demo catalog records'],
+              [String(catalog.meta?.total ?? 0), 'Catalog records'],
               [String(inStockCount), 'Available now'],
               [String(genreCount), 'Genres'],
             ].map(([number, label]) => (

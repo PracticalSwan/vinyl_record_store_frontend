@@ -41,4 +41,28 @@ describe('PreferencesForm', () => {
     expect(screen.getByText('Step 2 of 3')).toBeVisible();
     expect(screen.getByText(/Minimum budget cannot exceed maximum/)).toBeVisible();
   });
+
+  it('clears the editable draft without saving and allows an explicit empty save', async () => {
+    const onSave = vi.fn();
+    const onDraftChange = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <PreferencesForm
+        initial={{ favoriteGenres: ['Jazz'] }}
+        onSave={onSave}
+        onDraftChange={onDraftChange}
+        showClear
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Clear preferences' }));
+    expect(onSave).not.toHaveBeenCalled();
+    expect(onDraftChange).toHaveBeenLastCalledWith(expect.objectContaining({ favoriteGenres: [] }));
+
+    await user.click(screen.getByRole('button', { name: 'Save preferences' }));
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
+      favoriteGenres: [],
+      completed: false,
+    }));
+  });
 });

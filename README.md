@@ -9,17 +9,18 @@ Groovehaus demonstrates how a recommender-powered storefront feels end to end: b
 Two things worth knowing up front:
 
 - Recommendations use a session-owned API path: signed-in customers receive deterministic `cold-start` results, visitors receive `anonymous-fallback`, and the restricted showcase remains `demo-profile`. Saved preferences and behavior do not affect ranking yet, and no recommendation-quality claim is made.
-- Product surfaces display backend-approved Cover Art Archive images when available, with traceable source links and stable local fallbacks when artwork is missing or broken.
+- Product surfaces display the reviewed Cover Art Archive image for every bundled record, with traceable source links and stable local fallbacks when an external image is slow, missing, or broken.
 - `code_for_website/` is an early design-import snapshot kept for reference, not the running application. The active source lives in `src/`.
 
 ## What you can do
 
-- Browse the catalog with genre, condition, era, price, and stock filters, with sorting and pagination.
-- Search records by text and open detailed product pages.
+- Browse the catalog with independently scrollable genre, condition, era, price, and stock controls, with sorting and pagination.
+- Search records as you type with a 300 ms debounce, keep up to five account/guest-scoped recent searches, and replay any committed term from the search menu.
 - View similar records and demo recommendations, each with a short explanation.
 - View responsive release artwork without losing product details or actions when an image is slow, missing, or unavailable.
 - Save records to a wishlist and cart as a guest or a signed-in customer.
-- Register, sign in, and manage an account with onboarding preferences.
+- Register, sign in, and manage an account with onboarding preferences. Preference clearing changes only the draft, and every dirty SPA/history transition offers a focus-contained save, discard, or cancel choice before leaving.
+- Run the client-only checkout preview and view its session-scoped confirmation without implying a real payment or backend order.
 
 ## Tech stack
 
@@ -45,16 +46,16 @@ The frontend depends on the backend, so start the backend first.
 
 The app opens at `http://localhost:5173` and expects the backend at `http://localhost:3000`. If your backend runs elsewhere, set `VITE_API_BASE_URL` in `.env.local`.
 
-## Demo accounts
+## Showcase accounts
 
-Two roles exist: `customer` and `admin`. Showcase demo customer accounts are seeded into the backend database for classroom use.
+Two roles exist: `customer` and `admin`. Exactly three showcase customer accounts are seeded into the backend database, and one administrator is environment-backed.
 
 - Customer (jazz): `jazzlistener` / `jazz-groove-2026`
 - Customer (rock): `rockcollector` / `rock-groove-2026`
 - Customer (soul): `soulseeker` / `soul-groove-2026`
 - Admin: `admin` / `groovehaus-admin`
 
-Visitors can also register their own customer account. Demo logins require the backend to reach its database; see the backend README for details.
+Visitors can also register their own customer account. Showcase customer logins require the backend to reach its database; see the backend README for details.
 
 ## Project structure
 
