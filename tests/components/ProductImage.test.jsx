@@ -18,7 +18,9 @@ describe('ProductImage', () => {
   it('renders approved art with stable dimensions, detail priority, and source attribution', () => {
     const { container } = render(<ProductImage record={record} variant="detail" priority showAttribution />);
     const image = screen.getByRole('img', { name: 'Cover art for Kind of Blue by Miles Davis.' });
-    expect(image).toHaveAttribute('src', record.image.detailUrl);
+    // Cover art is now streamed through the backend proxy, so the rendered src
+    // embeds the approved detail URL rather than pointing at the external host.
+    expect(image).toHaveAttribute('src', expect.stringContaining(`/api/artwork?u=${encodeURIComponent(record.image.detailUrl)}`));
     expect(image).toHaveAttribute('width', '1200');
     expect(image).toHaveAttribute('height', '1200');
     expect(image).toHaveAttribute('loading', 'eager');

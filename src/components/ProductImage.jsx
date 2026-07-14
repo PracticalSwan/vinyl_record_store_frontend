@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { IconVinyl, IconVinylDark } from './Icons';
+import { API_BASE_URL } from '../lib/api';
 
 const COVER_ART_HOSTS = new Set(['coverartarchive.org', 'www.coverartarchive.org']);
 const MUSICBRAINZ_HOSTS = new Set(['musicbrainz.org', 'www.musicbrainz.org']);
@@ -12,6 +13,13 @@ function approvedUrl(value, hosts) {
   } catch {
     return null;
   }
+}
+
+// Route cover art through the backend proxy instead of loading it directly
+// from coverartarchive.org, so storefronts on networks that cannot reach that
+// host still render artwork. The backend re-validates the host (SSRF boundary).
+function proxiedArtworkSrc(coverArtUrl) {
+  return `${API_BASE_URL}/api/artwork?u=${encodeURIComponent(coverArtUrl)}`;
 }
 
 function Placeholder({ decorative, variant, alt }) {
@@ -45,7 +53,7 @@ function Artwork({ record, variant, decorative, priority, showAttribution, url, 
           <Placeholder decorative variant={variant} alt="" />
           <img
             className="product-image-artwork"
-            src={url}
+            src={proxiedArtworkSrc(url)}
             alt={decorative ? '' : alt}
             width={variant === 'detail' ? 1200 : 500}
             height={variant === 'detail' ? 1200 : 500}

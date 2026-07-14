@@ -18,13 +18,14 @@ Error:
 
 ## Implemented Catalog And Recommendation Calls
 
-Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceUrl }` only after backend approval. `imageUrl` remains a nullable compatibility field. The client rejects incomplete or unapproved-host mappings and renders its local placeholder instead.
+Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceUrl }` only after backend approval. `imageUrl` remains a nullable compatibility field. The client rejects incomplete or unapproved-host mappings and renders its local placeholder instead. `ProductImage` renders approved cover art through the backend image proxy (`GET /api/artwork?u=<approved url>`) rather than the external host, so artwork renders on networks that cannot reach `coverartarchive.org`.
 
 | Frontend Need | Method | Path | Current Use |
 | --- | --- | --- | --- |
 | Catalog | `GET` | `/api/products` | Catalog, Search, Home, and cart suggestions use bounded server queries. |
 | Product detail | `GET` | `/api/products/:id` | Detail and ID-based local-list hydration. |
 | Search alias | `GET` | `/api/search` | Shares the product query service and response shape. |
+| Cover art | `GET` | `/api/artwork?u=` | `ProductImage` streams approved cover art through the backend proxy instead of loading `coverartarchive.org` directly. |
 | Similar products | `GET` | `/api/recommendations/product/:id?limit=6&surface=product-detail` | Product detail row with request/list attribution. |
 | Session-owned recommendations | `GET` | `/api/recommendations/me?limit=12&surface=...` | Home and recommendation routes only; customer identity comes from the cookie, otherwise anonymous fallback. |
 | Legacy showcase | `GET` | `/api/recommendations/user/demo-user?limit=12&surface=...` | Fixed rollback/showcase path only; no production helper accepts another user ID. |

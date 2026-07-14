@@ -58,7 +58,9 @@ test('approved artwork renders with traceability and a broken image falls back w
     };
     await route.fulfill({ response, json: payload });
   });
-  await page.route('https://coverartarchive.org/**', async (route) => {
+  // Cover art is streamed through the backend proxy, so the browser now
+  // requests /api/artwork rather than coverartarchive.org directly.
+  await page.route('**/api/artwork?*', async (route) => {
     if (breakImage) {
       await route.abort('failed');
       return;

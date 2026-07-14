@@ -9,7 +9,7 @@ Groovehaus demonstrates how a recommender-powered storefront feels end to end: b
 Two things worth knowing up front:
 
 - Recommendations use a session-owned API path: signed-in customers receive deterministic `cold-start` results, visitors receive `anonymous-fallback`, and the restricted showcase remains `demo-profile`. Saved preferences and behavior do not affect ranking yet, and no recommendation-quality claim is made.
-- Product surfaces display the reviewed Cover Art Archive image for every bundled record, with traceable source links and stable local fallbacks when an external image is slow, missing, or broken.
+- Product surfaces display the reviewed Cover Art Archive image for every bundled record, with traceable source links and stable local fallbacks when an external image is slow, missing, or broken. Cover art is streamed through the backend (`GET /api/artwork`) rather than loaded directly from `coverartarchive.org`, so artwork renders even on networks that cannot reach that host.
 - `code_for_website/` is an early design-import snapshot kept for reference, not the running application. The active source lives in `src/`.
 
 ## What you can do
