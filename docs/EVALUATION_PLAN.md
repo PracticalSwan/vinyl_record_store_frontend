@@ -6,11 +6,11 @@ This plan records the automated release evidence for the storefront. It does not
 
 | Check | Command | Current Evidence |
 | --- | --- | --- |
-| Unit and component tests | `npm run test:unit` | 61 tests passed on 2026-07-06, including artwork success/missing/broken/decorative cases. |
-| Browser and integration tests | `npm run test:e2e` | 49 passed, 1 intentional mobile-only skip across Chromium desktop/mobile/tablet, Firefox, and WebKit on 2026-07-06. |
-| Accessibility subset | `npm run test:a11y` | Representative axe checks passed within the full matrix on 2026-07-06. |
-| ESLint | `npm run lint` | Passed on 2026-07-06. |
-| Production bundle | `npm run build` | Passed on 2026-07-06. |
+| Unit and component tests | `npm run test:unit` | 87/87 passed on 2026-07-21; `ProductImage` covers proxy/local/placeholder progression, direct local start, rerender, stale events, and decorative semantics. |
+| Browser and integration tests | `npm run test:e2e` | 67 passed, 1 intentional skip across Chromium desktop/mobile/tablet, Firefox, and WebKit on 2026-07-21. The suite decodes all 116 local endpoints and forces both fallback transitions. |
+| Accessibility subset | `npm run test:a11y` | Representative axe checks passed within the full matrix on 2026-07-21. |
+| ESLint | `npm run lint` | Passed on 2026-07-21. |
+| Production bundle | `npm run build` | Passed on 2026-07-21. |
 
 ## Browser Scenarios
 
@@ -30,7 +30,7 @@ This plan records the automated release evidence for the storefront. It does not
 | FE-012 | Existing account signs in or restores. | Guest state is discarded and account state loads without cross-account leakage. |
 | FE-013 | Usage-data opt-out or auth change. | Capture stops immediately; queued events cannot cross identity boundaries. |
 | FE-014 | Non-recommendation route loads. | No user-recommendation request or unseen-list request log is created. |
-| FE-015 | Approved, missing, slow, or broken artwork renders. | The correct responsive image or stable local placeholder appears without loops, layout loss, or inaccessible duplicate text. |
+| FE-015 | Approved, missing, slow, or broken artwork renders. | The responsive proxy image, decoded canonical-ID local JPEG, or final placeholder appears in that order without loops, stale-event skips, layout loss, or inaccessible duplicate text. |
 
 ## Recommendation Comprehension
 

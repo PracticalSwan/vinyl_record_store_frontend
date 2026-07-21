@@ -4,6 +4,7 @@ import { API_BASE_URL } from '../lib/api';
 
 const COVER_ART_HOSTS = new Set(['coverartarchive.org', 'www.coverartarchive.org']);
 const MUSICBRAINZ_HOSTS = new Set(['musicbrainz.org', 'www.musicbrainz.org']);
+const PUBLIC_ID_PATTERN = /^[1-9][0-9]{0,9}$/;
 
 function approvedUrl(value, hosts) {
   if (!value) return null;
@@ -15,11 +16,25 @@ function approvedUrl(value, hosts) {
   }
 }
 
-// Route cover art through the backend proxy instead of loading it directly
-// from coverartarchive.org, so storefronts on networks that cannot reach that
-// host still render artwork. The backend re-validates the host (SSRF boundary).
+// Prefer the backend proxy, then its canonical-ID local bundle, before the
+// generic placeholder. The browser never loads Cover Art Archive directly;
+// the backend validates the remote URL and every redirect hop.
 function proxiedArtworkSrc(coverArtUrl) {
   return `${API_BASE_URL}/api/artwork?u=${encodeURIComponent(coverArtUrl)}`;
+}
+
+function localArtworkSrc(publicId) {
+  const value = String(publicId ?? '');
+  return PUBLIC_ID_PATTERN.test(value) ? `${API_BASE_URL}/api/artwork/local/${value}` : null;
+}
+
+function sourceChain(remoteUrl, localUrl) {
+  const sources = [];
+  if (remoteUrl) sources.push({ kind: 'proxy', src: proxiedArtworkSrc(remoteUrl) });
+  if (localUrl && !sources.some((source) => source.src === localUrl)) {
+    sources.push({ kind: 'local', src: localUrl });
+  }
+  return sources;
 }
 
 function Placeholder({ decorative, variant, alt }) {
@@ -38,12 +53,13 @@ function Placeholder({ decorative, variant, alt }) {
   );
 }
 
-function Artwork({ record, variant, decorative, priority, showAttribution, url, sourceUrl }) {
-  const [failed, setFailed] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+function Artwork({ record, variant, decorative, priority, showAttribution, sources, sourceUrl }) {
+  const [imageState, setImageState] = useState({ sourceIndex: 0, loadedSource: null });
   const alt = `Cover art for ${record?.title || 'record'} by ${record?.artist || 'unknown artist'}.`;
+  const currentSource = sources[imageState.sourceIndex] || null;
+  const loaded = imageState.loadedSource === currentSource?.src;
 
-  const usePlaceholder = !url || failed;
+  const usePlaceholder = !currentSource;
   return (
     <figure className={`product-image product-image-${variant}${loaded ? ' is-loaded' : ''}`}>
       {usePlaceholder ? (
@@ -52,15 +68,28 @@ function Artwork({ record, variant, decorative, priority, showAttribution, url, 
         <>
           <Placeholder decorative variant={variant} alt="" />
           <img
+            key={currentSource.src}
             className="product-image-artwork"
-            src={proxiedArtworkSrc(url)}
+            src={currentSource.src}
             alt={decorative ? '' : alt}
             width={variant === 'detail' ? 1200 : 500}
             height={variant === 'detail' ? 1200 : 500}
             loading={priority ? 'eager' : 'lazy'}
             fetchPriority={priority ? 'high' : 'auto'}
-            onLoad={() => setLoaded(true)}
-            onError={() => setFailed(true)}
+            decoding="async"
+            data-artwork-source={currentSource.kind}
+            onLoad={() => setImageState((current) => (
+              current.sourceIndex === imageState.sourceIndex
+                ? { ...current, loadedSource: currentSource.src }
+                : current
+            ))}
+            onError={() => {
+              setImageState((current) => (
+                current.sourceIndex === imageState.sourceIndex
+                  ? { sourceIndex: current.sourceIndex + 1, loadedSource: null }
+                  : current
+              ));
+            }}
           />
         </>
       )}
@@ -84,15 +113,18 @@ export default function ProductImage({
   const candidate = variant === 'detail' ? image?.detailUrl : image?.thumbnailUrl;
   const url = approvedUrl(candidate, COVER_ART_HOSTS);
   const sourceUrl = approvedUrl(image?.sourceUrl, MUSICBRAINZ_HOSTS);
+  const localUrl = localArtworkSrc(record?.id);
+  const sources = sourceChain(url, localUrl);
+  const chainKey = [record?.id || 'unknown', variant, ...sources.map((source) => source.src)].join(':');
   return (
     <Artwork
-      key={`${variant}:${url || 'placeholder'}`}
+      key={chainKey}
       record={record}
       variant={variant}
       decorative={decorative}
       priority={priority}
       showAttribution={showAttribution}
-      url={url}
+      sources={sources}
       sourceUrl={sourceUrl}
     />
   );

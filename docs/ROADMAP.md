@@ -11,7 +11,7 @@ This file records current completion and deferred scope. It does not authorize c
 - FFP-02 three-step onboarding and protected preference editing/clearing.
 - BFP-02 Part A request/list attribution consumed by the UI.
 - FFP-01 privacy-controlled interaction analytics, auth-boundary isolation, and visible opt-out.
-- FFP-06 backend-approved structured artwork, shared resilient rendering, source attribution, accessibility, and responsive loading behavior.
+- FFP-06 backend-approved structured artwork, shared resilient rendering, source attribution, accessibility, responsive loading, and a 2026-07-21 proxy-to-local-to-placeholder hardening pass covering all 116 bundled records.
 - BFP-06/BFP-02 Part B shared contracts: controlled backend ingestion and evidence-gated aggregate offline reporting.
 - Loading, empty, error, retry, optimistic rollback, and warning states.
 - Vitest/React Testing Library plus Playwright Chromium, Firefox, WebKit, responsive, history, failure, and axe coverage.

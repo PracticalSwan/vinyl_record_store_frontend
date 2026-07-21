@@ -10,7 +10,7 @@ The approved design and dependency gates are documented in `FUTURE_IMPLEMENTATIO
 - Demo checkout and order UI.
 - Real checkout and payment integration.
 - TypeScript migration.
-- Future image optimization service only if deployment requirements justify it; current approved artwork loading needs no added dependency.
+- Future image optimization service only if deployment requirements justify it; the current backend proxy and committed local-artwork endpoint need no added frontend dependency.
 - Remaining personalization (PERS-03 through PERS-09). PERS-00 through PERS-02 / FFP-09 are complete. Do not start later milestones without a separate explicit task; preserve honesty wording and the evidence boundary.
 
 Do not install packages or begin these changes solely because they appear here. Recheck current framework versions and update decisions before any future dependency work.

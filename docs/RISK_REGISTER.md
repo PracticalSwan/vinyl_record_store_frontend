@@ -9,7 +9,7 @@
 | FR-005 | Duplicate source trees drift. | Medium | Keep `src/` canonical and `code_for_website/` snapshot-only. | controlled |
 | FR-006 | Backend outage hides remote content. | Medium | Route-level errors with retry and independent recommendation status. | controlled |
 | FR-007 | Mobile or keyboard regression. | Medium | Playwright responsive, keyboard, history, and axe coverage in the release gate. | controlled |
-| FR-008 | Unapproved, mismatched, or broken artwork enters the UI. | High | Consume only complete backend mappings, validate approved hosts, use one image boundary, retain source links, and fall back locally. | controlled |
+| FR-008 | Unapproved, mismatched, broken, or unreachable artwork enters the UI. | High | Consume only complete backend mappings, validate approved hosts, use one image boundary, retain source links, generation-guard stale events, and fail over proxy -> canonical-ID local JPEG -> placeholder. | controlled |
 | FR-009 | Analytics exposes identity or ignores opt-out. | High | Reject direct PII, keep opt-out authoritative in memory, clear the queue, and send only bounded pseudonymous fields. | controlled |
 | FR-010 | Rapid or crafted search input produces stale or unsafe results. | High | Bound literal queries, canonicalize facets, abort superseded requests, and test stale-response behavior. | controlled |
 | FR-011 | A failed registration merge loses guest state. | High | Persist the merge key before POST, retain the snapshot on failure, and resume a keyed merge after refresh. | controlled |

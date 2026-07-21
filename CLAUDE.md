@@ -16,7 +16,7 @@ The Groovehaus storefront is an implemented API-backed application, not a Vite s
 - `StoreProvider` uses session-only guest state and server-backed authenticated state. Guest state merges only into a new registration, resumes a keyed failed merge after refresh, and is discarded on existing-account login or ordinary restore.
 - Onboarding/preferences and privacy-controlled interaction analytics are implemented. The React Router data router blocks every dirty preference transition (buttons, Navbar, and browser history) behind one focus-contained save/discard/cancel dialog. Recommendation requests carry request/list attribution and are fetched only on pages that render them.
 - PERS-00 through PERS-02 / FFP-09 are implemented. `AuthProvider` resolves before `CatalogProvider`; Home and Recommendations use `GET /api/recommendations/me`, key state by the authenticated public subject, abort and generation-guard identity changes, omit anonymous IDs for signed-in requests, and render `cold-start` or `anonymous-fallback` honestly. Ranking is still `content-demo-v1`, not preference/behavior personalization.
-- FFP-06 structured artwork is implemented through one `ProductImage` boundary with approved-host validation, stable layout, lazy/eager sizing, source attribution, and loading/missing/broken fallbacks. Cover art is streamed through the backend (`GET /api/artwork?u=<approved url>`) rather than loaded directly from `coverartarchive.org`, so rendering no longer depends on the browser reaching that host; the local fallback still covers upstream outages. All 116 bundled records currently have reviewed artwork. The backend owns ingestion and offline evaluation; its current report is `insufficient-evidence` without quality metrics.
+- FFP-06 structured artwork is implemented through one `ProductImage` boundary with approved-host validation, stable layout, lazy/eager sizing, source attribution, and a deterministic remote proxy -> local canonical-ID endpoint -> generic placeholder chain. The backend commits one verified JPEG for each of the 116 bundled records. The backend owns ingestion, local artwork provenance, and offline evaluation; its current report is `insufficient-evidence` without quality metrics.
 - FFP-07 integrated administrator mode and FFP-08 checkout preview are implemented. The admin workspace (`RequireRole` guard, `AdminLayout`, dashboard, product table, create/edit form, import UX, artwork refresh) consumes role-gated `/api/admin/*` routes whose writes are mongodb-only. The checkout (`/checkout`, `/orders/preview/:reference`) is client-only with no real payment or backend order and uses sessionStorage persistence; it clears the cart on confirm. Real payments and order APIs are intentionally out of scope.
 - Filters have independently scrollable controls and bounded price inputs. The page shell keeps the footer below short routes. Preference clearing changes only the draft; dirty navigation uses an accessible save/discard/cancel dialog and provides a direct return to `/account`.
 - Vitest, React Testing Library, Playwright, and axe provide unit, component, browser, responsive, and accessibility coverage.
@@ -43,7 +43,7 @@ Read `../AGENT_MEMORY.md` at session start and append a dated entry at session e
 - Configure the backend with `VITE_API_BASE_URL`; the local default is `http://localhost:3000`.
 - Keep requests in `src/lib/api.js`. `AuthProvider` owns session restoration and identity, query hooks own route-specific catalog data, and `CatalogProvider` owns shared recommendation state only.
 - Every remote-data surface must handle loading, empty, error, and success states.
-- Every product image surface must use `ProductImage`; never render an unvalidated remote product URL directly.
+- Every product image surface must use `ProductImage`; never render an unvalidated remote product URL directly. Preserve the proxy -> `/api/artwork/local/:publicId` -> placeholder order and stale-event guards.
 - Recommendation copy must distinguish `demo-profile`, `content-similarity`, `cold-start`, and `anonymous-fallback` modes.
 - Session ownership is implemented, but preference/behavior ranking is not. Never imply measured quality or personalization beyond the active backend mode.
 - Credentialed auth/write requests depend on exact backend/frontend origin alignment. Preserve safe same-origin `returnTo` handling and ensure stale restoration responses cannot overwrite completed auth operations.
@@ -56,7 +56,7 @@ Read `../AGENT_MEMORY.md` at session start and append a dated entry at session e
 - Keep components focused and responsive; use semantic elements and visible keyboard focus.
 - Icon-only buttons need accessible names. Status cannot rely on color alone.
 - Keep touch targets usable on mobile and verify narrow-screen navigation, filters, horizontal recommendation rows, and text wrapping.
-- Do not copy proprietary designs, images, logos, product data, or source code.
+- Do not copy unapproved proprietary designs, images, logos, product data, or source code. The reviewed Cover Art Archive files are backend-owned third-party assets with explicit provenance and a separate rights notice.
 
 ## Validation
 

@@ -6,7 +6,7 @@ These are the current API, authentication, and client-only shapes used by the st
 
 | Field | Type | Use |
 | --- | --- | --- |
-| `id` | number | Routing and local state references. |
+| `id` | number | Routing, local state references, and the canonical `/api/artwork/local/:publicId` fallback key. |
 | `title`, `artist` | string | Required product identity. |
 | `genre`, `label` | string or null | Filtering and metadata; explicit UI fallback when absent. |
 | `year` | number or null | Display, sorting, and era filtering; explicit UI fallback when absent. |

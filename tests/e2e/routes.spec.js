@@ -46,7 +46,9 @@ test('keyboard search, not-found, and out-of-stock states behave safely', async 
 });
 
 test('approved artwork renders with traceability and a broken image falls back without blocking actions', async ({ page }) => {
-  let breakImage = false;
+  let breakProxy = false;
+  let breakLocal = false;
+  let localRequests = 0;
   await page.route('**/api/products/1', async (route) => {
     const response = await route.fetch();
     const payload = await response.json();
@@ -61,7 +63,7 @@ test('approved artwork renders with traceability and a broken image falls back w
   // Cover art is streamed through the backend proxy, so the browser now
   // requests /api/artwork rather than coverartarchive.org directly.
   await page.route('**/api/artwork?*', async (route) => {
-    if (breakImage) {
+    if (breakProxy) {
       await route.abort('failed');
       return;
     }
@@ -71,16 +73,66 @@ test('approved artwork renders with traceability and a broken image falls back w
       body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200"><rect width="1200" height="1200" fill="#4d2f23"/></svg>',
     });
   });
+  await page.route('**/api/artwork/local/*', async (route) => {
+    localRequests += 1;
+    if (breakLocal) {
+      await route.abort('failed');
+      return;
+    }
+    await route.continue();
+  });
 
   await page.goto('/records/1');
   await expect(page.getByRole('img', { name: 'Cover art for Kind of Blue by Miles Davis.' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Artwork source' })).toHaveAttribute('href', 'https://musicbrainz.org/release/test');
 
-  breakImage = true;
+  breakProxy = true;
+  await page.reload();
+  const localImage = page.getByRole('img', { name: 'Cover art for Kind of Blue by Miles Davis.' });
+  await expect(localImage).toBeVisible();
+  await expect(localImage).toHaveAttribute('src', /\/api\/artwork\/local\/1$/);
+  await expect(localImage).toHaveAttribute('data-artwork-source', 'local');
+  await expect.poll(() => localImage.evaluate((image) => image.naturalWidth)).toBeGreaterThan(0);
+  expect(localRequests).toBe(1);
+  await expect(page.getByRole('link', { name: 'Artwork source' })).toHaveAttribute('href', 'https://musicbrainz.org/release/test');
+  await expect(page.getByRole('button', { name: 'Add to cart' })).toBeEnabled();
+
+  breakLocal = true;
   await page.reload();
   await expect(page.locator('.detail-cover').getByTestId('product-image-placeholder')).toBeVisible();
+  expect(localRequests).toBe(2);
   await expect(page.getByRole('button', { name: 'Add to cart' })).toBeEnabled();
   await expect(page.getByText('Kind of Blue').first()).toBeVisible();
+});
+
+test('all 116 bundled local artwork endpoints decode without external artwork access', async ({ page }) => {
+  await page.goto('/');
+  const result = await page.evaluate(async () => {
+    const pages = await Promise.all([1, 2].map(async (pageNumber) => {
+      const response = await fetch(`http://localhost:3000/api/products?page=${pageNumber}&limit=100`);
+      if (!response.ok) throw new Error(`Catalog page ${pageNumber} returned ${response.status}.`);
+      return response.json();
+    }));
+    const ids = pages.flatMap((payload) => payload.data.items.map((item) => item.id));
+    const uniqueIds = [...new Set(ids)].sort((left, right) => left - right);
+    const failures = [];
+
+    for (let offset = 0; offset < uniqueIds.length; offset += 20) {
+      const batch = uniqueIds.slice(offset, offset + 20);
+      const outcomes = await Promise.all(batch.map((id) => new Promise((resolve) => {
+        const image = new Image();
+        image.onload = () => resolve({ id, width: image.naturalWidth, height: image.naturalHeight });
+        image.onerror = () => resolve({ id, width: 0, height: 0 });
+        image.src = `http://localhost:3000/api/artwork/local/${id}`;
+      })));
+      failures.push(...outcomes.filter((item) => item.width <= 0 || item.height <= 0));
+    }
+
+    return { count: uniqueIds.length, failures };
+  });
+
+  expect(result.count).toBe(116);
+  expect(result.failures).toEqual([]);
 });
 
 test('wishlist removal and cart quantity floor remain stable', async ({ page }) => {

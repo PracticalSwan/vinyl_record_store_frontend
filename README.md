@@ -9,7 +9,7 @@ Groovehaus demonstrates how a recommender-powered storefront feels end to end: b
 Two things worth knowing up front:
 
 - Recommendations use a session-owned API path: signed-in customers receive deterministic `cold-start` results, visitors receive `anonymous-fallback`, and the restricted showcase remains `demo-profile`. Saved preferences and behavior do not affect ranking yet, and no recommendation-quality claim is made.
-- Product surfaces display the reviewed Cover Art Archive image for every bundled record, with traceable source links and stable local fallbacks when an external image is slow, missing, or broken. Cover art is streamed through the backend (`GET /api/artwork`) rather than loaded directly from `coverartarchive.org`, so artwork renders even on networks that cannot reach that host.
+- Product surfaces display the reviewed Cover Art Archive image for every bundled record with traceable source links. `ProductImage` first uses the backend proxy (`GET /api/artwork`), then the backend's committed canonical-ID fallback (`GET /api/artwork/local/:publicId`), then the generic vinyl placeholder. The 116-record catalog therefore remains illustrated when either the browser or backend cannot reach the external host.
 - `code_for_website/` is an early design-import snapshot kept for reference, not the running application. The active source lives in `src/`.
 
 ## What you can do
@@ -17,7 +17,7 @@ Two things worth knowing up front:
 - Browse the catalog with independently scrollable genre, condition, era, price, and stock controls, with sorting and pagination.
 - Search records as you type with a 300 ms debounce, keep up to five account/guest-scoped recent searches, and replay any committed term from the search menu.
 - View similar records and demo recommendations, each with a short explanation.
-- View responsive release artwork without losing product details or actions when an image is slow, missing, or unavailable.
+- View responsive release artwork without losing product details or actions when a remote image is slow, missing, or unavailable; every bundled record has a verified backend-local JPEG fallback.
 - Save records to a wishlist and cart as a guest or a signed-in customer.
 - Register, sign in, and manage an account with onboarding preferences. Preference clearing changes only the draft, and every dirty SPA/history transition offers a focus-contained save, discard, or cancel choice before leaving.
 - Run the client-only checkout preview and view its session-scoped confirmation without implying a real payment or backend order.

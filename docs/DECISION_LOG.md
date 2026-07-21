@@ -110,4 +110,14 @@ Date: 2026-07-12
 
 Decision: Debounce live search navigation by 300 ms while recording history only on committed submit or replay; keep at most five recent terms in a guest-or-customer-scoped store; make filter controls independently scrollable with bounded price inputs; use a flex page shell so the footer follows short and long content; treat preference clearing as a draft-only action and guard every dirty data-router transition (custom controls, Navbar, or browser history) with a focus-contained save/discard/cancel dialog that resumes the pending destination; and present client-only checkout through `/orders/preview/:reference` with `PREVIEW-` references. Internal compatibility identifiers such as `demo_checkout_complete` and `content-demo-v1` remain unchanged where renaming would break stored evidence or contracts.
 
+## FDEC-014: Use A Three-Stage Artwork Source Chain
+
+Date: 2026-07-21
+
+Decision: Keep `ProductImage` as the only rendering boundary and use an ordered source chain: approved remote URL through the backend proxy, canonical public ID through `/api/artwork/local/:publicId`, then the generic vinyl placeholder. If remote metadata is missing or rejected but the ID is canonical, start at the local source. Key component state by record, variant, and full source identity; update it functionally and ignore load/error events that no longer belong to the rendered index. Preserve lazy/eager priority, fixed dimensions, decorative/detail alt behavior, and the reviewed MusicBrainz attribution link across failover.
+
+Rationale: A backend proxy fixes browser reachability but can still fail on an external outage, a changed Internet Archive redirect host, or a cold cache. The local endpoint makes the 116-record classroom catalog deterministic without embedding asset knowledge in the frontend. A single state machine avoids broken icons, retry loops, stale-event source skipping, and actions disappearing when images fail.
+
+Status: Implemented and independently reviewed `SHIP_AS_IS` on 2026-07-21. Evidence includes 5 focused component tests, all 87 unit/component tests, 67 browser tests with one intentional skip, an all-116 decode loop, forced proxy and local failures, desktop/mobile screenshots, and a forced-local detail screenshot with cart interaction.
+
 Rationale: These boundaries prevent analytics inflation from search prefixes, cross-account history leakage, accidental preference saves, footer overlap, and storefront copy that could imply a real order or unfinished implementation.

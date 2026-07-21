@@ -25,7 +25,7 @@ The React frontend owns presentation, URL query state, tab-scoped guest state, a
 - The active user ranking is deterministic `content-demo-v1`: a verified customer uses a session-owned cold-start path, a visitor sees anonymous fallback, and the legacy showcase is synthetic.
 - Saved onboarding preferences do not alter the current deterministic ranker.
 - Guest state ends with the tab and never merges into an existing account.
-- Approved release artwork has resilient fallbacks and traceable source links.
+- Approved release artwork has traceable source links and deterministic proxy -> bundled local JPEG -> placeholder fallbacks for all 116 records.
 - The admin workspace and client-only simulated checkout exist; no real payment, backend order, or offline quality result exists. The backend evaluator reports insufficient evidence.
 - Automated behavior tests and logged events do not equal recommendation-quality evidence.
 - PERS-00 through PERS-02 are complete for architecture and session-owned identity. Preference, feedback, behavior, popularity, and hybrid ranking remain planned; no quality claim is made.

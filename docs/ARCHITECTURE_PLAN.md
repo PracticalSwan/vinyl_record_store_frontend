@@ -11,7 +11,7 @@ This document describes the implemented client structure and data flow.
 5. `AuthProvider` restores sessions, prevents stale restore/auth races, supplies registration/login/logout/preferences state, and clears the analytics identity boundary before auth changes; `RequireAuth` protects account/onboarding routes.
 6. `CatalogProvider` requests `/api/recommendations/me` only on Home and Recommendations after auth resolves. Its resource key includes the authenticated public subject; identity changes abort in-flight work and generation guards discard stale responses. `StoreProvider` presents one interface over session guests and authenticated server state.
 7. Product detail routes request backend similarity results through `useProductRecommendations`.
-8. Product card, detail, recommendation, wishlist, and cart surfaces route structured remote artwork through `ProductImage`, which validates the public mapping and owns loading/fallback behavior.
+8. Product card, detail, recommendation, wishlist, and cart surfaces route artwork through `ProductImage`. It validates the public mapping, derives a canonical-ID local URL, generation-guards image events, and owns the remote proxy -> local endpoint -> placeholder sequence.
 
 ## Layers
 

@@ -15,7 +15,7 @@ Groovehaus is an implemented Vite 8.1 and React 19.2.7 storefront. It loads cata
 - Keep guest wishlist/cart/rating state in versioned `sessionStorage` and authenticated state behind one `StoreProvider` interface.
 - Merge guest state only into a brand-new registration. A persisted merge key resumes a failed merge after refresh; existing-account login and ordinary restore discard unrelated guest state.
 - Capture bounded pseudonymous analytics with an immediate visible opt-out and recommendation request/list attribution.
-- Render the backend-reviewed Cover Art Archive mapping for all 116 bundled records through one resilient `ProductImage` component with responsive sizing, attribution, accessibility, and local fallbacks.
+- Render the backend-reviewed Cover Art Archive mapping for all 116 bundled records through one resilient `ProductImage` component with responsive sizing, attribution, accessibility, and a proxy -> committed local JPEG -> placeholder chain.
 - FFP-07 administrator workspace: a `RequireRole`-guarded `/admin` area (dashboard, product table with soft-delete/restore, create/edit form with optimistic-concurrency conflict re-fetch, import preview/apply, artwork refresh) consumes role-gated `/api/admin/*` routes. FFP-08 checkout preview: a `/checkout` wizard and `/orders/preview/:reference` confirmation with sessionStorage persistence, availability blocking, and cart clear on confirm. No real payment or backend order.
 - Preference clearing is draft-only. The data router intercepts every dirty SPA/history transition, preserves the pending destination, and provides a focus-contained save/discard/cancel dialog plus a direct back path to `/account`. The flex page shell keeps the footer below short content on every route.
 

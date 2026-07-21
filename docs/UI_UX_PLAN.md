@@ -22,7 +22,7 @@ This document records the implemented Groovehaus experience and its required sta
 
 ## Design Language
 
-Groovehaus uses a cream surface, dark brown navigation and cards, rust accent, serif display headings, compact metadata badges, approved release artwork where available, and the vinyl placeholder fallback. Preserve this identity unless a task explicitly changes the design.
+Groovehaus uses a cream surface, dark brown navigation and cards, rust accent, serif display headings, compact metadata badges, approved release artwork where available, and the vinyl placeholder as the final fallback after the bundled local source. Preserve this identity unless a task explicitly changes the design.
 
 ## Required States
 
@@ -31,7 +31,7 @@ Groovehaus uses a cream surface, dark brown navigation and cards, rust accent, s
 - Similar products: loading, empty, error, success.
 - Store lists: guest/authenticated loading, warnings, mutation errors, populated, and empty states.
 - Out-of-stock products: visible status and disabled purchase action.
-- Product images: stable aspect ratio, approved artwork success, slow loading placeholder, missing/broken fallback, and optional detail attribution.
+- Product images: stable aspect ratio, approved artwork success, slow-loading placeholder layer, remote-to-local failover, final generic fallback, and optional detail attribution.
 - Preferences: draft-only clear, save confirmation, dirty navigation with save/discard/cancel, and a direct path back to Account.
 - Page shell: footer remains below short content and follows long content without fixed overlap.
 

@@ -1,6 +1,6 @@
 # Frontend Product Requirements
 
-Requirement status reflects the integrated academic demo as of 2026-07-06.
+Requirement status reflects the integrated academic demo as of 2026-07-21.
 
 ## Goal
 
@@ -15,14 +15,14 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 | FFR-003 | Search, filter, and sort products. | Implemented | URL-backed literal server search, repeated facets, deterministic sort, and pagination. |
 | FFR-004 | Display wishlist, cart, quantity, and rating actions. | Implemented | Session guest adapter and authenticated server adapter with optimistic rollback. |
 | FFR-005 | Display product-based recommendations. | Implemented | Detail route consumes backend similarity results. |
-| FFR-006 | Display user-based recommendations. | Demo only | Uses the documented `demo-user` sample profile. |
+| FFR-006 | Display user-based recommendations. | Implemented identity boundary | Verified customers use session-owned `cold-start`, visitors use `anonymous-fallback`, and the restricted `demo-user` showcase remains `demo-profile`; preference/behavior ranking is still deferred. |
 | FFR-007 | Show recommendation explanations. | Implemented | Cards display backend reasons. |
 | FFR-008 | Handle loading, empty, error, and success states. | Implemented | Independent route query and recommendation states. |
 | FFR-009 | Verify critical browser and accessibility behavior. | Implemented | Vitest, React Testing Library, Playwright browser matrix, and axe. |
 | FFR-010 | Register, restore, and protect customer accounts. | Implemented | Signed-cookie auth provider and protected routes. |
 | FFR-011 | Capture and edit future-facing preferences. | Implemented | Three-step onboarding and profile editor. |
 | FFR-012 | Capture privacy-controlled interaction analytics. | Implemented | Visible opt-out, bounded queue, recommendation attribution, and auth-boundary isolation. |
-| FFR-013 | Display approved artwork safely. | Implemented | Shared validated image component with responsive loading, attribution, accessibility, and fallbacks. |
+| FFR-013 | Display approved artwork safely. | Implemented | Shared validated image component with responsive loading, attribution, accessibility, stale-event protection, and proxy -> local -> placeholder failover for all 116 bundled records. |
 
 ## Non-Functional Requirements
 
@@ -34,7 +34,7 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 
 ## Out Of Scope
 
-Payments, production checkout, frontend database access, scraping, and admin tools remain outside the current implemented demo. Offline recommender evaluation belongs to the backend and currently reports insufficient evidence rather than quality metrics.
+Payments, production checkout, frontend database access, broad scraping, and backend order APIs remain outside the current implemented demo. The role-gated administrator workspace and client-only checkout preview are implemented. Offline recommender evaluation belongs to the backend and currently reports insufficient evidence rather than quality metrics.
 
 ## Success Criteria
 

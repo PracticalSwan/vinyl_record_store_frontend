@@ -14,7 +14,7 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 - Keep guest state session-only. Merge it only into a brand-new registration; discard it on existing-account login or ordinary restore, while resuming a keyed failed registration merge.
 - Enable anonymous interaction tracking by default with a visible opt-out, no direct personal information, and a 90-day backend retention target.
 - Put administrator pages under protected `/admin` routes in the existing app.
-- Use MusicBrainz and Cover Art Archive as the artwork source, with local vinyl placeholders as the fallback.
+- Use MusicBrainz and Cover Art Archive as the artwork source, with verified backend-local JPEGs for the reviewed catalog and vinyl placeholders as the final fallback.
 - Add a simulated checkout that demonstrates the flow but never accepts payment or claims a real order.
 - Do not add deployment work or a machine-readable API schema.
 
@@ -27,7 +27,7 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 | FFP-03 | Local-to-server state migration | Completed | Session guest adapter, sign-up merge, and authenticated server adapter completed 2026-07-05. |
 | FFP-04 | Browser, integration, and accessibility testing | Completed | Vitest, React Testing Library, Playwright, and axe gate established 2026-07-03. |
 | FFP-05 | Full server-side search and pagination | Completed | Query-driven backend and frontend contract completed 2026-07-03. |
-| FFP-06 | Artwork and image handling | Completed | Backend-approved mappings, shared rendering, attribution, accessibility, and fallbacks completed 2026-07-06. |
+| FFP-06 | Artwork and image handling | Completed; hardened 2026-07-21 | Backend-approved mappings, shared rendering, attribution, accessibility, stale-safe proxy/local/placeholder failover, and all-116 browser decode coverage are complete. |
 | FFP-07 | Integrated admin mode | Completed 2026-07-09 | Administrator workspace is implemented: `RequireRole` guard, `AdminLayout` + nav, dashboard (summary + recent audit), product table (soft-delete with confirm/restore), create/edit form with `updatedAt` optimistic concurrency and conflict re-fetch, import preview/apply UX, artwork refresh, and mongodb-only-write handling. |
 | FFP-08 | Checkout and order preview | Completed; copy refined 2026-07-12 | Client-only preview is implemented: cart review, shipping, illustrative-payment, review, and confirmation steps with a `PREVIEW-` reference, sessionStorage persistence, availability blocking, and cart clear on confirm. No real payment or backend order. |
 
@@ -47,7 +47,7 @@ The first nine ordered items are complete. Continue the remaining plans in this 
 | 8 | BFP-02 Part A: recommendation-request logging | Completed 2026-07-05. |
 | 9 | FFP-01: recommendation interaction analytics | Completed 2026-07-05. |
 | 10 | BFP-06: catalog ingestion and metadata quality | Completed 2026-07-06 with validated preview/apply imports and approved metadata enrichment. |
-| 11 | FFP-06: artwork and image handling | Completed 2026-07-06 with backend-approved mappings and resilient fallbacks. |
+| 11 | FFP-06: artwork and image handling | Completed 2026-07-06; hardened 2026-07-21 with an exact 116-file backend-local bundle and deterministic failover. |
 | 12 | BFP-02 Part B: offline evaluation dataset and benchmark | Completed 2026-07-06; current evidence remains below the metric-reporting threshold. |
 | 13 | BFP-07, then FFP-07: integrated admin mode | Implement protected backend administration before exposing its frontend workspace. |
 | 14 | FFP-08: simulated checkout and order demonstration | Add the low-risk classroom flow last, after catalog, state, identity, and testing are stable. |
@@ -426,14 +426,14 @@ Status: completed and verified on 2026-07-06.
 
 ### Goal
 
-Display approved album artwork from MusicBrainz and Cover Art Archive while preserving the current placeholder for missing, ambiguous, slow, or broken images.
+Display approved album artwork from MusicBrainz and Cover Art Archive while preserving a verified local copy for every reviewed bundled record and the current placeholder for unresolved, invalid, or broken final sources.
 
 ### Source And Ownership Rules
 
 - The backend performs MusicBrainz matching and stores the selected release or release-group identifier and source metadata.
 - The frontend receives approved artwork URLs in product responses and never searches external services directly.
 - Use Cover Art Archive 500-pixel thumbnails for cards and up to 1200 pixels for detail views when available.
-- Store URLs and attribution/provenance, not image binaries, in MongoDB.
+- Store URLs and attribution/provenance, not image binaries, in MongoDB. The backend may commit reviewed, content-addressed fallback files outside MongoDB with a generated hash/provenance manifest.
 - Respect the official MusicBrainz request limit and User-Agent requirement during backend enrichment.
 - Cover art remains copyright-sensitive. Display a source link and keep placeholders for any image whose match or use is uncertain.
 - Never use images copied from search results or unrelated storefronts.
@@ -457,25 +457,25 @@ The product response may add:
 
 ### Frontend Components
 
-- `ProductImage` is the only component responsible for artwork, loading state, fallback, size selection, and broken-image recovery.
+- `ProductImage` is the only component responsible for artwork, loading state, source-chain identity, size selection, and broken-image recovery.
 - Use width and height or `aspect-ratio` to prevent layout shifts.
 - Use lazy loading for off-screen catalog cards and eager/high-priority loading only for the main visible hero/detail image when justified.
 - Alt text uses local product metadata, for example “Cover art for Kind of Blue by Miles Davis.” Decorative repeated thumbnails may use empty alt text when the surrounding card already has the same accessible name.
-- A failed image switches once to the existing vinyl placeholder and does not retry forever.
+- A failed remote proxy switches once to `/api/artwork/local/:publicId`; a failed or unmapped local source switches once to the vinyl placeholder. Load/error handlers generation-guard their rendered source so stale events cannot skip or restore a source.
 - Product detail may show a small “Artwork source” link without implying endorsement.
 
 ### Implementation Phases
 
 1. Add structured image fields to backend data and both API contracts while keeping `null` valid.
 2. Add approved MusicBrainz/Cover Art mappings to the import/admin workflow; ambiguous records remain placeholders.
-3. Build and unit-test `ProductImage` with success, missing, error, and decorative modes.
+3. Build and unit-test `ProductImage` with proxy success, direct-local start, two-stage failure, rerender/stale-event, missing-ID, and decorative modes.
 4. Replace card, detail, recommendation, wishlist, cart, and admin-preview placeholders through the shared component.
 5. Add responsive sizing, loading behavior, source link, and layout-shift browser checks.
 6. Verify external failure does not prevent product text or actions from rendering.
 
 ### Validation And Definition Of Done
 
-- Every product surface shows either the approved artwork or the current placeholder.
+- Every product surface shows the approved remote image, the verified local copy, or the current placeholder; all 116 bundled local endpoints decode in a real browser.
 - Broken URLs do not create broken-image icons, loops, or inaccessible controls.
 - Cards and rows do not shift materially when images load.
 - The selected art corresponds to the intended release or release group and retains source traceability.
