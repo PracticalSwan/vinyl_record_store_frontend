@@ -77,7 +77,7 @@ export default function AdminProductFormPage() {
     (async () => {
       try {
         const response = await api.fetchAdminProduct(id, { signal: controller.signal });
-        const product = response.data.product;
+        const product = response.data;
         setForm(toForm(product));
         setUpdatedAt(product.updatedAt);
         setLoadStatus('success');
@@ -104,13 +104,13 @@ export default function AdminProductFormPage() {
       const payload = toPayload(form);
       if (isEdit) {
         const response = await api.updateAdminProduct(id, payload, updatedAt);
-        const product = response.data.product;
+        const product = response.data;
         setForm(toForm(product));
         setUpdatedAt(product.updatedAt);
         setError(null);
       } else {
         const response = await api.createAdminProduct(payload);
-        navigate(`/admin/products/${response.data.product.id}/edit`, { replace: true });
+        navigate(`/admin/products/${response.data.id}/edit`, { replace: true });
       }
     } catch (requestError) {
       setError(requestError);
@@ -119,7 +119,7 @@ export default function AdminProductFormPage() {
         // administrator can review what changed before re-submitting.
         try {
           const fresh = await api.fetchAdminProduct(id);
-          const product = fresh.data.product;
+          const product = fresh.data;
           setConflict(product);
           setUpdatedAt(product.updatedAt);
         } catch {
@@ -147,7 +147,7 @@ export default function AdminProductFormPage() {
     setArtwork({ ...artwork, applying: true, error: null });
     try {
       const response = await api.applyArtwork(id, { releaseId, updatedAt });
-      const product = response.data.product;
+      const product = response.data;
       setForm(toForm(product));
       setUpdatedAt(product.updatedAt);
       setArtwork({ status: 'success', preview: { ...artwork.preview, product }, error: null, applying: false });
@@ -156,7 +156,7 @@ export default function AdminProductFormPage() {
       if (requestError.code === 'CONFLICT') {
         try {
           const fresh = await api.fetchAdminProduct(id);
-          const product = fresh.data.product;
+          const product = fresh.data;
           setForm(toForm(product));
           setUpdatedAt(product.updatedAt);
           setConflict(product);

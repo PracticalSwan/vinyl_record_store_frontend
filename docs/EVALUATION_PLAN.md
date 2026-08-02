@@ -7,7 +7,7 @@ This plan records the automated release evidence for the storefront. It does not
 | Check | Command | Current Evidence |
 | --- | --- | --- |
 | Unit and component tests | `npm run test:unit` | 90/90 passed on 2026-08-02, including dynamic query serialization, case-insensitive preference overlap, and checkout exclusion for unknown commercial fields. |
-| Browser and integration tests | `npm run test:e2e` | Full matrix passed 67 tests with 1 intentional skip on 2026-08-02 across Chromium desktop/mobile/tablet, Firefox, and WebKit. Global teardown removed 36 test interactions; a follow-up cleanup dry-run found zero residue. |
+| Browser and integration tests | `npm run test:e2e` | Full matrix passed 67 tests with 1 intentional skip on 2026-08-02 across Chromium desktop/mobile/tablet, Firefox, and WebKit. After live inspection found an Admin edit-form response-unwrapping regression, the repaired desktop/mobile path passed 4/4. Global teardown removed 36 earlier test interactions and the follow-up runs found zero residue. |
 | Accessibility subset | `npm run test:a11y` | Representative axe checks remain part of the full browser matrix. |
 | ESLint | `npm run lint` | Passed on 2026-08-02. |
 | Production bundle | `npm run build` | Passed on 2026-08-02. |

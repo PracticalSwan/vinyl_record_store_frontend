@@ -65,6 +65,12 @@ test('the administrator sees the dashboard and product catalog', async ({ page }
   await expect(page.getByRole('link', { name: 'Kind of Blue' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Add product' })).toBeVisible();
 
+  await page.getByRole('link', { name: 'Kind of Blue', exact: true }).click();
+  await expect(page).toHaveURL('/admin/products/1/edit');
+  await expect(page.getByLabel('Title')).toHaveValue('Kind of Blue');
+  await expect(page.getByRole('button', { name: 'Find artwork' })).toBeVisible();
+  await page.getByRole('link', { name: 'Products', exact: true }).click();
+
   // Write routes are mongodb-only; in the seed-catalog test backend the create
   // form surfaces the persistence-unavailable error rather than mutating data.
   await page.getByRole('link', { name: 'Add product' }).click();

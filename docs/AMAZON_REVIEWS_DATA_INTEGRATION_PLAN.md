@@ -53,6 +53,7 @@ Observed 2026-08-02:
 - ESLint passed;
 - Vite production build passed;
 - full Playwright matrix: 67 passed and 1 intentional skip across Chromium desktop/mobile/tablet, Firefox, and WebKit;
+- live Admin inspection found and corrected a legacy edit-form response-unwrapping regression; the new desktop/mobile regression path passed 4/4 after the fix;
 - Playwright global teardown removed 36 test interactions, preserved 2,421 total catalog documents (2,305 active dataset + 116 legacy) and exactly three showcase customers, and left zero residue on the follow-up dry-run;
 - live Admin screenshots are recorded outside both repositories in the uncommitted Admin GUI guide.
 
