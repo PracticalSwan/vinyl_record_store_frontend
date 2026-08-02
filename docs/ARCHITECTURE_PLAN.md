@@ -6,12 +6,13 @@ This document describes the implemented client structure and data flow.
 
 1. `App.jsx` creates the router and wraps routes in `AuthProvider`, `TrackingProvider`, `CatalogProvider`, and `StoreProvider`, so recommendation loading cannot begin before session restoration resolves.
 2. `src/lib/api.js` makes credentialed calls to the backend configured by `VITE_API_BASE_URL` and validates response envelopes.
-3. Catalog and Search use `useCatalogQuery` for canonical URL state and `useProductQuery` for cancellable server requests.
+3. Catalog and Search use `useCatalogQuery` for canonical URL state and `useProductQuery` for cancellable server requests; genre and format values are dynamic bounded facets returned by the active catalog.
 4. Home, Detail, Wishlist, and Cart request only the products they need instead of preloading the catalog.
 5. `AuthProvider` restores sessions, prevents stale restore/auth races, supplies registration/login/logout/preferences state, and clears the analytics identity boundary before auth changes; `RequireAuth` protects account/onboarding routes.
 6. `CatalogProvider` requests `/api/recommendations/me` only on Home and Recommendations after auth resolves. Its resource key includes the authenticated public subject; identity changes abort in-flight work and generation guards discard stale responses. `StoreProvider` presents one interface over session guests and authenticated server state.
 7. Product detail routes request backend similarity results through `useProductRecommendations`.
-8. Product card, detail, recommendation, wishlist, and cart surfaces route artwork through `ProductImage`. It validates the public mapping, derives a canonical-ID local URL, generation-guards image events, and owns the remote proxy -> local endpoint -> placeholder sequence.
+8. Product card, detail, recommendation, wishlist, and cart surfaces route artwork through `ProductImage`. It validates the public mapping, derives a canonical-ID local URL only for legacy records, generation-guards image events, and owns the remote proxy -> local endpoint -> placeholder sequence. Dataset records skip to the placeholder.
+9. `productDisplay.js` normalizes nullable artist/value/money/availability/purchase behavior across cards, detail, wishlist, cart, checkout, and confirmation. Admin pages consume active dataset status and treat dataset-owned rows as read-only.
 
 ## Layers
 
@@ -24,7 +25,7 @@ This document describes the implemented client structure and data flow.
 
 ## Data Ownership
 
-The backend is the catalog, recommendation, identity, and authenticated customer-state source of truth. The frontend owns temporary UI state, session-only guest state, the usage-data preference, and the bounded unsent analytics queue.
+The backend is the active catalog-version, provenance, recommendation, identity, historical-evidence, and authenticated customer-state source of truth. The frontend owns temporary UI state, session-only guest state, the usage-data preference, and the bounded unsent analytics queue. It never receives historical Amazon subjects or ratings.
 
 ## Design Snapshot
 

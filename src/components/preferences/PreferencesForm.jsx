@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   CONDITIONS,
   FORMATS,
@@ -8,6 +8,7 @@ import {
   normalizePreferences,
   toPreferenceRequest,
 } from '../../lib/preferences';
+import { fetchProducts } from '../../lib/api';
 
 function toggle(values, value) {
   return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
@@ -36,16 +37,16 @@ function CheckboxGroup({ legend, name, options, values, onChange, error }) {
   );
 }
 
-function GenreStep({ form, update, errors }) {
+function GenreStep({ form, update, errors, genres }) {
   return (
     <>
-      <CheckboxGroup legend="Favorite genres (choose one to five)" name="favorite-genres" options={GENRES} values={form.favoriteGenres} onChange={(value) => update('favoriteGenres', value)} error={errors.favoriteGenres} />
-      <CheckboxGroup legend="Genres you would rather avoid (optional)" name="disliked-genres" options={GENRES} values={form.dislikedGenres} onChange={(value) => update('dislikedGenres', value)} error={errors.dislikedGenres} />
+      <CheckboxGroup legend="Favorite genres (choose one to five)" name="favorite-genres" options={genres} values={form.favoriteGenres} onChange={(value) => update('favoriteGenres', value)} error={errors.favoriteGenres} />
+      <CheckboxGroup legend="Genres you would rather avoid (optional)" name="disliked-genres" options={genres} values={form.dislikedGenres} onChange={(value) => update('dislikedGenres', value)} error={errors.dislikedGenres} />
     </>
   );
 }
 
-function DetailStep({ form, update, errors, artistDraft, setArtistDraft }) {
+function DetailStep({ form, update, errors, artistDraft, setArtistDraft, formats }) {
   return (
     <>
       <label className="preference-field" htmlFor="favorite-artists">
@@ -65,7 +66,7 @@ function DetailStep({ form, update, errors, artistDraft, setArtistDraft }) {
         {errors.budget && <p className="field-error">{errors.budget}</p>}
       </fieldset>
       <CheckboxGroup legend="Preferred condition" name="conditions" options={CONDITIONS} values={form.conditions} onChange={(value) => update('conditions', value)} error={errors.conditions} />
-      <CheckboxGroup legend="Preferred format" name="formats" options={FORMATS} values={form.formats} onChange={(value) => update('formats', value)} error={errors.formats} />
+      <CheckboxGroup legend="Preferred format" name="formats" options={formats} values={form.formats} onChange={(value) => update('formats', value)} error={errors.formats} />
     </>
   );
 }
@@ -98,6 +99,24 @@ export default function PreferencesForm({
   const [artistDraft, setArtistDraft] = useState(() => normalizePreferences(initial).favoriteArtists.join(', '));
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
+  const [catalogOptions, setCatalogOptions] = useState({ genres: GENRES, formats: FORMATS });
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchProducts({ page: 1, limit: 1 }, { signal: controller.signal }).then((response) => {
+      const facets = response.meta?.facets || {};
+      setCatalogOptions({
+        genres: [...new Set([...GENRES, ...(facets.genres || []).map((item) => item.value).filter(Boolean)])],
+        formats: [...new Set([...FORMATS, ...(facets.formats || []).map((item) => item.value).filter(Boolean)])],
+      });
+    }).catch((error) => {
+      if (error.name !== 'AbortError') setCatalogOptions({ genres: GENRES, formats: FORMATS });
+    });
+    return () => controller.abort();
+  }, []);
+  const optionSets = useMemo(() => ({
+    genres: [...new Set([...catalogOptions.genres, ...form.favoriteGenres, ...form.dislikedGenres])],
+    formats: [...new Set([...catalogOptions.formats, ...form.formats])],
+  }), [catalogOptions, form.favoriteGenres, form.dislikedGenres, form.formats]);
   const update = (field, value) => {
     const next = { ...form, [field]: value };
     setForm(next);
@@ -138,8 +157,8 @@ export default function PreferencesForm({
   return (
     <form className="preferences-form" id={formId} onSubmit={submit} noValidate>
       {wizard && <p className="preference-progress" aria-live="polite">Step {step} of 3</p>}
-      {(!wizard || step === 1) && <GenreStep form={form} update={update} errors={errors} />}
-      {(!wizard || step === 2) && <DetailStep form={form} update={update} errors={errors} artistDraft={artistDraft} setArtistDraft={setArtistDraft} />}
+      {(!wizard || step === 1) && <GenreStep form={form} update={update} errors={errors} genres={optionSets.genres} />}
+      {(!wizard || step === 2) && <DetailStep form={form} update={update} errors={errors} artistDraft={artistDraft} setArtistDraft={setArtistDraft} formats={optionSets.formats} />}
       {wizard && step === 3 && <Review form={form} />}
       {requestError && <p className="form-error" role="alert">{requestError.message}</p>}
       <div className="preference-actions">

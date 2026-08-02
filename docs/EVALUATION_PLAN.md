@@ -6,11 +6,11 @@ This plan records the automated release evidence for the storefront. It does not
 
 | Check | Command | Current Evidence |
 | --- | --- | --- |
-| Unit and component tests | `npm run test:unit` | 87/87 passed on 2026-07-21; `ProductImage` covers proxy/local/placeholder progression, direct local start, rerender, stale events, and decorative semantics. |
-| Browser and integration tests | `npm run test:e2e` | 67 passed, 1 intentional skip across Chromium desktop/mobile/tablet, Firefox, and WebKit on 2026-07-21. The suite decodes all 116 local endpoints and forces both fallback transitions. |
-| Accessibility subset | `npm run test:a11y` | Representative axe checks passed within the full matrix on 2026-07-21. |
-| ESLint | `npm run lint` | Passed on 2026-07-21. |
-| Production bundle | `npm run build` | Passed on 2026-07-21. |
+| Unit and component tests | `npm run test:unit` | 90/90 passed on 2026-08-02, including dynamic query serialization, case-insensitive preference overlap, and checkout exclusion for unknown commercial fields. |
+| Browser and integration tests | `npm run test:e2e` | Full matrix passed 67 tests with 1 intentional skip on 2026-08-02 across Chromium desktop/mobile/tablet, Firefox, and WebKit. Global teardown removed 36 test interactions; a follow-up cleanup dry-run found zero residue. |
+| Accessibility subset | `npm run test:a11y` | Representative axe checks remain part of the full browser matrix. |
+| ESLint | `npm run lint` | Passed on 2026-08-02. |
+| Production bundle | `npm run build` | Passed on 2026-08-02. |
 
 ## Browser Scenarios
 
@@ -31,10 +31,12 @@ This plan records the automated release evidence for the storefront. It does not
 | FE-013 | Usage-data opt-out or auth change. | Capture stops immediately; queued events cannot cross identity boundaries. |
 | FE-014 | Non-recommendation route loads. | No user-recommendation request or unseen-list request log is created. |
 | FE-015 | Approved, missing, slow, or broken artwork renders. | The responsive proxy image, decoded canonical-ID local JPEG, or final placeholder appears in that order without loops, stale-event skips, layout loss, or inaccessible duplicate text. |
+| FE-016 | Active dataset returns nullable fields and dynamic facets. | Unknown values render consistently, genre/format queries round-trip, and unknown price/stock prevents cart/checkout without breaking browse/wishlist/rating. |
+| FE-017 | Admin opens an active dataset. | Dashboard shows source/version/counts; dataset rows show CLI-managed state and no mutation controls; ordinary records retain existing actions. |
 
 ## Recommendation Comprehension
 
-Confirm that a reviewer can distinguish sample-profile results, product similarity, session-owned cold-start, and anonymous fallback. Verify auth restoration gating and identity-transition stale-response protection. Do not treat UI behavior checks as ranking-quality evidence.
+Confirm that a reviewer can distinguish sample-profile results, product similarity, session-owned cold-start, and anonymous fallback. Verify auth restoration gating and identity-transition stale-response protection. Historical-data readiness and UI behavior checks are not ranking-quality evidence.
 
 ## Release Evidence Rule
 

@@ -5,6 +5,7 @@ import {
   STOCK_BADGE,
   STOCK_LABEL,
 } from '../../lib/adminConstants';
+import { availabilityLabel, displayArtist, displayValue, formatMoney } from '../../lib/productDisplay';
 
 const PAGE_SIZE = 20;
 
@@ -18,6 +19,7 @@ export default function AdminProductsPage() {
   const [actionError, setActionError] = useState(null);
   const [confirm, setConfirm] = useState(null); // { product, kind }
   const dialogRef = useRef(null);
+  const previousFocusRef = useRef(null);
 
   const reload = useCallback(async (signal) => {
     setStatus('loading');
@@ -70,8 +72,12 @@ export default function AdminProductsPage() {
     }
   };
 
-  const handleDelete = (product) => setConfirm({ product, kind: 'delete' });
-  const handleRestore = (product) => setConfirm({ product, kind: 'restore' });
+  const openConfirm = (product, kind) => {
+    previousFocusRef.current = document.activeElement;
+    setConfirm({ product, kind });
+  };
+  const handleDelete = (product) => openConfirm(product, 'delete');
+  const handleRestore = (product) => openConfirm(product, 'restore');
 
   const confirmAction = async () => {
     const { product, kind } = confirm;
@@ -89,10 +95,32 @@ export default function AdminProductsPage() {
   // Escape so the modal is fully keyboard-operable (FFP-07 phase 7).
   useEffect(() => {
     if (!confirm) return undefined;
-    dialogRef.current?.focus();
-    const onKey = (event) => { if (event.key === 'Escape') setConfirm(null); };
+    const dialog = dialogRef.current;
+    const focusable = () => [...dialog.querySelectorAll('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')];
+    focusable()[0]?.focus();
+    const onKey = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setConfirm(null);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const elements = focusable();
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
     document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      previousFocusRef.current?.focus?.();
+    };
   }, [confirm]);
 
   return (
@@ -144,6 +172,7 @@ export default function AdminProductsPage() {
                 <th scope="col">Price</th>
                 <th scope="col">Stock</th>
                 <th scope="col">Condition</th>
+                <th scope="col">Source</th>
                 <th scope="col">Status</th>
                 <th scope="col"><span className="sr-only">Actions</span></th>
               </tr>
@@ -154,16 +183,17 @@ export default function AdminProductsPage() {
                 return (
                   <tr key={product.id}>
                     <td className="admin-id">{product.id}</td>
-                    <td><Link to={`/admin/products/${product.id}/edit`} className="admin-product-link">{product.title}</Link></td>
-                    <td>{product.artist}</td>
+                    <td>{product.datasetKey ? product.title : <Link to={`/admin/products/${product.id}/edit`} className="admin-product-link">{product.title}</Link>}</td>
+                    <td>{displayArtist(product)}</td>
                     <td>{product.genre || '—'}</td>
-                    <td className="admin-price">${Number(product.price).toFixed(2)}</td>
-                    <td><span className={`badge ${STOCK_BADGE[product.stock] || 'badge-cond'}`}>{STOCK_LABEL[product.stock] || product.stock}</span></td>
-                    <td>{product.condition}</td>
+                    <td className="admin-price">{formatMoney(product.price, product.currency)}</td>
+                    <td><span className={`badge ${STOCK_BADGE[product.stock] || 'badge-cond'}`}>{STOCK_LABEL[product.stock] || availabilityLabel(product.stock)}</span></td>
+                    <td>{displayValue(product.condition)}</td>
+                    <td><span className="admin-source-label">{product.datasetKey ? 'Amazon subset' : product.source || 'Legacy'}</span></td>
                     <td>{product.deletedAt ? <span className="badge badge-out">Deleted</span> : <span className="badge badge-in">Active</span>}</td>
                     <td className="admin-row-actions">
-                      <Link className="btn btn-ghost btn-sm" to={`/admin/products/${product.id}/edit`}>Edit</Link>
-                      {product.deletedAt ? (
+                      {product.datasetKey ? <span className="admin-source-label">CLI managed</span> : <Link className="btn btn-ghost btn-sm" to={`/admin/products/${product.id}/edit`}>Edit</Link>}
+                      {!product.datasetKey && (product.deletedAt ? (
                         <button className="btn btn-outline btn-sm" type="button" disabled={busy} onClick={() => handleRestore(product)}>
                           {busy ? 'Working...' : 'Restore'}
                         </button>
@@ -171,7 +201,7 @@ export default function AdminProductsPage() {
                         <button className="btn btn-ghost btn-sm" type="button" disabled={busy} onClick={() => handleDelete(product)}>
                           {busy ? 'Working...' : 'Delete'}
                         </button>
-                      )}
+                      ))}
                     </td>
                   </tr>
                 );

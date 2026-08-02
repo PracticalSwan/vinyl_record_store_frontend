@@ -17,6 +17,20 @@
   }
 }
 
+/* Dataset-backed catalog compatibility. */
+.card-title,
+.card-artist,
+.detail-title,
+.detail-artist,
+.list-item-title,
+.list-item-artist,
+.admin-product-link,
+.admin-source-label,
+.detail-table td,
+.preference-review dd {
+  overflow-wrap: anywhere;
+}
+
 .hero {
   position: relative;
 

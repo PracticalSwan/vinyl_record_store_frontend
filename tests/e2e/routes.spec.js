@@ -74,7 +74,7 @@ test('approved artwork renders with traceability and a broken image falls back w
     });
   });
   await page.route('**/api/artwork/local/*', async (route) => {
-    localRequests += 1;
+    if (new URL(route.request().url()).pathname.endsWith('/1')) localRequests += 1;
     if (breakLocal) {
       await route.abort('failed');
       return;

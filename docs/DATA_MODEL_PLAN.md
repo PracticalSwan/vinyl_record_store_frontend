@@ -6,17 +6,23 @@ These are the current API, authentication, and client-only shapes used by the st
 
 | Field | Type | Use |
 | --- | --- | --- |
-| `id` | number | Routing, local state references, and the canonical `/api/artwork/local/:publicId` fallback key. |
-| `title`, `artist` | string | Required product identity. |
+| `id` | number | Routing and local state references; it is a local-artwork key only for the reviewed legacy source. |
+| `title` | string | Required product identity. |
+| `artist` | string or null | Displayed through the shared `Unknown artist` fallback when absent. |
 | `genre`, `label` | string or null | Filtering and metadata; explicit UI fallback when absent. |
 | `year` | number or null | Display, sorting, and era filtering; explicit UI fallback when absent. |
-| `price` | number | USD display and cart totals. |
-| `currency` | string | Current API returns `USD`. |
-| `stock` | `in`, `low`, or `out` | Availability and action state. |
-| `condition`, `format` | string | Required store metadata. |
+| `price` | number or null | Money display and totals only when known; missing price blocks purchase. |
+| `currency` | string or null | Currency paired with price; legacy records use `USD`. |
+| `stock` | `in`, `low`, `out`, or null | Availability and action state; unknown stock blocks purchase. |
+| `condition`, `format` | string or null | Display/filter metadata with explicit Unknown fallback. |
 | `pressing`, `description` | string or null | Optional imported detail metadata with explicit fallbacks. |
 | `imageUrl` | string or null | Compatibility detail image URL. |
 | `image` | object or null | Approved thumbnail/detail URLs, `cover-art-archive` source, and MusicBrainz source link. |
+| `source`, `datasetKey`, `sourceVersion` | string or null | Safe catalog ownership/version labels used by the Admin and artwork policy. |
+| `fieldOrigins` | object | Safe per-field provenance labels; never source reviewer identity. |
+| `qualityFlags` | string array | Bounded source-quality notices. |
+
+`src/lib/productDisplay.js` centralizes artist, value, money, availability, and purchase rules so cards, detail, lists, cart, checkout, and confirmation cannot disagree. Dataset products with unknown commercial fields remain browseable, wishlistable, and rateable but cannot enter the purchase preview.
 
 ## Recommendation Item
 
@@ -34,7 +40,7 @@ The backend returns request/list metadata plus `{ product, rank, score, reasons,
 - Loading and error state for remote requests.
 - A versioned usage-data preference, pseudonymous anonymous ID, per-tab session ID, and bounded unsent interaction queue.
 
-Product lists also carry `page`, `limit`, `total`, `totalPages`, `sort`, and full-catalog facet metadata. Authenticated wishlist/cart/rating state is normalized into the same public Store shape but remains authoritative on the backend.
+Product lists also carry `page`, `limit`, `total`, `totalPages`, `sort`, and full-catalog facet metadata including dynamic genres and formats. Authenticated wishlist/cart/rating state is normalized into the same public Store shape but remains authoritative on the backend.
 
 ## Authenticated Session Shape
 

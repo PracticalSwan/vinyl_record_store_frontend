@@ -18,10 +18,11 @@ This file records current completion and deferred scope. It does not authorize c
 - Honest demo-profile/cold-start wording and current documentation.
 - FFP-07 integrated administrator workspace and FFP-08 client-only simulated checkout.
 - PERS-00/01/02 and FFP-09 architecture freeze, fixed identity contract, auth-gated `/api/recommendations/me` consumption, stale-response protection, and honest anonymous fallback.
+- DATA-00 through DATA-15 frontend compatibility: active 2,305-product dataset, dynamic genre/format facets, nullable product display/purchase rules, dataset placeholder policy, active dataset Admin status, CLI-managed rows, multi-browser coverage, and preserved three showcase customers.
 
 ## Deferred And Not Started
 
-- Sufficient backend evidence for a recommendation-quality result; the implemented evaluator currently reports no metrics.
+- A recommendation-quality result: historical inputs are ready for a separately approved experiment, but no model was evaluated and live evidence remains insufficient.
 - Real payments, deployment automation, and production commerce.
 - Remaining personalization (PERS-03 through PERS-09 / FFP-10 through FFP-14): unified profile presentation, preference ranking, explicit feedback, behavior, popularity, hybrid orchestration, and closure. No quality claim is made.
 

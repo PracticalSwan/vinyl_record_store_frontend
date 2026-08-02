@@ -6,8 +6,8 @@ The approved design and dependency gates are documented in `FUTURE_IMPLEMENTATIO
 
 ## Deferred
 
-- Offline recommendation dataset/report consumption.
-- Demo checkout and order UI.
+- A separately approved recommendation experiment over the versioned historical dataset. The current `ready` result is data validation only.
+- Additional order UI beyond the implemented checkout preview.
 - Real checkout and payment integration.
 - TypeScript migration.
 - Future image optimization service only if deployment requirements justify it; the current backend proxy and committed local-artwork endpoint need no added frontend dependency.

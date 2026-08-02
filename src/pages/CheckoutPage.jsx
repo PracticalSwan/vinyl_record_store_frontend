@@ -19,6 +19,7 @@ import {
   writeDraft,
   writeOrder,
 } from '../lib/checkout';
+import { displayArtist, formatMoney } from '../lib/productDisplay';
 
 const STEP_INDEX = { cart: 0, shipping: 1, payment: 2, review: 3 };
 
@@ -141,10 +142,10 @@ export default function CheckoutPage() {
             {cartItems.map(({ record, qty }) => (
               <li key={record.id} className="checkout-item">
                 <span className="checkout-item-title">{record.title}</span>
-                <span className="checkout-item-artist">{record.artist}</span>
+                <span className="checkout-item-artist">{displayArtist(record)}</span>
                 <span className="checkout-item-qty">Qty {qty}</span>
-                <span className="checkout-item-price">${(record.price * qty).toFixed(2)}</span>
-                {record.stock === 'out' && <span className="badge badge-out">Out of stock</span>}
+                <span className="checkout-item-price">{Number.isFinite(record.price) ? formatMoney(record.price * qty, record.currency) : 'Price unavailable'}</span>
+                {findBlockingItems([{ record, qty }]).length > 0 && <span className="badge badge-out">Purchase unavailable</span>}
               </li>
             ))}
           </ul>
@@ -246,7 +247,7 @@ export default function CheckoutPage() {
                   <li key={record.id} className="checkout-item">
                     <span className="checkout-item-title">{record.title}</span>
                     <span className="checkout-item-qty">Qty {qty}</span>
-                    <span className="checkout-item-price">${(record.price * qty).toFixed(2)}</span>
+                    <span className="checkout-item-price">{Number.isFinite(record.price) ? formatMoney(record.price * qty, record.currency) : 'Price unavailable'}</span>
                   </li>
                 ))}
               </ul>
@@ -274,9 +275,9 @@ export default function CheckoutPage() {
 function Totals({ totals }) {
   return (
     <div className="cart-summary" aria-label="Order summary">
-      <div className="cart-summary-row"><span>Subtotal</span><span>${totals.subtotal.toFixed(2)}</span></div>
-      <div className="cart-summary-row"><span>Shipping</span><span>${totals.shipping.toFixed(2)}</span></div>
-      <div className="cart-summary-row total"><span>Total</span><span>${totals.total.toFixed(2)}</span></div>
+      <div className="cart-summary-row"><span>Subtotal</span><span>{formatMoney(totals.subtotal, 'USD')}</span></div>
+      <div className="cart-summary-row"><span>Shipping</span><span>{formatMoney(totals.shipping, 'USD')}</span></div>
+      <div className="cart-summary-row total"><span>Total</span><span>{formatMoney(totals.total, 'USD')}</span></div>
     </div>
   );
 }

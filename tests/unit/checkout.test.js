@@ -50,7 +50,7 @@ describe('checkout helpers', () => {
   describe('findBlockingItems', () => {
     it('flags out-of-stock and missing records only', () => {
       const items = [
-        { record: { stock: 'in' }, qty: 1 },
+        { record: { stock: 'in', price: 25, currency: 'USD' }, qty: 1 },
         { record: { stock: 'out' }, qty: 1 },
         { qty: 1 },
       ];

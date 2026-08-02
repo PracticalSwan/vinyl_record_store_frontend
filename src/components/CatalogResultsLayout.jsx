@@ -23,10 +23,7 @@ export default function CatalogResultsLayout({ title, header, query, updateQuery
     previousPage.current = query.page;
   }, [query.page, status]);
 
-  const catalogTotal = meta?.facets?.stock?.reduce((sum, entry) => sum + entry.count, 0) ?? null;
-  const emptyTitle = catalogTotal === 0
-    ? 'No records are available'
-    : hasCatalogFilters(query) ? 'No records match these filters' : 'No records are available';
+  const emptyTitle = hasCatalogFilters(query) ? 'No records match these filters' : 'No records are available';
 
   return (
     <main>
@@ -59,7 +56,7 @@ export default function CatalogResultsLayout({ title, header, query, updateQuery
                 <p className="state-title">{emptyTitle}</p>
                 <p className="state-desc">Try widening your query or clearing some filters.</p>
                 {hasCatalogFilters(query) && (
-                  <button className="btn btn-outline" onClick={() => updateQuery({ q: '', genres: [], eras: [], conditions: [], minPrice: null, maxPrice: null, inStock: false })}>
+                  <button className="btn btn-outline" onClick={() => updateQuery({ q: '', genres: [], eras: [], conditions: [], formats: [], minPrice: null, maxPrice: null, inStock: false })}>
                     Clear search and filters
                   </button>
                 )}

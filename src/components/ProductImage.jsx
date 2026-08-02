@@ -113,7 +113,7 @@ export default function ProductImage({
   const candidate = variant === 'detail' ? image?.detailUrl : image?.thumbnailUrl;
   const url = approvedUrl(candidate, COVER_ART_HOSTS);
   const sourceUrl = approvedUrl(image?.sourceUrl, MUSICBRAINZ_HOSTS);
-  const localUrl = localArtworkSrc(record?.id);
+  const localUrl = record?.datasetKey ? null : localArtworkSrc(record?.id);
   const sources = sourceChain(url, localUrl);
   const chainKey = [record?.id || 'unknown', variant, ...sources.map((source) => source.src)].join(':');
   return (

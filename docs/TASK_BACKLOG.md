@@ -9,7 +9,7 @@ Statuses are `done` or `deferred`. Deferred items are not active work.
 | F-003 | Connect catalog to backend. | done | Route query hooks and API client. |
 | F-004 | Connect user and product recommendations. | done | Demo-profile and similarity endpoints. |
 | F-005 | Add remote loading, empty, error, and retry states. | done | Catalog and recommendation surfaces. |
-| F-006 | Align docs with implementation. | done | Updated through the 2026-07-21 local-artwork availability pass. |
+| F-006 | Align docs with implementation. | done | Updated through the 2026-08-02 DATA-00 through DATA-15 closure. |
 | F-007 | Validate tests, lint, and production build. | done | Unit, browser, accessibility, lint, and build commands pass. |
 | F-008 | Add authenticated persistence and guest-state merge. | done | FFP-03 completed with session guests and sign-up-only keyed merge. |
 | F-009 | Add checkout and order preview. | done | Completed 2026-07-09 and copy-refined 2026-07-12: four-step preview wizard, `PREVIEW-` reference confirmation, sessionStorage persistence, availability blocking, and cart clear. No real payment or backend order. |
@@ -27,3 +27,4 @@ Statuses are `done` or `deferred`. Deferred items are not active work.
 | F-021 | Render popularity and anonymous-fallback modes honestly. | deferred | PERS-07; fallback labels for anonymous and empty-profile visitors. |
 | F-022 | Render the hybrid mode with truthful reasons. | deferred | PERS-08 / FFP-13; `personalized-hybrid` label, contribution-based reasons, version attribution. |
 | F-023 | Integrate, harden, and close personalization documentation. | deferred | PERS-09 / FFP-14; end-to-end integration, accessibility, documentation closure. |
+| F-024 | Render the current Amazon Reviews 2023 dataset safely. | done | DATA-12/DATA-14 completed 2026-08-02: dynamic facets, nullable metadata, non-purchasable unknown price/stock, placeholder policy, Admin dataset status/read-only rows, and multi-browser checks. |

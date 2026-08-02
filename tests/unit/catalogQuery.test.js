@@ -21,7 +21,7 @@ describe('catalog URL query model', () => {
     const parsed = parseCatalogSearchParams(new URLSearchParams(
       'page=-1&limit=999&genre=Unknown&sort=random&minPrice=nope&inStock=false',
     ));
-    expect(parsed).toEqual({ ...DEFAULT_CATALOG_QUERY, limit: 100 });
+    expect(parsed).toEqual({ ...DEFAULT_CATALOG_QUERY, limit: 100, genres: ['Unknown'] });
   });
 
   it('resets page for query changes but preserves explicit page navigation', () => {

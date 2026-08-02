@@ -1,6 +1,6 @@
 # Frontend Recommendation Presentation
 
-The backend owns candidate generation, scoring, diversity, exclusions, and explanations. The frontend owns presentation and request state.
+The backend owns active-version candidate generation, scoring, diversity, exclusions, and explanations. The frontend owns presentation and request state. DATA-00 through DATA-15 expanded catalog compatibility but did not implement a recommender algorithm.
 
 ## Implemented Surfaces
 
@@ -28,6 +28,7 @@ The backend owns candidate generation, scoring, diversity, exclusions, and expla
 - Wait for auth restoration, omit anonymous IDs for signed-in requests, key the resource by public subject, and abort/generation-guard identity transitions.
 - Deduplicate impressions by request/list/product/surface for the full page view.
 - Never infer or display private interaction history that the backend did not return.
+- Handle nullable dataset metadata without inventing reasons; show only backend-provided explanations and safe catalog fallbacks.
 
 ## Evaluation Boundary
 
@@ -35,4 +36,4 @@ UI review can measure comprehension and accessibility. Ranking-quality metrics b
 
 ## Personalization Roadmap
 
-PERS-00 through PERS-02 / FFP-09 are complete: decisions are frozen, the client has no arbitrary-user selection surface, and authenticated/anonymous storefront requests use the session-owned endpoint safely. PERS-03 onward remains planned for profile summaries, preference ranking, feedback, behavior, popularity, and hybrid modes. Ranking remains `content-demo-v1`, and no quality claim is made.
+PERS-00 through PERS-02 / FFP-09 are complete: decisions are frozen, the client has no arbitrary-user selection surface, and authenticated/anonymous storefront requests use the session-owned endpoint safely. PERS-03 through PERS-09 remain planned, were explicitly excluded from DATA implementation, and must keep historical readiness separate from live customer evidence. Ranking remains `content-demo-v1`, and no quality claim is made.

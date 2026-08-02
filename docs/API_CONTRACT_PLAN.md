@@ -18,7 +18,7 @@ Error:
 
 ## Implemented Catalog And Recommendation Calls
 
-Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceUrl }` only after backend approval. `imageUrl` remains a nullable compatibility field. `ProductImage` accepts only approved Cover Art Archive/MusicBrainz metadata and derives the stable local route from the record's canonical public ID. Its source order is remote backend proxy, local backend endpoint, then the generic vinyl placeholder. Missing or rejected remote metadata skips directly to the local endpoint when the ID is valid.
+Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceUrl }` only after backend approval. `imageUrl` remains a nullable compatibility field. Products also expose safe `source`, `datasetKey`, `sourceVersion`, `fieldOrigins`, and `qualityFlags`. Artist, price, currency, stock, condition, and format may be `null`. `ProductImage` derives the stable local route only for reviewed legacy records; Amazon-derived records skip to the generic vinyl placeholder.
 
 | Frontend Need | Method | Path | Current Use |
 | --- | --- | --- | --- |
@@ -32,9 +32,9 @@ Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceU
 | Legacy showcase | `GET` | `/api/recommendations/user/demo-user?limit=12&surface=...` | Fixed rollback/showcase path only; no production helper accepts another user ID. |
 | Health | `GET` | `/api/health` | Operational check. |
 
-Product query parameters are `q`, repeated `genre`, repeated `era`, repeated `condition`, `minPrice`, `maxPrice`, `inStock`, `sort`, `page`, and `limit`. Search is a bounded, case-insensitive literal substring. Supported sorts are `newest`, `price-asc`, `price-desc`, and `artist-asc`.
+Product query parameters are `q`, repeated `genre`, repeated `format`, repeated `era`, repeated `condition`, `minPrice`, `maxPrice`, `inStock`, `sort`, `page`, and `limit`. Search is a bounded, case-insensitive literal substring. Supported sorts are `newest`, `price-asc`, `price-desc`, and `artist-asc`.
 
-Product-list metadata includes `page`, `limit`, `total`, `totalPages`, `sort`, and full-active-catalog facets for genres, conditions, stock, prices, and years. Repeated values are ORed within a facet and different facets are ANDed.
+Product-list metadata includes `page`, `limit`, `total`, `totalPages`, `sort`, and full-active-catalog facets for dynamic genres/formats, conditions, stock, prices, and years. Repeated values are ORed within a facet and different facets are ANDed.
 
 Recommendation responses include `requestId`, `listId`, `algorithmVersion`, `mode`, ordered ranked items, and `recommendationLogged`. The client sends `X-Tracking-Enabled`; enabled user requests also send a pseudonymous `X-Anonymous-Id`. Opt-out suppresses both interaction capture and MongoDB recommendation-request logging.
 
@@ -65,11 +65,11 @@ The backend derives ownership from the session, requires the exact configured or
 
 ## Deferred Calls
 
-Backend order/payment calls are not implemented. Administrator catalog calls are implemented under `/api/admin/*`. Recommendation-request logs, catalog imports outside the admin UI, metadata enrichment, and offline evaluation are backend operator/internal paths rather than public frontend calls. Guest state is session-only; authenticated wishlist/cart/rating state is server-backed.
+Backend order/payment calls are not implemented. Administrator catalog calls are implemented under `/api/admin/*`; summary now includes nullable active dataset metadata, and dataset-owned products are read-only. Recommendation-request logs, Amazon dataset profile/prepare/import/activate/rollback/readiness, ordinary catalog imports outside the admin UI, metadata enrichment, and offline evaluation are backend operator/internal paths rather than public frontend calls. Guest state is session-only; authenticated wishlist/cart/rating state is server-backed.
 
 ## Personalization Calls
 
-PERS-00 through PERS-02 / FFP-09 are implemented. Remaining entries in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` stay planned.
+PERS-00 through PERS-02 / FFP-09 are implemented. DATA-00 through DATA-15 changed only the catalog/data contract. Remaining entries in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` stay planned and require separate authorization.
 
 - `GET /api/recommendations/me` (implemented PERS-02 / FFP-09): verified customers receive `cold-start`, visitors or invalid/expired sessions receive `anonymous-fallback`, and administrators receive `403`. The client never sends a user ID; authenticated requests omit `X-Anonymous-Id`.
 - `PUT`, `DELETE /api/me/feedback/:productId` and `GET /api/me/feedback` (PERS-05 / FFP-11): not-interested, already-own, optional show-fewer-like-this, and undo.

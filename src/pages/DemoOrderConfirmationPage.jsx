@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { readOrder, DEMO_SHIPPING } from '../lib/checkout';
+import { formatMoney } from '../lib/productDisplay';
 
 // All demo orders stay PENDING: there is no fulfillment, payment, or backend
 // persistence, so the timeline is illustrative rather than a real shipment.
@@ -70,7 +71,7 @@ export default function DemoOrderConfirmationPage() {
                 <span className="checkout-item-title">{item.title}</span>
                 <span className="checkout-item-artist">{item.artist}</span>
                 <span className="checkout-item-qty">Qty {item.qty}</span>
-                <span className="checkout-item-price">${(item.price * item.qty).toFixed(2)}</span>
+                <span className="checkout-item-price">{formatMoney(item.price * item.qty, item.currency || 'USD')}</span>
               </li>
             ))}
           </ul>
@@ -85,9 +86,9 @@ export default function DemoOrderConfirmationPage() {
         <section className="confirmation-block" aria-labelledby="confirmation-totals">
           <h2 className="section-heading" id="confirmation-totals">Totals</h2>
           <div className="cart-summary" aria-label="Order summary">
-            <div className="cart-summary-row"><span>Subtotal</span><span>${Number(order.totals?.subtotal).toFixed(2)}</span></div>
-            <div className="cart-summary-row"><span>Shipping</span><span>${DEMO_SHIPPING.toFixed(2)}</span></div>
-            <div className="cart-summary-row total"><span>Total</span><span>${Number(order.totals?.total).toFixed(2)}</span></div>
+            <div className="cart-summary-row"><span>Subtotal</span><span>{formatMoney(Number(order.totals?.subtotal), 'USD')}</span></div>
+            <div className="cart-summary-row"><span>Shipping</span><span>{formatMoney(DEMO_SHIPPING, 'USD')}</span></div>
+            <div className="cart-summary-row total"><span>Total</span><span>{formatMoney(Number(order.totals?.total), 'USD')}</span></div>
           </div>
         </section>
       </div>

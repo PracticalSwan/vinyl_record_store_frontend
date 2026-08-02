@@ -59,6 +59,7 @@ export function serializeProductQuery(query = {}) {
   for (const genre of query.genres || []) params.append('genre', genre);
   for (const era of query.eras || []) params.append('era', era);
   for (const condition of query.conditions || []) params.append('condition', condition);
+  for (const format of query.formats || []) params.append('format', format);
   if (query.artist) params.set('artist', query.artist);
   if (query.label) params.set('label', query.label);
   if (query.minPrice !== null && query.minPrice !== undefined) params.set('minPrice', String(query.minPrice));

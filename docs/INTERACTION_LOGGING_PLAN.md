@@ -6,6 +6,8 @@ Status: Implemented and verified on 2026-07-05 as FFP-01. This document records 
 
 Capture privacy-bounded storefront behavior without blocking navigation or customer-state actions. Events allow recommendation impressions and downstream actions to join the exact list recorded by BFP-02 Part A.
 
+The active Amazon Reviews 2023 historical ratings are a separate backend-only evidence source. They never enter this queue, reuse the browser anonymous ID, identify a showcase customer, or count as live Groovehaus behavior.
+
 ## Active Design
 
 - `src/lib/tracking.js` owns a maximum 500-event queue, 25-event batches, five bounded retry attempts, exponential backoff, and page-hide/visibility flushes.

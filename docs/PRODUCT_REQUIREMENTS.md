@@ -1,6 +1,6 @@
 # Frontend Product Requirements
 
-Requirement status reflects the integrated academic demo as of 2026-07-21.
+Requirement status reflects the integrated academic demo as of 2026-08-02.
 
 ## Goal
 
@@ -23,6 +23,7 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 | FFR-011 | Capture and edit future-facing preferences. | Implemented | Three-step onboarding and profile editor. |
 | FFR-012 | Capture privacy-controlled interaction analytics. | Implemented | Visible opt-out, bounded queue, recommendation attribution, and auth-boundary isolation. |
 | FFR-013 | Display approved artwork safely. | Implemented | Shared validated image component with responsive loading, attribution, accessibility, stale-event protection, and proxy -> local -> placeholder failover for all 116 bundled records. |
+| FFR-014 | Render the active external dataset safely. | Implemented | Dynamic genre/format facets, nullable metadata fallbacks, source/version disclosure, placeholder-only dataset artwork, non-purchasable unknown price/stock, and CLI-managed Admin rows. |
 
 ## Non-Functional Requirements
 
@@ -34,7 +35,7 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 
 ## Out Of Scope
 
-Payments, production checkout, frontend database access, broad scraping, and backend order APIs remain outside the current implemented demo. The role-gated administrator workspace and client-only checkout preview are implemented. Offline recommender evaluation belongs to the backend and currently reports insufficient evidence rather than quality metrics.
+Payments, production checkout, frontend database access, broad scraping, and backend order APIs remain outside the current implemented demo. The role-gated administrator workspace and client-only checkout preview are implemented. External-dataset ingestion/evaluation belongs to the backend. Historical inputs are data-ready, the live evaluator remains insufficient-evidence, and neither status is a quality metric.
 
 ## Success Criteria
 

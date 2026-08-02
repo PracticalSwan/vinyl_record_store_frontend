@@ -22,7 +22,8 @@ const modeLabel = (mode) => ({
 
 function RecommendationResults({ recommendations, mode }) {
   const topPicks = recommendations.slice(0, 8);
-  const moreJazz = recommendations.filter((record) => record.genre === 'Jazz');
+  const genre = recommendations.find((record) => record.genre)?.genre;
+  const genreMatches = genre ? recommendations.filter((record) => record.genre === genre) : [];
   return (
     <>
       <h2 className="section-heading" style={{ fontSize: 20 }} id="top-picks-heading">
@@ -31,13 +32,13 @@ function RecommendationResults({ recommendations, mode }) {
       <hr className="section-rule" aria-hidden="true" />
       <ProductGrid records={topPicks} showReason surface="recommendations" />
 
-      {moreJazz.length > 0 && (
-        <section aria-labelledby="more-jazz-heading" style={{ marginTop: '3rem' }}>
-          <h2 className="section-heading" style={{ fontSize: 20 }} id="more-jazz-heading">
-            Jazz matches <small>Filtered from the current ranked list</small>
+      {genreMatches.length > 1 && (
+        <section aria-labelledby="genre-matches-heading" style={{ marginTop: '3rem' }}>
+          <h2 className="section-heading" style={{ fontSize: 20 }} id="genre-matches-heading">
+            {genre} matches <small>Filtered from the current ranked list</small>
           </h2>
           <hr className="section-rule" aria-hidden="true" />
-          <RecScroll records={moreJazz} ariaLabel="Jazz recommendations" surface="recommendations" />
+          <RecScroll records={genreMatches} ariaLabel={`${genre} recommendations`} surface="recommendations" />
         </section>
       )}
     </>

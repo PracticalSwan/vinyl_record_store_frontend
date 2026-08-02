@@ -120,4 +120,24 @@ Rationale: A backend proxy fixes browser reachability but can still fail on an e
 
 Status: Implemented and independently reviewed `SHIP_AS_IS` on 2026-07-21. Evidence includes 5 focused component tests, all 87 unit/component tests, 67 browser tests with one intentional skip, an all-116 decode loop, forced proxy and local failures, desktop/mobile screenshots, and a forced-local detail screenshot with cart interaction.
 
+## FDEC-015: Render Source-Derived Products Without Inventing Store Facts
+
+Date: 2026-08-02
+
+Decision: Treat artist, price, currency, stock, condition, and format as nullable; centralize fallbacks and purchase eligibility in `productDisplay.js`; consume dynamic genre/format facets; preserve saved preference values that are not present in the current facet response; and block cart/checkout when price or stock is unknown. Keep browse, detail, wishlist, and rating available.
+
+Rationale: Amazon metadata is research/catalog evidence, not a Groovehaus inventory feed. A shared boundary prevents inconsistent money, availability, and identity claims across the storefront.
+
+Status: Implemented and verified in DATA-12/DATA-14.
+
+## FDEC-016: Keep Dataset Artwork And Administration Reproducible
+
+Date: 2026-08-02
+
+Decision: Dataset-owned products use the generic vinyl placeholder and never borrow the local-artwork endpoint or unreviewed Amazon imagery. Admin shows active dataset source/version/counts and product ownership, but hides edit/delete/restore/artwork actions for dataset rows and identifies them as CLI-managed. Ordinary record and import controls remain unchanged.
+
+Rationale: The 116-record artwork bundle is identity-bound to reviewed legacy releases, and one-off browser mutations would break the reproducible dataset version.
+
+Status: Implemented with DATA-10 through DATA-12; PERS-03 through PERS-09 remain deferred.
+
 Rationale: These boundaries prevent analytics inflation from search prefixes, cross-account history leakage, accidental preference saves, footer overlap, and storefront copy that could imply a real order or unfinished implementation.

@@ -26,6 +26,15 @@ describe('preferences', () => {
     });
   });
 
+  it('treats dynamic genre overlap as case-insensitive', () => {
+    const result = validatePreferences({
+      ...emptyPreferences(),
+      favoriteGenres: ['Jazz'],
+      dislikedGenres: ['jazz'],
+    });
+    expect(result.errors.dislikedGenres).toEqual(expect.any(String));
+  });
+
   it('maps valid form strings to the bounded backend contract', () => {
     expect(toPreferenceRequest({
       ...emptyPreferences(),

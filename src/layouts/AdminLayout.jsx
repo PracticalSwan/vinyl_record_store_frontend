@@ -13,9 +13,9 @@ export default function AdminLayout() {
         <Link className="btn btn-outline btn-sm" to="/">Back to store</Link>
       </div>
       <nav className="admin-nav" aria-label="Administration navigation">
-        <NavLink to="/admin" end className="admin-nav-link" aria-current="page">Dashboard</NavLink>
-        <NavLink to="/admin/products" className="admin-nav-link" aria-current="page">Products</NavLink>
-        <NavLink to="/admin/import" className="admin-nav-link" aria-current="page">Import</NavLink>
+        <NavLink to="/admin" end className="admin-nav-link">Dashboard</NavLink>
+        <NavLink to="/admin/products" className="admin-nav-link">Products</NavLink>
+        <NavLink to="/admin/import" className="admin-nav-link">Import</NavLink>
       </nav>
       <Outlet />
     </main>

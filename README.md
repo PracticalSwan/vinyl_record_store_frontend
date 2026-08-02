@@ -6,21 +6,23 @@ Groovehaus is the customer-facing storefront for the **Vinyl Record Store Recomm
 
 Groovehaus demonstrates how a recommender-powered storefront feels end to end: browsing, searching, and discovering records, with recommendations that explain why each title was suggested. The recommendation engine, catalog, and customer accounts all live in the separate Next.js backend; this repository is the user interface that consumes those APIs.
 
-Two things worth knowing up front:
+Three things worth knowing up front:
 
 - Recommendations use a session-owned API path: signed-in customers receive deterministic `cold-start` results, visitors receive `anonymous-fallback`, and the restricted showcase remains `demo-profile`. Saved preferences and behavior do not affect ranking yet, and no recommendation-quality claim is made.
-- Product surfaces display the reviewed Cover Art Archive image for every bundled record with traceable source links. `ProductImage` first uses the backend proxy (`GET /api/artwork`), then the backend's committed canonical-ID fallback (`GET /api/artwork/local/:publicId`), then the generic vinyl placeholder. The 116-record catalog therefore remains illustrated when either the browser or backend cannot reach the external host.
+- MongoDB mode currently serves a reproducible 2,305-product Amazon Reviews 2023 vinyl subset. Nullable store metadata is shown honestly, unknown price/stock blocks purchase, and dataset products use the generic placeholder rather than unreviewed Amazon imagery. The original 116 illustrated records remain the backend's reversible legacy fallback.
+- Product surfaces keep the reviewed Cover Art Archive proxy -> local JPEG -> placeholder chain for those 116 legacy records. Dataset products skip the legacy-ID fallback and use the generic placeholder.
 - `code_for_website/` is an early design-import snapshot kept for reference, not the running application. The active source lives in `src/`.
 
 ## What you can do
 
-- Browse the catalog with independently scrollable genre, condition, era, price, and stock controls, with sorting and pagination.
+- Browse the catalog with independently scrollable dynamic genre/format, condition, era, price, and stock controls, with sorting and pagination.
 - Search records as you type with a 300 ms debounce, keep up to five account/guest-scoped recent searches, and replay any committed term from the search menu.
 - View similar records and demo recommendations, each with a short explanation.
 - View responsive release artwork without losing product details or actions when a remote image is slow, missing, or unavailable; every bundled record has a verified backend-local JPEG fallback.
 - Save records to a wishlist and cart as a guest or a signed-in customer.
 - Register, sign in, and manage an account with onboarding preferences. Preference clearing changes only the draft, and every dirty SPA/history transition offers a focus-contained save, discard, or cancel choice before leaving.
 - Run the client-only checkout preview and view its session-scoped confirmation without implying a real payment or backend order.
+- Use the role-gated Admin workspace to view active dataset status and source-managed rows while retaining ordinary product/import controls for non-dataset records.
 
 ## Tech stack
 
@@ -45,6 +47,8 @@ The frontend depends on the backend, so start the backend first.
    ```
 
 The app opens at `http://localhost:5173` and expects the backend at `http://localhost:3000`. If your backend runs elsewhere, set `VITE_API_BASE_URL` in `.env.local`.
+
+Dataset acquisition, staging, activation, and rollback are backend CLI operations. See [`docs/AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md`](docs/AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md) for the frontend behavior and the linked authoritative backend runbook.
 
 ## Showcase accounts
 

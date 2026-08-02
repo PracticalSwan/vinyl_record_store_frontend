@@ -1,6 +1,6 @@
 # Personalization Implementation Plan (Frontend)
 
-This roadmap is the frontend half of converting the existing deterministic demo recommender into a genuine personalized recommender system for the Vinyl Record Store (CSX4207). PERS-00 through PERS-02 / FFP-09 were implemented and verified on 2026-07-10. PERS-03 through PERS-09 remain planning-only and authorize no implementation by themselves.
+This roadmap is the frontend half of converting the existing deterministic demo recommender into a genuine personalized recommender system for the Vinyl Record Store (CSX4207). PERS-00 through PERS-02 / FFP-09 were implemented and verified on 2026-07-10. DATA-00 through DATA-15 were implemented separately on 2026-08-02. PERS-03 through PERS-09 remain planning-only, were explicitly excluded from the dataset implementation, and authorize no implementation by themselves.
 
 This plan is scheduled AFTER the entire existing documented roadmap: BFP-07 (admin backend), FFP-07 (admin frontend), FFP-08 (simulated checkout), and any backend support already planned for the simulated checkout. It does not reorder, replace, remove, or silently redefine any existing BFP/FFP plan.
 
@@ -10,13 +10,26 @@ Audience: the developers implementing the Vite/React storefront and the backend 
 
 Source of truth for current state: live frontend source (`src/` only; `code_for_website/` is a retained design snapshot, not production), `PROJECT_CONTEXT.md`, `API_CONTRACT_PLAN.md`, `RECOMMENDER_SYSTEM_PLAN.md`, `UI_UX_PLAN.md`, `INTERACTION_LOGGING_PLAN.md`, and the matching backend personalization plan. Re-verify every file path against the source before implementing any milestone.
 
+## DATA-15 Adaptation Gate (2026-08-02)
+
+The active MongoDB catalog is now a 2,305-product versioned Amazon Reviews 2023 vinyl subset. Product artist, price, currency, stock, condition, and format can be null; facets are dynamic; dataset artwork uses the generic placeholder; unknown commercial state blocks purchase. The Admin dashboard exposes safe source/version/counts and dataset rows are CLI-managed. Historical Amazon subjects/ratings remain backend-only. The 116-record legacy catalog, `content-demo-v1`, and exactly three showcase customers are preserved.
+
+The remaining frontend milestones are revised as follows:
+
+- PERS-03 may render only allow-listed dataset/version/readiness flags, never historical subject keys, rows, or counts that could identify a subject.
+- PERS-04/07/08 mode and reason copy must name the actual backend mode and remain valid when artist/genre/format/stock is unknown.
+- PERS-05/06 controls remain live-account behavior and must never imply that Amazon history belongs to the signed-in customer.
+- PERS-09 adds active-dataset/legacy-rollback, dynamic-facet, nullable-field, placeholder, Admin read-only-row, and exact-three-user browser regressions.
+
+Historical data-readiness does not establish recommendation quality and does not authorize new modes, feedback controls, or ranking behavior. A new explicit implementation request is required.
+
 ## Hard Scope Boundaries
 
 Included: routing and provider ordering for identity-safe recommendation loading; a session-owned API client call; auth-aware recommendation state with stale-response prevention; preference-edit refresh; first-class negative-feedback UI; honest mode labels and reasons; loading/empty/error/retry/fallback states; recommendation attribution; accessibility and responsive behavior; browser, component, unit, and a11y tests.
 
-Explicitly excluded (mirroring the backend plan): gathering real users or real-world evaluation data; user studies; any claim of measured recommendation quality; completing the evidence threshold; publishing Precision@k, Recall@k, MAP@k, NDCG@k, or other quality results without evidence; collaborative filtering and matrix factorization. Synthetic fixtures and clearly labelled classroom demo profiles may be used for development and testing, never presented as real evaluation evidence.
+Explicitly excluded (mirroring the backend plan): gathering real users or additional real-world evaluation data; user studies; any claim of measured recommendation quality; completing the live evidence threshold; publishing Precision@k, Recall@k, MAP@k, NDCG@k, or other quality results without an approved model experiment; collaborative filtering and matrix factorization. The existing historical source is isolated evaluation input, not a customer profile or quality result. Synthetic fixtures and clearly labelled classroom demo profiles may be used for development and testing, never presented as real evaluation evidence.
 
-## Current State (Re-Verified Against Source On 2026-07-10)
+## Current State (Re-Verified Against Source On 2026-08-02)
 
 These facts were verified by reading `src/`, not by trusting doc status tables.
 

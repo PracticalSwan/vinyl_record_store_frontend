@@ -17,7 +17,7 @@ const parsePrice = (raw) => {
 export default function FilterSidebar({ query, facets, onChange }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const clearAll = () => onChange({
-    genres: [], eras: [], conditions: [], inStock: false, minPrice: null, maxPrice: null,
+    genres: [], eras: [], conditions: [], formats: [], inStock: false, minPrice: null, maxPrice: null,
   });
   return (
     <>
@@ -35,6 +35,7 @@ export default function FilterSidebar({ query, facets, onChange }) {
           ['Genre', 'genres', facets?.genres],
           ['Era', 'eras', facets?.eras],
           ['Condition', 'conditions', facets?.conditions],
+          ['Format', 'formats', facets?.formats],
         ].map(([label, field, values]) => (
           <div className="filter-block" key={field}>
             <div className="filter-group" role="group" aria-labelledby={`${field}-filter-label`}>

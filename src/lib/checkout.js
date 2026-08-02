@@ -1,3 +1,5 @@
+import { canPurchase } from './productDisplay';
+
 // Pure helpers for the simulated (FFP-08) checkout. No real payment, no backend
 // order, no persistence beyond the current browser session.
 
@@ -48,7 +50,7 @@ export function computeTotals(cartItems) {
 // Items that block a demo order: anything no longer in the catalog or out of
 // stock. The user must return to the cart and resolve these before confirming.
 export function findBlockingItems(cartItems) {
-  return cartItems.filter((item) => !item.record || item.record.stock === 'out');
+  return cartItems.filter((item) => !item.record || !canPurchase(item.record));
 }
 
 export function generateDemoReference() {
@@ -83,6 +85,7 @@ export function snapshotOrder({ cartItems, shipping, totals, reference }) {
       title: item.record.title,
       artist: item.record.artist,
       price: Number(item.record.price),
+      currency: item.record.currency,
       qty: item.qty,
     })),
     totals,

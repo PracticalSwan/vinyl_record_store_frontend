@@ -4,16 +4,18 @@ import { useStore } from '../context/useStore';
 import { useTracking } from '../context/useTracking';
 import { IconHeart } from './Icons';
 import ProductImage from './ProductImage';
+import { availabilityLabel, displayArtist, displayValue, formatMoney } from '../lib/productDisplay';
 
 function StockBadge({ stock }) {
   if (stock === 'in')  return <span className="badge badge-in">In stock</span>;
   if (stock === 'low') return <span className="badge badge-low">Low stock</span>;
-  return <span className="badge badge-out">Out of stock</span>;
+  if (stock === 'out') return <span className="badge badge-out">Out of stock</span>;
+  return <span className="badge">Availability unknown</span>;
 }
 
 function StockDot({ stock }) {
-  const cls   = stock === 'in' ? 'dot-in' : stock === 'low' ? 'dot-low' : 'dot-out';
-  const label = stock === 'in' ? 'In stock' : stock === 'low' ? 'Low stock' : 'Out of stock';
+  const cls = stock === 'in' ? 'dot-in' : stock === 'low' ? 'dot-low' : stock === 'out' ? 'dot-out' : '';
+  const label = availabilityLabel(stock);
   return <span className={`card-stock-dot ${cls}`} title={label} aria-hidden="true" />;
 }
 
@@ -75,7 +77,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
       ref={cardRef}
       className="product-card"
       role="listitem"
-      aria-label={`${record.title} by ${record.artist}`}
+      aria-label={`${record.title} by ${displayArtist(record)}`}
     >
       <div className="card-cover">
         <ProductImage record={record} decorative />
@@ -92,7 +94,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
 
       <div className="card-body">
         <h3 className="card-title">{record.title}</h3>
-        <p className="card-artist">{record.artist}</p>
+        <p className="card-artist">{displayArtist(record)}</p>
         <div className="card-meta" aria-label="Record details">
           <span className="badge badge-genre">{record.genre || 'Uncategorized'}</span>
           <span className="badge badge-era">{record.year || 'Year unknown'}</span>
@@ -100,8 +102,8 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
         </div>
         <div className="card-footer">
           <div>
-            <span className="card-price" aria-label={`Price: $${record.price}`}>${record.price}</span>
-            <p className="card-condition">{record.condition}</p>
+            <span className="card-price">{formatMoney(record.price, record.currency)}</span>
+            <p className="card-condition">{displayValue(record.condition, 'Condition unknown')}</p>
           </div>
           <button
             className="btn btn-primary btn-sm"

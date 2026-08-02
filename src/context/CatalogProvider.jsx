@@ -16,7 +16,6 @@ const INITIAL_RECOMMENDATIONS = {
 const withReason = (item, response) => ({
   ...item.product,
   reason: item.reasons?.[0] || '',
-  recommendationReasons: item.reasons || [],
   recommendationScore: item.score,
   recommendationRank: item.rank,
   recommendationContext: {

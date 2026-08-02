@@ -11,7 +11,7 @@ export const emptyPreferences = () => ({
   formats: [],
 });
 
-const unique = (values) => [...new Set(values)];
+const unique = (values) => [...new Map(values.map((value) => [String(value).toLowerCase(), value])).values()];
 const money = (value) => value === null || value === undefined || value === '' ? '' : String(value);
 
 export function normalizePreferences(value = {}) {
@@ -46,17 +46,24 @@ function controlled(values, allowed, name, label, errors) {
   }
 }
 
+function bounded(values, name, label, errors) {
+  if (values.length > 5 || values.some((value) => !value || value.length > 100)) {
+    errors[name] = `Choose at most five ${label}.`;
+  }
+}
+
 export function validatePreferences(value, { completed = true } = {}) {
   const preferences = normalizePreferences(value);
   const errors = {};
-  controlled(preferences.favoriteGenres, GENRES, 'favoriteGenres', 'favorite genres', errors);
-  controlled(preferences.dislikedGenres, GENRES, 'dislikedGenres', 'disliked genres', errors);
+  bounded(preferences.favoriteGenres, 'favoriteGenres', 'favorite genres', errors);
+  bounded(preferences.dislikedGenres, 'dislikedGenres', 'disliked genres', errors);
   controlled(preferences.conditions, CONDITIONS, 'conditions', 'conditions', errors);
-  controlled(preferences.formats, FORMATS, 'formats', 'formats', errors);
+  bounded(preferences.formats, 'formats', 'formats', errors);
   if (completed && preferences.favoriteGenres.length === 0) {
     errors.favoriteGenres = 'Choose at least one favorite genre to complete onboarding.';
   }
-  if (preferences.favoriteGenres.some((genre) => preferences.dislikedGenres.includes(genre))) {
+  const dislikedGenreKeys = new Set(preferences.dislikedGenres.map((genre) => genre.toLowerCase()));
+  if (preferences.favoriteGenres.some((genre) => dislikedGenreKeys.has(genre.toLowerCase()))) {
     errors.dislikedGenres = 'Favorite and disliked genres cannot overlap.';
   }
   if (preferences.favoriteArtists.length > 5 || preferences.favoriteArtists.some((artist) => artist.length > 200)) {

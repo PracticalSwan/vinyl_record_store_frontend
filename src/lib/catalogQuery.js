@@ -10,6 +10,7 @@ export const DEFAULT_CATALOG_QUERY = {
   genres: [],
   eras: [],
   conditions: [],
+  formats: [],
   minPrice: null,
   maxPrice: null,
   inStock: false,
@@ -28,6 +29,12 @@ const optionalPrice = (value) => {
 const controlled = (params, name, allowed) => [
   ...new Set(params.getAll(name).filter((value) => allowed.includes(value))),
 ];
+const literals = (params, name) => [
+  ...new Map(params.getAll(name).slice(0, 20)
+    .map((value) => value.trim().slice(0, 100))
+    .filter(Boolean)
+    .map((value) => [value.toLowerCase(), value])).values(),
+];
 
 export function parseCatalogSearchParams(searchParams) {
   const sort = searchParams.get('sort');
@@ -35,9 +42,10 @@ export function parseCatalogSearchParams(searchParams) {
     q: (searchParams.get('q') || '').slice(0, 100),
     page: positiveInteger(searchParams.get('page'), 1),
     limit: Math.min(positiveInteger(searchParams.get('limit'), 24), 100),
-    genres: controlled(searchParams, 'genre', GENRES),
+    genres: literals(searchParams, 'genre'),
     eras: controlled(searchParams, 'era', ERAS),
     conditions: controlled(searchParams, 'condition', CONDITIONS),
+    formats: literals(searchParams, 'format'),
     minPrice: optionalPrice(searchParams.get('minPrice')),
     maxPrice: optionalPrice(searchParams.get('maxPrice')),
     inStock: searchParams.get('inStock') === 'true',
@@ -53,6 +61,7 @@ export function toCatalogSearchParams(query) {
   for (const genre of query.genres) params.append('genre', genre);
   for (const era of query.eras) params.append('era', era);
   for (const condition of query.conditions) params.append('condition', condition);
+  for (const format of query.formats || []) params.append('format', format);
   if (query.minPrice !== null) params.set('minPrice', String(query.minPrice));
   if (query.maxPrice !== null) params.set('maxPrice', String(query.maxPrice));
   if (query.inStock) params.set('inStock', 'true');
@@ -65,6 +74,6 @@ export function mergeCatalogQuery(current, patch, { resetPage = true } = {}) {
 }
 
 export const hasCatalogFilters = (query) => Boolean(
-  query.q || query.genres.length || query.eras.length || query.conditions.length
+  query.q || query.genres.length || query.eras.length || query.conditions.length || query.formats?.length
   || query.minPrice !== null || query.maxPrice !== null || query.inStock,
 );

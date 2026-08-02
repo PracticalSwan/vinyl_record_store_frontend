@@ -4,11 +4,13 @@ import { useProductsByIds } from '../hooks/useRemoteProducts';
 import { IconHeart } from '../components/Icons';
 import ProductImage from '../components/ProductImage';
 import { SkeletonGrid } from '../components/ProductGrid';
+import { availabilityLabel, canPurchase, displayArtist, displayValue, formatMoney } from '../lib/productDisplay';
 
 function StockBadge({ stock }) {
   if (stock === 'in') return <span className="badge badge-in">In stock</span>;
   if (stock === 'low') return <span className="badge badge-low">Only 1 left</span>;
-  return <span className="badge badge-out">Out of stock</span>;
+  if (stock === 'out') return <span className="badge badge-out">Out of stock</span>;
+  return <span className="badge">Availability unknown</span>;
 }
 
 export default function WishlistPage() {
@@ -27,10 +29,10 @@ export default function WishlistPage() {
       {products.items.length > 0 && (
         <div className="list-items" role="list" aria-label="Your wishlist">
           {products.items.map((record) => (
-            <article key={record.id} className="list-item" role="listitem" aria-label={`${record.title} by ${record.artist}`}>
+            <article key={record.id} className="list-item" role="listitem" aria-label={`${record.title} by ${displayArtist(record)}`}>
               <div className="list-item-cover"><ProductImage record={record} variant="list" decorative /></div>
-              <div className="list-item-info"><p className="list-item-title">{record.title}</p><p className="list-item-artist">{record.artist}</p><div className="list-item-meta"><span className="badge badge-genre">{record.genre || 'Uncategorized'}</span><span className="badge badge-era">{record.year || 'Year unknown'}</span><StockBadge stock={record.stock} /><span className="badge badge-cond">{record.condition}</span></div></div>
-              <div className="list-item-actions"><span className="list-item-price" aria-label={`Price: $${record.price}`}>${record.price}</span>{record.stock === 'out' ? <button className="btn btn-outline btn-sm" disabled>Out of stock</button> : <button className="btn btn-primary btn-sm" disabled={store.isPending('cart', record.id)} onClick={() => addToCart(record.id)}>Add to cart</button>}<button className="btn btn-ghost btn-sm" aria-label={`Remove ${record.title} from wishlist`} disabled={store.isPending('wishlist', record.id)} onClick={() => removeFromWishlist(record.id)}>Remove</button></div>
+              <div className="list-item-info"><p className="list-item-title">{record.title}</p><p className="list-item-artist">{displayArtist(record)}</p><div className="list-item-meta"><span className="badge badge-genre">{record.genre || 'Uncategorized'}</span><span className="badge badge-era">{record.year || 'Year unknown'}</span><StockBadge stock={record.stock} /><span className="badge badge-cond">{displayValue(record.condition, 'Condition unknown')}</span></div></div>
+              <div className="list-item-actions"><span className="list-item-price">{formatMoney(record.price, record.currency)}</span>{canPurchase(record) ? <button className="btn btn-primary btn-sm" disabled={store.isPending('cart', record.id)} onClick={() => addToCart(record.id)}>Add to cart</button> : <button className="btn btn-outline btn-sm" disabled>{availabilityLabel(record.stock) === 'Out of stock' ? 'Out of stock' : 'Purchase unavailable'}</button>}<button className="btn btn-ghost btn-sm" aria-label={`Remove ${record.title} from wishlist`} disabled={store.isPending('wishlist', record.id)} onClick={() => removeFromWishlist(record.id)}>Remove</button></div>
             </article>
           ))}
         </div>

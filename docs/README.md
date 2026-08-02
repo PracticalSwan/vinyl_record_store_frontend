@@ -7,6 +7,7 @@ These files describe the implemented Groovehaus storefront and its current backe
 - `UI_UX_PLAN.md`: implemented routes, components, states, and accessibility behavior.
 - `API_CONTRACT_PLAN.md`: backend endpoints consumed or available to the frontend.
 - `DATA_MODEL_PLAN.md`: actual client-facing product and recommendation shapes.
+- `AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md`: DATA-00 through DATA-15 frontend compatibility, Admin boundary, nullable-field behavior, validation evidence, and link to the backend runbook.
 - `RECOMMENDER_SYSTEM_PLAN.md`: recommendation presentation and honesty rules.
 - `ARCHITECTURE_PLAN.md`: current source and state ownership.
 - `EVALUATION_PLAN.md`: automated and manual frontend checks.

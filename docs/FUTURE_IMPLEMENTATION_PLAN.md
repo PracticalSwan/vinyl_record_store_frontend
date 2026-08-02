@@ -1,15 +1,21 @@
 # Frontend Future Implementation Plan
 
-Status: FFP-01 through FFP-09 are complete. Personalization from FFP-10 onward remains future work pending a separate explicit task.
+Status: FFP-01 through FFP-09 and DATA-00 through DATA-15 are complete. Personalization from FFP-10 onward remains future work pending a separate explicit task and was not implemented with the dataset.
 
 Audience: developers implementing the Groovehaus Vite/React storefront and backend developers maintaining the shared API contracts.
 
 Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`, `API_CONTRACT_PLAN.md`, `INTERACTION_LOGGING_PLAN.md`, and the backend `FUTURE_IMPLEMENTATION_PLAN.md`. Recheck package versions and external service terms when implementation begins.
 
+## Current Dataset Gate (Completed 2026-08-02)
+
+`AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md` records the frontend half of DATA-00 through DATA-15. MongoDB mode now exposes one active 2,305-product Amazon Reviews 2023 vinyl subset while the backend preserves the 116-record legacy fallback and exactly three showcase customers. The UI supports dynamic genre/format facets, nullable metadata, placeholder-only dataset artwork, non-purchasable unknown price/stock, Admin dataset status, and CLI-managed dataset rows.
+
+Remaining recommender plans must preserve these contracts, distinguish historical readiness from live evidence, never surface pseudonymous historical rows, handle nullable data without invented reasons, and receive a new explicit implementation request. This plan does not authorize PERS-03 through PERS-09.
+
 ## User Decisions Recorded On 2026-07-03
 
 - Use backend-enforced seeded customer and administrator sessions before durable user persistence.
-- Add simple customer registration only after authentication and protected user-write routes exist. The MongoDB user repository boundary is now implemented, but registration is not.
+- Add simple customer registration only after authentication and protected user-write routes exist. This gate and registration are implemented.
 - Keep numeric product IDs in URLs, API requests, and client state.
 - Keep guest state session-only. Merge it only into a brand-new registration; discard it on existing-account login or ordinary restore, while resuming a keyed failed registration merge.
 - Enable anonymous interaction tracking by default with a visible opt-out, no direct personal information, and a 90-day backend retention target.

@@ -6,12 +6,14 @@ import { useProduct } from '../hooks/useRemoteProducts';
 import { RecScroll } from '../components/ProductGrid';
 import { IconHeart, IconStar } from '../components/Icons';
 import ProductImage from '../components/ProductImage';
+import { availabilityLabel, canPurchase, displayArtist, displayValue, formatMoney } from '../lib/productDisplay';
 import { useTracking } from '../context/useTracking';
 
 function StockBadge({ stock }) {
   if (stock === 'in')  return <span className="badge badge-in">In stock</span>;
   if (stock === 'low') return <span className="badge badge-low">Low stock</span>;
-  return <span className="badge badge-out">Out of stock</span>;
+  if (stock === 'out') return <span className="badge badge-out">Out of stock</span>;
+  return <span className="badge">Availability unknown</span>;
 }
 
 export default function DetailPage() {
@@ -92,28 +94,29 @@ export default function DetailPage() {
           <div className="detail-info">
             <div>
               <h1 className="detail-title">{record.title}</h1>
-              <p className="detail-artist">{record.artist}</p>
+              <p className="detail-artist">{displayArtist(record)}</p>
             </div>
 
             <div className="detail-meta-row" aria-label="Record details">
               <span className="badge badge-genre">{record.genre || 'Uncategorized'}</span>
               <span className="badge badge-era">{record.year || 'Year unknown'}</span>
               <StockBadge stock={record.stock} />
-              <span className="badge badge-cond">{record.condition}</span>
+              <span className="badge badge-cond">{displayValue(record.condition, 'Condition unknown')}</span>
             </div>
 
-            <p className="detail-price" aria-label={`Price: $${record.price}`}>${record.price}</p>
+            <p className="detail-price">{formatMoney(record.price, record.currency)}</p>
             <p className="detail-desc">{record.description || 'No description is available.'}</p>
 
             <table className="detail-table" aria-label="Record specifications">
               <tbody>
                 {[
                   ['Label',     record.label || 'Not provided'],
-                  ['Format',    record.format],
+                  ['Format',    displayValue(record.format)],
                   ['Pressing',  record.pressing || 'Not provided'],
-                  ['Condition', record.condition],
+                  ['Condition', displayValue(record.condition)],
                   ['Genre',     record.genre || 'Uncategorized'],
-                  ['Stock',     record.stock === 'in' ? 'In stock' : record.stock === 'low' ? 'Low stock' : 'Out of stock'],
+                  ['Availability', availabilityLabel(record.stock)],
+                  ['Catalog source', record.source === 'amazon-reviews-2023' ? 'Amazon Reviews 2023 research subset' : 'Groovehaus curated catalog'],
                 ].map(([k, v]) => (
                   <tr key={k}><td>{k}</td><td>{v}</td></tr>
                 ))}
@@ -148,10 +151,10 @@ export default function DetailPage() {
               <button
                 className="btn btn-primary"
                 style={{ flex: 1 }}
-                disabled={record.stock === 'out' || store.isPending('cart', record.id)}
+                disabled={!canPurchase(record) || store.isPending('cart', record.id)}
                 onClick={() => addToCart(record.id, recommendationAnalytics)}
               >
-                {record.stock === 'out' ? 'Out of stock' : 'Add to cart'}
+                {canPurchase(record) ? 'Add to cart' : availabilityLabel(record.stock) === 'Out of stock' ? 'Out of stock' : 'Purchase unavailable'}
               </button>
               <button
                 className={`btn btn-ghost btn-icon${saved ? ' btn-wishlist active' : ' btn-wishlist'}`}
