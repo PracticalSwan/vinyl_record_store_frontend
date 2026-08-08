@@ -249,6 +249,7 @@ button, input, select { font-family: inherit; font-size: inherit; }
 .price-range { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; align-items: center; }
 .price-input { width: 100%; min-width: 0; padding: 6px 10px; border: 1px solid var(--rule); border-radius: var(--radius-sm); font-size: 13px; color: var(--ink); background: var(--cream); outline: none; }
 .price-input:focus { border-color: var(--accent); }
+.research-catalog-note { margin: .75rem 0 1rem; padding: .75rem 1rem; border-left: 3px solid var(--accent); border-radius: var(--radius-sm); background: var(--amber-dim); color: var(--ink); font-size: 13px; line-height: 1.5; }
 
 .filter-mobile-toggle {
   display: none; width: 100%; padding: 10px 14px;

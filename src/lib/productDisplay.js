@@ -1,4 +1,12 @@
 export const displayArtist = (record) => record?.artist || 'Unknown artist';
+export const isResearchProduct = (record) => record?.catalogMode === 'research-only' || Boolean(record?.datasetKey);
+export const displayYear = (record) => {
+  const original = record?.originalReleaseYear
+    ?? (record?.yearDisplayType === 'original' ? record?.year : null);
+  if (original) return String(original);
+  if (record?.editionReleaseYear) return `${record.editionReleaseYear} edition`;
+  return 'Year unknown';
+};
 export const displayValue = (value, fallback = 'Not provided') => (
   value === null || value === undefined || value === '' ? fallback : value
 );
@@ -20,7 +28,8 @@ export function availabilityLabel(stock) {
 }
 
 export const canPurchase = (record) => (
-  Number.isFinite(record?.price)
+  !isResearchProduct(record)
+  && Number.isFinite(record?.price)
   && Boolean(record?.currency)
   && ['in', 'low'].includes(record?.stock)
 );

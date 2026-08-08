@@ -6,11 +6,12 @@ This plan records the automated release evidence for the storefront. It does not
 
 | Check | Command | Current Evidence |
 | --- | --- | --- |
-| Unit and component tests | `npm run test:unit` | 90/90 passed on 2026-08-02, including dynamic query serialization, case-insensitive preference overlap, and checkout exclusion for unknown commercial fields. |
-| Browser and integration tests | `npm run test:e2e` | Full matrix passed 67 tests with 1 intentional skip on 2026-08-02 across Chromium desktop/mobile/tablet, Firefox, and WebKit. After live inspection found an Admin edit-form response-unwrapping regression, the repaired desktop/mobile path passed 4/4. Global teardown removed 36 earlier test interactions and the follow-up runs found zero residue. |
-| Accessibility subset | `npm run test:a11y` | Representative axe checks remain part of the full browser matrix. |
-| ESLint | `npm run lint` | Passed on 2026-08-02. |
-| Production bundle | `npm run build` | Passed on 2026-08-02. |
+| Unit and component tests | `npm run test:unit` | 93/93 passed on 2026-08-08 across 16 test files, including research display/purchase rules, dynamic active preference choices, and accepted-art local fallback isolation. |
+| Seed browser and integration tests | `npm run test:e2e:seed` | 67 passed with 1 intentional skip on 2026-08-08 across Chromium desktop/mobile/tablet, Firefox, and WebKit. The matrix retains all 116 seed-art checks and the ordinary Admin write UI; teardown preserved the dataset collections. |
+| Dataset browser and integration tests | `npm run test:e2e:dataset` | 10 passed with 2 intentional project-specific skips on 2026-08-08 across desktop/mobile Chromium. Invented deterministic fixtures cover research-only facets/actions, original/edition years, accepted-local/placeholder art, Admin read-only rows, and axe checks. |
+| Accessibility subset | `npm run test:a11y` | 20/20 passed on 2026-08-08 across desktop/mobile Chromium with no serious or critical axe violations. |
+| ESLint | `npm run lint` | Passed on 2026-08-08. |
+| Production bundle | `npm run build` | Passed on 2026-08-08 with Vite 8.1.0. |
 
 ## Browser Scenarios
 
@@ -33,6 +34,7 @@ This plan records the automated release evidence for the storefront. It does not
 | FE-015 | Approved, missing, slow, or broken artwork renders. | The responsive proxy image, decoded canonical-ID local JPEG, or final placeholder appears in that order without loops, stale-event skips, layout loss, or inaccessible duplicate text. |
 | FE-016 | Active dataset returns nullable fields and dynamic facets. | Unknown values render consistently, genre/format queries round-trip, and unknown price/stock prevents cart/checkout without breaking browse/wishlist/rating. |
 | FE-017 | Admin opens an active dataset. | Dashboard shows source/version/counts; dataset rows show CLI-managed state and no mutation controls; ordinary records retain existing actions. |
+| FE-018 | Seed and dataset modes run independently. | The original multi-browser suite remains green and the deterministic dataset suite does not require raw Amazon data or Atlas dataset rows. |
 
 ## Recommendation Comprehension
 

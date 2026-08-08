@@ -9,8 +9,8 @@ Groovehaus demonstrates how a recommender-powered storefront feels end to end: b
 Three things worth knowing up front:
 
 - Recommendations use a session-owned API path: signed-in customers receive deterministic `cold-start` results, visitors receive `anonymous-fallback`, and the restricted showcase remains `demo-profile`. Saved preferences and behavior do not affect ranking yet, and no recommendation-quality claim is made.
-- MongoDB mode currently serves a reproducible 2,305-product Amazon Reviews 2023 vinyl subset. Nullable store metadata is shown honestly, unknown price/stock blocks purchase, and dataset products use the generic placeholder rather than unreviewed Amazon imagery. The original 116 illustrated records remain the backend's reversible legacy fallback.
-- Product surfaces keep the reviewed Cover Art Archive proxy -> local JPEG -> placeholder chain for those 116 legacy records. Dataset products skip the legacy-ID fallback and use the generic placeholder.
+- MongoDB mode currently serves the immutable 2,305-product Amazon Reviews 2023 v2 research catalog. Nullable commerce metadata is shown honestly and cart/checkout controls are absent for dataset products. V1 and the original 116 illustrated records remain reversible backend rollback targets.
+- Product surfaces keep the approved Cover Art Archive proxy -> verified local JPEG -> placeholder chain. Legacy records use their fixed reviewed bundle; accepted v2 matches use a separate dataset bundle; ambiguous and unresolved v2 records skip local artwork and use the generic placeholder. Amazon images are never used.
 - `code_for_website/` is an early design-import snapshot kept for reference, not the running application. The active source lives in `src/`.
 
 ## What you can do
@@ -18,7 +18,7 @@ Three things worth knowing up front:
 - Browse the catalog with independently scrollable dynamic genre/format, condition, era, price, and stock controls, with sorting and pagination.
 - Search records as you type with a 300 ms debounce, keep up to five account/guest-scoped recent searches, and replay any committed term from the search menu.
 - View similar records and demo recommendations, each with a short explanation.
-- View responsive release artwork without losing product details or actions when a remote image is slow, missing, or unavailable; every bundled record has a verified backend-local JPEG fallback.
+- View responsive release artwork without losing product details or actions when a remote image is slow, missing, or unavailable; every legacy record and every strict accepted v2 match has a verified backend-local JPEG fallback.
 - Save records to a wishlist and cart as a guest or a signed-in customer.
 - Register, sign in, and manage an account with onboarding preferences. Preference clearing changes only the draft, and every dirty SPA/history transition offers a focus-contained save, discard, or cancel choice before leaving.
 - Run the client-only checkout preview and view its session-scoped confirmation without implying a real payment or backend order.
@@ -57,7 +57,7 @@ Two roles exist: `customer` and `admin`. Exactly three showcase customer account
 - Customer (jazz): `jazzlistener` / `jazz-groove-2026`
 - Customer (rock): `rockcollector` / `rock-groove-2026`
 - Customer (soul): `soulseeker` / `soul-groove-2026`
-- Admin: `admin` / `groovehaus-admin`
+- Admin: environment-backed; the administrator password is not committed. Configure the backend `AUTH_DEMO_ADMIN_*` values for local login.
 
 Visitors can also register their own customer account. Showcase customer logins require the backend to reach its database; see the backend README for details.
 

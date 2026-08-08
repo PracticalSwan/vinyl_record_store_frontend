@@ -46,7 +46,7 @@ function GenreStep({ form, update, errors, genres }) {
   );
 }
 
-function DetailStep({ form, update, errors, artistDraft, setArtistDraft, formats }) {
+function DetailStep({ form, update, errors, artistDraft, setArtistDraft, formats, researchOnly }) {
   return (
     <>
       <label className="preference-field" htmlFor="favorite-artists">
@@ -57,27 +57,29 @@ function DetailStep({ form, update, errors, artistDraft, setArtistDraft, formats
         }} />
       </label>
       {errors.favoriteArtists && <p className="field-error">{errors.favoriteArtists}</p>}
-      <fieldset className="preference-group">
+      {!researchOnly && <fieldset className="preference-group">
         <legend>Budget per record (optional)</legend>
         <div className="budget-fields">
           <label htmlFor="budget-min">Minimum<input id="budget-min" type="number" min="0" step="0.01" value={form.budget.min} onChange={(event) => update('budget', { ...form.budget, min: event.target.value })} /></label>
           <label htmlFor="budget-max">Maximum<input id="budget-max" type="number" min="0" step="0.01" value={form.budget.max} onChange={(event) => update('budget', { ...form.budget, max: event.target.value })} /></label>
         </div>
         {errors.budget && <p className="field-error">{errors.budget}</p>}
-      </fieldset>
-      <CheckboxGroup legend="Preferred condition" name="conditions" options={CONDITIONS} values={form.conditions} onChange={(value) => update('conditions', value)} error={errors.conditions} />
+      </fieldset>}
+      {!researchOnly && <CheckboxGroup legend="Preferred condition" name="conditions" options={CONDITIONS} values={form.conditions} onChange={(value) => update('conditions', value)} error={errors.conditions} />}
       <CheckboxGroup legend="Preferred format" name="formats" options={formats} values={form.formats} onChange={(value) => update('formats', value)} error={errors.formats} />
     </>
   );
 }
 
-function Review({ form }) {
+function Review({ form, researchOnly }) {
   const rows = [
     ['Favorite genres', form.favoriteGenres.join(', ') || 'None selected'],
     ['Avoid', form.dislikedGenres.join(', ') || 'None'],
     ['Favorite artists', form.favoriteArtists.join(', ') || 'None'],
-    ['Budget', form.budget.min || form.budget.max ? `${form.budget.min || '0'} to ${form.budget.max || 'no maximum'}` : 'No preference'],
-    ['Condition', form.conditions.join(', ') || 'No preference'],
+    ...(!researchOnly ? [
+      ['Budget', form.budget.min || form.budget.max ? `${form.budget.min || '0'} to ${form.budget.max || 'no maximum'}` : 'No preference'],
+      ['Condition', form.conditions.join(', ') || 'No preference'],
+    ] : []),
     ['Format', form.formats.join(', ') || 'No preference'],
   ];
   return <dl className="preference-review">{rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>;
@@ -99,17 +101,21 @@ export default function PreferencesForm({
   const [artistDraft, setArtistDraft] = useState(() => normalizePreferences(initial).favoriteArtists.join(', '));
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
-  const [catalogOptions, setCatalogOptions] = useState({ genres: GENRES, formats: FORMATS });
+  const [catalogOptions, setCatalogOptions] = useState({ genres: GENRES, formats: FORMATS, catalogMode: 'commerce-preview' });
   useEffect(() => {
     const controller = new AbortController();
     fetchProducts({ page: 1, limit: 1 }, { signal: controller.signal }).then((response) => {
       const facets = response.meta?.facets || {};
+      const researchOnly = response.meta?.catalogMode === 'research-only';
+      const activeGenres = (facets.genres || []).filter((item) => item.count > 0).map((item) => item.value).filter(Boolean);
+      const activeFormats = (facets.formats || []).filter((item) => item.count > 0).map((item) => item.value).filter(Boolean);
       setCatalogOptions({
-        genres: [...new Set([...GENRES, ...(facets.genres || []).map((item) => item.value).filter(Boolean)])],
-        formats: [...new Set([...FORMATS, ...(facets.formats || []).map((item) => item.value).filter(Boolean)])],
+        genres: [...new Set([...(researchOnly ? [] : GENRES), ...activeGenres])],
+        formats: [...new Set([...(researchOnly ? [] : FORMATS), ...activeFormats])],
+        catalogMode: response.meta?.catalogMode || 'commerce-preview',
       });
     }).catch((error) => {
-      if (error.name !== 'AbortError') setCatalogOptions({ genres: GENRES, formats: FORMATS });
+      if (error.name !== 'AbortError') setCatalogOptions({ genres: GENRES, formats: FORMATS, catalogMode: 'commerce-preview' });
     });
     return () => controller.abort();
   }, []);
@@ -117,6 +123,7 @@ export default function PreferencesForm({
     genres: [...new Set([...catalogOptions.genres, ...form.favoriteGenres, ...form.dislikedGenres])],
     formats: [...new Set([...catalogOptions.formats, ...form.formats])],
   }), [catalogOptions, form.favoriteGenres, form.dislikedGenres, form.formats]);
+  const researchOnly = catalogOptions.catalogMode === 'research-only';
   const update = (field, value) => {
     const next = { ...form, [field]: value };
     setForm(next);
@@ -157,9 +164,10 @@ export default function PreferencesForm({
   return (
     <form className="preferences-form" id={formId} onSubmit={submit} noValidate>
       {wizard && <p className="preference-progress" aria-live="polite">Step {step} of 3</p>}
+      {researchOnly && <p className="research-catalog-note" role="note">Research catalog preferences use only active genre, artist, and format facets. Condition and budget are not available because the dataset has no commercial fields.</p>}
       {(!wizard || step === 1) && <GenreStep form={form} update={update} errors={errors} genres={optionSets.genres} />}
-      {(!wizard || step === 2) && <DetailStep form={form} update={update} errors={errors} artistDraft={artistDraft} setArtistDraft={setArtistDraft} formats={optionSets.formats} />}
-      {wizard && step === 3 && <Review form={form} />}
+      {(!wizard || step === 2) && <DetailStep form={form} update={update} errors={errors} artistDraft={artistDraft} setArtistDraft={setArtistDraft} formats={optionSets.formats} researchOnly={researchOnly} />}
+      {wizard && step === 3 && <Review form={form} researchOnly={researchOnly} />}
       {requestError && <p className="form-error" role="alert">{requestError.message}</p>}
       <div className="preference-actions">
         {wizard && step > 1 && <button className="btn btn-outline" type="button" onClick={() => setStep((value) => value - 1)}>Back</button>}

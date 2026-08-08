@@ -4,7 +4,7 @@ import { useProductsByIds } from '../hooks/useRemoteProducts';
 import { IconHeart } from '../components/Icons';
 import ProductImage from '../components/ProductImage';
 import { SkeletonGrid } from '../components/ProductGrid';
-import { availabilityLabel, canPurchase, displayArtist, displayValue, formatMoney } from '../lib/productDisplay';
+import { availabilityLabel, canPurchase, displayArtist, displayValue, displayYear, formatMoney, isResearchProduct } from '../lib/productDisplay';
 
 function StockBadge({ stock }) {
   if (stock === 'in') return <span className="badge badge-in">In stock</span>;
@@ -28,13 +28,16 @@ export default function WishlistPage() {
       {products.status === 'empty' && <div className="state-box" role="status"><div className="state-icon" aria-hidden="true"><IconHeart /></div><p className="state-title">Your wishlist is empty</p><p className="state-desc">Use the heart button on any record to save it here.</p><button className="btn btn-primary" onClick={() => navigate('/catalog')}>Browse catalog</button></div>}
       {products.items.length > 0 && (
         <div className="list-items" role="list" aria-label="Your wishlist">
-          {products.items.map((record) => (
+          {products.items.map((record) => {
+            const researchOnly = isResearchProduct(record);
+            return (
             <article key={record.id} className="list-item" role="listitem" aria-label={`${record.title} by ${displayArtist(record)}`}>
               <div className="list-item-cover"><ProductImage record={record} variant="list" decorative /></div>
-              <div className="list-item-info"><p className="list-item-title">{record.title}</p><p className="list-item-artist">{displayArtist(record)}</p><div className="list-item-meta"><span className="badge badge-genre">{record.genre || 'Uncategorized'}</span><span className="badge badge-era">{record.year || 'Year unknown'}</span><StockBadge stock={record.stock} /><span className="badge badge-cond">{displayValue(record.condition, 'Condition unknown')}</span></div></div>
-              <div className="list-item-actions"><span className="list-item-price">{formatMoney(record.price, record.currency)}</span>{canPurchase(record) ? <button className="btn btn-primary btn-sm" disabled={store.isPending('cart', record.id)} onClick={() => addToCart(record.id)}>Add to cart</button> : <button className="btn btn-outline btn-sm" disabled>{availabilityLabel(record.stock) === 'Out of stock' ? 'Out of stock' : 'Purchase unavailable'}</button>}<button className="btn btn-ghost btn-sm" aria-label={`Remove ${record.title} from wishlist`} disabled={store.isPending('wishlist', record.id)} onClick={() => removeFromWishlist(record.id)}>Remove</button></div>
+              <div className="list-item-info"><p className="list-item-title">{record.title}</p><p className="list-item-artist">{displayArtist(record)}</p><div className="list-item-meta"><span className="badge badge-genre">{record.genre || 'Uncategorized'}</span><span className="badge badge-era">{displayYear(record)}</span>{researchOnly ? <span className="badge">Research record</span> : <><StockBadge stock={record.stock} /><span className="badge badge-cond">{displayValue(record.condition, 'Condition unknown')}</span></>}</div></div>
+              <div className="list-item-actions">{!researchOnly && <><span className="list-item-price">{formatMoney(record.price, record.currency)}</span>{canPurchase(record) ? <button className="btn btn-primary btn-sm" disabled={store.isPending('cart', record.id)} onClick={() => addToCart(record.id)}>Add to cart</button> : <button className="btn btn-outline btn-sm" disabled>{availabilityLabel(record.stock) === 'Out of stock' ? 'Out of stock' : 'Purchase unavailable'}</button>}</>}<button className="btn btn-ghost btn-sm" aria-label={`Remove ${record.title} from wishlist`} disabled={store.isPending('wishlist', record.id)} onClick={() => removeFromWishlist(record.id)}>Remove</button></div>
             </article>
-          ))}
+            );
+          })}
         </div>
       )}
     </div></main>

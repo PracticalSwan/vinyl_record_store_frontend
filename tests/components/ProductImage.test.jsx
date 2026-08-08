@@ -97,4 +97,19 @@ describe('ProductImage', () => {
     expect(container.querySelector('img')).toHaveAttribute('alt', '');
     expect(screen.queryByRole('img')).toBeNull();
   });
+
+  it('uses dataset local artwork only when the backend declares it available', () => {
+    const datasetRecord = {
+      ...record,
+      id: 100001,
+      datasetKey: 'amazon-reviews-2023-cds-vinyl-5core-v2',
+      image: null,
+    };
+    const view = render(<ProductImage record={{ ...datasetRecord, localArtworkAvailable: true }} />);
+    expect(screen.getByRole('img')).toHaveAttribute('src', expect.stringContaining('/api/artwork/local/100001'));
+
+    view.rerender(<ProductImage record={{ ...datasetRecord, localArtworkAvailable: false }} />);
+    expect(view.container.querySelector('img')).toBeNull();
+    expect(screen.getByTestId('product-image-placeholder')).toHaveAttribute('role', 'img');
+  });
 });

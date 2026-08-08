@@ -100,7 +100,10 @@ test('approved artwork renders with traceability and a broken image falls back w
   breakLocal = true;
   await page.reload();
   await expect(page.locator('.detail-cover').getByTestId('product-image-placeholder')).toBeVisible();
-  expect(localRequests).toBe(2);
+  // The placeholder is also the loading layer beneath an in-flight image, so
+  // wait for the source chain to exhaust before asserting the final fallback.
+  await expect(page.locator('.detail-cover img.product-image-artwork')).toHaveCount(0);
+  await expect.poll(() => localRequests).toBe(2);
   await expect(page.getByRole('button', { name: 'Add to cart' })).toBeEnabled();
   await expect(page.getByText('Kind of Blue').first()).toBeVisible();
 });

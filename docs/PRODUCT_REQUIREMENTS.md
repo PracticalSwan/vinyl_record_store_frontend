@@ -1,6 +1,6 @@
 # Frontend Product Requirements
 
-Requirement status reflects the integrated academic demo as of 2026-08-02.
+Requirement status reflects the integrated academic demo as of 2026-08-08.
 
 ## Goal
 
@@ -23,7 +23,7 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 | FFR-011 | Capture and edit future-facing preferences. | Implemented | Three-step onboarding and profile editor. |
 | FFR-012 | Capture privacy-controlled interaction analytics. | Implemented | Visible opt-out, bounded queue, recommendation attribution, and auth-boundary isolation. |
 | FFR-013 | Display approved artwork safely. | Implemented | Shared validated image component with responsive loading, attribution, accessibility, stale-event protection, and proxy -> local -> placeholder failover for all 116 bundled records. |
-| FFR-014 | Render the active external dataset safely. | Implemented | Dynamic genre/format facets, nullable metadata fallbacks, source/version disclosure, placeholder-only dataset artwork, non-purchasable unknown price/stock, and CLI-managed Admin rows. |
+| FFR-014 | Render the active external dataset safely. | Implemented | Dynamic genre/format facets, nullable metadata fallbacks, source/version disclosure, strict reviewed artwork with verified local fallback or placeholder, non-purchasable unknown price/stock, and CLI-managed Admin rows. |
 
 ## Non-Functional Requirements
 

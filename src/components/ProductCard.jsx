@@ -4,7 +4,14 @@ import { useStore } from '../context/useStore';
 import { useTracking } from '../context/useTracking';
 import { IconHeart } from './Icons';
 import ProductImage from './ProductImage';
-import { availabilityLabel, displayArtist, displayValue, formatMoney } from '../lib/productDisplay';
+import {
+  availabilityLabel,
+  displayArtist,
+  displayValue,
+  displayYear,
+  formatMoney,
+  isResearchProduct,
+} from '../lib/productDisplay';
 
 function StockBadge({ stock }) {
   if (stock === 'in')  return <span className="badge badge-in">In stock</span>;
@@ -27,6 +34,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
   const { wishlist, toggleWishlist } = store;
   const saved = wishlist.includes(record.id);
   const recommendationContext = record.recommendationContext;
+  const researchOnly = isResearchProduct(record);
 
   useEffect(() => {
     if (!recommendationContext?.requestId || !cardRef.current) return undefined;
@@ -81,7 +89,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
     >
       <div className="card-cover">
         <ProductImage record={record} decorative />
-        <StockDot stock={record.stock} />
+        {!researchOnly && <StockDot stock={record.stock} />}
         <button
           className={`card-wishlist-btn${saved ? ' active' : ''}`}
           aria-label={`${saved ? 'Remove' : 'Add'} ${record.title} ${saved ? 'from' : 'to'} wishlist`}
@@ -97,14 +105,14 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
         <p className="card-artist">{displayArtist(record)}</p>
         <div className="card-meta" aria-label="Record details">
           <span className="badge badge-genre">{record.genre || 'Uncategorized'}</span>
-          <span className="badge badge-era">{record.year || 'Year unknown'}</span>
-          <StockBadge stock={record.stock} />
+          <span className="badge badge-era">{displayYear(record)}</span>
+          {researchOnly ? <span className="badge">Research record</span> : <StockBadge stock={record.stock} />}
         </div>
         <div className="card-footer">
-          <div>
+          {!researchOnly && <div>
             <span className="card-price">{formatMoney(record.price, record.currency)}</span>
             <p className="card-condition">{displayValue(record.condition, 'Condition unknown')}</p>
-          </div>
+          </div>}
           <button
             className="btn btn-primary btn-sm"
             onClick={viewRecord}

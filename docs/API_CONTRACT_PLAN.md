@@ -18,7 +18,7 @@ Error:
 
 ## Implemented Catalog And Recommendation Calls
 
-Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceUrl }` only after backend approval. `imageUrl` remains a nullable compatibility field. Products also expose safe `source`, `datasetKey`, `sourceVersion`, `fieldOrigins`, and `qualityFlags`. Artist, price, currency, stock, condition, and format may be `null`. `ProductImage` derives the stable local route only for reviewed legacy records; Amazon-derived records skip to the generic vinyl placeholder.
+Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceUrl }` only after backend approval. `imageUrl` remains a nullable compatibility field. Products also expose safe `source`, `datasetKey`, `sourceVersion`, `fieldOrigins`, `qualityFlags`, `originalReleaseYear`, `editionReleaseYear`, `yearDisplayType`, `catalogMode`, and `localArtworkAvailable`. Artist, price, currency, stock, condition, and detailed format may be `null`. `ProductImage` derives the stable local route only when the backend confirms a legacy or accepted-v2 binding; ambiguous and unresolved dataset rows use the generic placeholder.
 
 | Frontend Need | Method | Path | Current Use |
 | --- | --- | --- | --- |
@@ -26,7 +26,7 @@ Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceU
 | Product detail | `GET` | `/api/products/:id` | Detail and ID-based local-list hydration. |
 | Search alias | `GET` | `/api/search` | Shares the product query service and response shape. |
 | Remote cover art | `GET` | `/api/artwork?u=` | Preferred source. `ProductImage` asks the bounded backend proxy instead of loading `coverartarchive.org` directly. |
-| Local cover art | `GET` | `/api/artwork/local/:publicId` | Second source. Canonical bundled IDs redirect to immutable, content-addressed JPEGs; 400/404/image errors advance to the placeholder. |
+| Local cover art | `GET` | `/api/artwork/local/:publicId` | Second source. Canonical legacy and accepted-v2 IDs redirect to separately verified immutable, content-addressed JPEGs; absent/invalid/image errors advance to the placeholder. |
 | Similar products | `GET` | `/api/recommendations/product/:id?limit=6&surface=product-detail` | Product detail row with request/list attribution. |
 | Session-owned recommendations | `GET` | `/api/recommendations/me?limit=12&surface=...` | Home and recommendation routes only; customer identity comes from the cookie, otherwise anonymous fallback. |
 | Legacy showcase | `GET` | `/api/recommendations/user/demo-user?limit=12&surface=...` | Fixed rollback/showcase path only; no production helper accepts another user ID. |

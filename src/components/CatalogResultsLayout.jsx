@@ -15,6 +15,10 @@ export default function CatalogResultsLayout({ title, header, query, updateQuery
   const resultsHeading = useRef(null);
   const previousPage = useRef(query.page);
   const { items, meta, status, error, reload } = resource;
+  const researchOnly = meta?.catalogMode === 'research-only';
+  const sortOptions = researchOnly
+    ? SORT_OPTIONS.filter(([value]) => !value.startsWith('price-'))
+    : SORT_OPTIONS;
 
   useEffect(() => {
     if (previousPage.current !== query.page && status !== 'loading') {
@@ -23,6 +27,12 @@ export default function CatalogResultsLayout({ title, header, query, updateQuery
     previousPage.current = query.page;
   }, [query.page, status]);
 
+  useEffect(() => {
+    if (researchOnly && query.sort.startsWith('price-')) {
+      updateQuery({ sort: 'newest' }, { replace: true });
+    }
+  }, [query.sort, researchOnly, updateQuery]);
+
   const emptyTitle = hasCatalogFilters(query) ? 'No records match these filters' : 'No records are available';
 
   return (
@@ -30,8 +40,13 @@ export default function CatalogResultsLayout({ title, header, query, updateQuery
       <div className="container catalog-page">
         <h1 className="section-heading page-heading">{title}</h1>
         {header}
+        {researchOnly && (
+          <p className="research-catalog-note" role="note">
+            Research catalog: browse real source-derived vinyl metadata. Prices, stock, condition, cart, and checkout are not part of this dataset.
+          </p>
+        )}
         <div className="catalog-layout">
-          <FilterSidebar query={query} facets={meta?.facets} onChange={updateQuery} />
+          <FilterSidebar query={query} facets={meta?.facets} catalogMode={meta?.catalogMode} onChange={updateQuery} />
           <section aria-labelledby="catalog-results-heading" aria-busy={status === 'loading'}>
             <div className="catalog-toolbar">
               <p className="result-count" aria-live="polite">
@@ -39,7 +54,7 @@ export default function CatalogResultsLayout({ title, header, query, updateQuery
               </p>
               <label htmlFor="sort-select" className="sr-only">Sort by</label>
               <select id="sort-select" className="sort-select" value={query.sort} onChange={(event) => updateQuery({ sort: event.target.value })}>
-                {SORT_OPTIONS.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
+                {sortOptions.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
               </select>
             </div>
             <h2 id="catalog-results-heading" ref={resultsHeading} tabIndex="-1" className="sr-only">Catalog results</h2>

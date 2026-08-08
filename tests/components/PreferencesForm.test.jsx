@@ -1,9 +1,10 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import PreferencesForm from '../../src/components/preferences/PreferencesForm';
 
 describe('PreferencesForm', () => {
+  afterEach(() => vi.unstubAllGlobals());
   it('preserves the wizard and submits a valid three-step preference request', async () => {
     const onSave = vi.fn();
     const user = userEvent.setup();
@@ -64,5 +65,45 @@ describe('PreferencesForm', () => {
       favoriteGenres: [],
       completed: false,
     }));
+  });
+
+  it('uses active research facets, preserves saved stale values, and hides commercial preferences', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: { products: [] },
+        meta: {
+          catalogMode: 'research-only',
+          facets: {
+            genres: [{ value: 'Jazz', count: 71 }],
+            formats: [{ value: 'Vinyl', count: 2305 }],
+          },
+        },
+      }),
+    }));
+    const user = userEvent.setup();
+    render(<PreferencesForm
+      wizard
+      initial={{
+        favoriteGenres: ['Saved legacy genre'],
+        formats: ['LP'],
+        conditions: ['Mint'],
+        budget: { min: 20, max: 50 },
+      }}
+      onSave={vi.fn()}
+      onSkip={vi.fn()}
+    />);
+
+    expect(await screen.findByRole('note')).toHaveTextContent('Research catalog preferences');
+    const genreGroup = screen.getByRole('group', { name: /Favorite genres/ });
+    expect(within(genreGroup).getByLabelText('Jazz')).toBeVisible();
+    expect(within(genreGroup).getByLabelText('Saved legacy genre')).toBeVisible();
+    expect(within(genreGroup).queryByLabelText('Rock')).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(screen.queryByLabelText('Minimum')).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Preferred condition' })).toBeNull();
+    expect(screen.getByLabelText('Vinyl')).toBeVisible();
+    expect(screen.getByLabelText('LP')).toBeVisible();
   });
 });

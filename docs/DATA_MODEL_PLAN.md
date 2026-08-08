@@ -6,11 +6,12 @@ These are the current API, authentication, and client-only shapes used by the st
 
 | Field | Type | Use |
 | --- | --- | --- |
-| `id` | number | Routing and local state references; it is a local-artwork key only for the reviewed legacy source. |
+| `id` | number | Stable routing/state reference and canonical local-artwork key when `localArtworkAvailable` is true. |
 | `title` | string | Required product identity. |
 | `artist` | string or null | Displayed through the shared `Unknown artist` fallback when absent. |
 | `genre`, `label` | string or null | Filtering and metadata; explicit UI fallback when absent. |
-| `year` | number or null | Display, sorting, and era filtering; explicit UI fallback when absent. |
+| `year` | number or null | Original-release year used for sorting and era filtering; explicit UI fallback when absent. |
+| `originalReleaseYear`, `editionReleaseYear` | number or null | Separate truthful year labels; an edition year is never presented as the original release year. |
 | `price` | number or null | Money display and totals only when known; missing price blocks purchase. |
 | `currency` | string or null | Currency paired with price; legacy records use `USD`. |
 | `stock` | `in`, `low`, `out`, or null | Availability and action state; unknown stock blocks purchase. |
@@ -18,7 +19,9 @@ These are the current API, authentication, and client-only shapes used by the st
 | `pressing`, `description` | string or null | Optional imported detail metadata with explicit fallbacks. |
 | `imageUrl` | string or null | Compatibility detail image URL. |
 | `image` | object or null | Approved thumbnail/detail URLs, `cover-art-archive` source, and MusicBrainz source link. |
+| `localArtworkAvailable` | boolean | Backend-confirmed reviewed local fallback; unresolved dataset rows never borrow legacy art. |
 | `source`, `datasetKey`, `sourceVersion` | string or null | Safe catalog ownership/version labels used by the Admin and artwork policy. |
+| `catalogMode` | `research-only` or `commerce-preview` | Controls truthful commerce, facet, and action presentation. |
 | `fieldOrigins` | object | Safe per-field provenance labels; never source reviewer identity. |
 | `qualityFlags` | string array | Bounded source-quality notices. |
 

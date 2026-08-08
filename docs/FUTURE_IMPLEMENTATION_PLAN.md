@@ -6,9 +6,9 @@ Audience: developers implementing the Groovehaus Vite/React storefront and backe
 
 Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`, `API_CONTRACT_PLAN.md`, `INTERACTION_LOGGING_PLAN.md`, and the backend `FUTURE_IMPLEMENTATION_PLAN.md`. Recheck package versions and external service terms when implementation begins.
 
-## Current Dataset Gate (Completed 2026-08-02)
+## Current Dataset Gate (Completed and Rehearsed 2026-08-08)
 
-`AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md` records the frontend half of DATA-00 through DATA-15. MongoDB mode now exposes one active 2,305-product Amazon Reviews 2023 vinyl subset while the backend preserves the 116-record legacy fallback and exactly three showcase customers. The UI supports dynamic genre/format facets, nullable metadata, placeholder-only dataset artwork, non-purchasable unknown price/stock, Admin dataset status, and CLI-managed dataset rows.
+`AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md` records the frontend half of DATA-00 through DATA-15. MongoDB mode exposes one active 2,305-product Amazon Reviews 2023 vinyl subset while the backend preserves the v1 dataset, the 116-record legacy fallback, the separate 208-file accepted-v2 local set, and exactly three showcase customers. The UI supports dynamic genre/format facets, nullable metadata, verified local fallback for strict MusicBrainz/Cover Art Archive matches with a placeholder for unresolved rows, non-purchasable unknown price/stock, Admin dataset status, and CLI-managed dataset rows.
 
 Remaining recommender plans must preserve these contracts, distinguish historical readiness from live evidence, never surface pseudonymous historical rows, handle nullable data without invented reasons, and receive a new explicit implementation request. This plan does not authorize PERS-03 through PERS-09.
 

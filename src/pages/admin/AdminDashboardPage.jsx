@@ -4,10 +4,12 @@ import * as api from '../../lib/api';
 
 const STAT_CARDS = [
   { key: 'activeProducts', label: 'Active products' },
-  { key: 'lowStock', label: 'Low stock' },
-  { key: 'outOfStock', label: 'Out of stock' },
   { key: 'unresolvedArtwork', label: 'Unresolved artwork' },
   { key: 'softDeleted', label: 'Soft-deleted' },
+];
+const COMMERCE_STAT_CARDS = [
+  { key: 'lowStock', label: 'Low stock' },
+  { key: 'outOfStock', label: 'Out of stock' },
 ];
 
 export default function AdminDashboardPage() {
@@ -48,11 +50,13 @@ export default function AdminDashboardPage() {
   const counts = summary?.summary || {};
   const recent = summary?.recentActions || [];
   const dataset = summary?.dataset || null;
+  const researchOnly = dataset?.catalogMode === 'research-only';
+  const statCards = researchOnly ? STAT_CARDS : [...STAT_CARDS, ...COMMERCE_STAT_CARDS];
 
   return (
     <div className="admin-dashboard">
       <div className="admin-stat-grid">
-        {STAT_CARDS.map((stat) => (
+        {statCards.map((stat) => (
           <div key={stat.key} className="admin-stat-card">
             <span className="admin-stat-value">{counts[stat.key] ?? 0}</span>
             <span className="admin-stat-label">{stat.label}</span>
@@ -69,6 +73,7 @@ export default function AdminDashboardPage() {
             <div><dt>Historical users</dt><dd>{dataset.counts?.users ?? 0}</dd></div>
             <div><dt>Historical ratings</dt><dd>{dataset.counts?.ratings ?? 0}</dd></div>
             <div><dt>Source version</dt><dd>{dataset.sourceVersion || 'Unknown'}</dd></div>
+            <div><dt>Catalog mode</dt><dd>{researchOnly ? 'Research-only browsing' : 'Commerce preview'}</dd></div>
             <div><dt>Activated</dt><dd>{dataset.activatedAt ? new Date(dataset.activatedAt).toLocaleString() : 'Unknown'}</dd></div>
           </dl>
         ) : <p className="inline-state">The reviewed 116-record legacy catalog is active.</p>}
@@ -76,14 +81,16 @@ export default function AdminDashboardPage() {
       </section>
 
       <div className="admin-warnings">
-        <h2 className="section-heading">Stock focus</h2>
-        {counts.outOfStock > 0 && (
+        <h2 className="section-heading">{researchOnly ? 'Catalog policy' : 'Stock focus'}</h2>
+        {researchOnly ? (
+          <p className="inline-state">The active dataset has no store price, currency, stock, or condition. Dataset-managed rows are browsable and read-only.</p>
+        ) : counts.outOfStock > 0 && (
           <p className="inline-state">{counts.outOfStock} product(s) are out of stock and hidden from recommendations.</p>
         )}
-        {counts.lowStock > 0 && (
+        {!researchOnly && counts.lowStock > 0 && (
           <p className="inline-state">{counts.lowStock} product(s) are running low.</p>
         )}
-        {counts.outOfStock === 0 && counts.lowStock === 0 && (
+        {!researchOnly && counts.outOfStock === 0 && counts.lowStock === 0 && (
           <p className="inline-state">No stock warnings right now.</p>
         )}
       </div>

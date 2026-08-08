@@ -6,7 +6,15 @@ import { useProduct } from '../hooks/useRemoteProducts';
 import { RecScroll } from '../components/ProductGrid';
 import { IconHeart, IconStar } from '../components/Icons';
 import ProductImage from '../components/ProductImage';
-import { availabilityLabel, canPurchase, displayArtist, displayValue, formatMoney } from '../lib/productDisplay';
+import {
+  availabilityLabel,
+  canPurchase,
+  displayArtist,
+  displayValue,
+  displayYear,
+  formatMoney,
+  isResearchProduct,
+} from '../lib/productDisplay';
 import { useTracking } from '../context/useTracking';
 
 function StockBadge({ stock }) {
@@ -72,6 +80,25 @@ export default function DetailPage() {
   }
 
   const saved = wishlist.includes(record.id);
+  const researchOnly = isResearchProduct(record);
+  const specificationRows = researchOnly
+    ? [
+        ['Label', record.label || 'Not provided'],
+        ['Format', displayValue(record.format)],
+        ['Original release year', record.originalReleaseYear || 'Not established'],
+        ['Edition release year', record.editionReleaseYear || 'Not established'],
+        ['Genre', record.genre || 'Uncategorized'],
+        ['Catalog source', 'Amazon Reviews 2023 research subset'],
+      ]
+    : [
+        ['Label', record.label || 'Not provided'],
+        ['Format', displayValue(record.format)],
+        ['Pressing', record.pressing || 'Not provided'],
+        ['Condition', displayValue(record.condition)],
+        ['Genre', record.genre || 'Uncategorized'],
+        ['Availability', availabilityLabel(record.stock)],
+        ['Catalog source', 'Groovehaus curated catalog'],
+      ];
 
   return (
     <main>
@@ -99,25 +126,17 @@ export default function DetailPage() {
 
             <div className="detail-meta-row" aria-label="Record details">
               <span className="badge badge-genre">{record.genre || 'Uncategorized'}</span>
-              <span className="badge badge-era">{record.year || 'Year unknown'}</span>
-              <StockBadge stock={record.stock} />
-              <span className="badge badge-cond">{displayValue(record.condition, 'Condition unknown')}</span>
+              <span className="badge badge-era">{displayYear(record)}</span>
+              {researchOnly ? <span className="badge">Research record</span> : <><StockBadge stock={record.stock} /><span className="badge badge-cond">{displayValue(record.condition, 'Condition unknown')}</span></>}
             </div>
 
-            <p className="detail-price">{formatMoney(record.price, record.currency)}</p>
+            {!researchOnly && <p className="detail-price">{formatMoney(record.price, record.currency)}</p>}
+            {researchOnly && <p className="research-catalog-note" role="note">Research-only metadata. This record has no simulated store price, stock, condition, cart action, or checkout path.</p>}
             <p className="detail-desc">{record.description || 'No description is available.'}</p>
 
             <table className="detail-table" aria-label="Record specifications">
               <tbody>
-                {[
-                  ['Label',     record.label || 'Not provided'],
-                  ['Format',    displayValue(record.format)],
-                  ['Pressing',  record.pressing || 'Not provided'],
-                  ['Condition', displayValue(record.condition)],
-                  ['Genre',     record.genre || 'Uncategorized'],
-                  ['Availability', availabilityLabel(record.stock)],
-                  ['Catalog source', record.source === 'amazon-reviews-2023' ? 'Amazon Reviews 2023 research subset' : 'Groovehaus curated catalog'],
-                ].map(([k, v]) => (
+                {specificationRows.map(([k, v]) => (
                   <tr key={k}><td>{k}</td><td>{v}</td></tr>
                 ))}
               </tbody>
@@ -148,14 +167,14 @@ export default function DetailPage() {
             </div>
 
             <div className="detail-actions">
-              <button
+              {!researchOnly && <button
                 className="btn btn-primary"
                 style={{ flex: 1 }}
                 disabled={!canPurchase(record) || store.isPending('cart', record.id)}
                 onClick={() => addToCart(record.id, recommendationAnalytics)}
               >
                 {canPurchase(record) ? 'Add to cart' : availabilityLabel(record.stock) === 'Out of stock' ? 'Out of stock' : 'Purchase unavailable'}
-              </button>
+              </button>}
               <button
                 className={`btn btn-ghost btn-icon${saved ? ' btn-wishlist active' : ' btn-wishlist'}`}
                 aria-label={`${saved ? 'Remove from' : 'Add to'} wishlist`}

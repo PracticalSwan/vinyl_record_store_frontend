@@ -134,10 +134,20 @@ Status: Implemented and verified in DATA-12/DATA-14.
 
 Date: 2026-08-02
 
-Decision: Dataset-owned products use the generic vinyl placeholder and never borrow the local-artwork endpoint or unreviewed Amazon imagery. Admin shows active dataset source/version/counts and product ownership, but hides edit/delete/restore/artwork actions for dataset rows and identifies them as CLI-managed. Ordinary record and import controls remain unchanged.
+Decision: Dataset-owned products never use Amazon imagery or borrow a legacy binding. `ProductImage` uses the backend's explicit `localArtworkAvailable` flag, so strict accepted v2 MusicBrainz/Cover Art Archive matches follow remote proxy -> separate verified local JPEG -> placeholder, while ambiguous and unresolved records go directly to the placeholder. Admin shows active dataset source/version/counts and product ownership, but hides edit/delete/restore/artwork actions for dataset rows and identifies them as CLI-managed. Ordinary record and import controls remain unchanged.
 
-Rationale: The 116-record artwork bundle is identity-bound to reviewed legacy releases, and one-off browser mutations would break the reproducible dataset version.
+Rationale: The 116-record artwork bundle is identity-bound to reviewed legacy releases, accepted v2 files have a separate exact manifest, and one-off browser mutations would break the reproducible dataset version.
 
 Status: Implemented with DATA-10 through DATA-12; PERS-03 through PERS-09 remain deferred.
+
+## FDEC-017: Keep Live Dataset Smoke Separate From Deterministic Fixtures
+
+Date: 2026-08-08
+
+Decision: Keep the dataset Playwright project deterministic and fixture-backed, and record live MongoDB/API/browser evidence separately. The live smoke path must verify the active v2 count, canonical facets, nullable research fields, accepted local fallback, unresolved placeholder/no-legacy request, mobile keyboard behavior, Admin source/version/read-only rows, and authenticated wishlist/rating behavior. Any auth-write smoke residue must go through the backend dry-run/apply cleanup policy.
+
+Rationale: Fixture-backed tests provide stable contract coverage without an Atlas dependency, while a separate live smoke proves the integration boundary against the actual active pointer and committed artwork. Separating the two avoids turning network/database drift into nondeterministic UI tests.
+
+Status: Verified. The deterministic dataset project passed 10 tests with two mobile-only skips; the live browser path passed all listed checks, and approved cleanup preserved the v1/v2/legacy evidence and exactly three showcase customers.
 
 Rationale: These boundaries prevent analytics inflation from search prefixes, cross-account history leakage, accidental preference saves, footer overlap, and storefront copy that could imply a real order or unfinished implementation.

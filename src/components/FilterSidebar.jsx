@@ -14,8 +14,9 @@ const parsePrice = (raw) => {
   return Number.isFinite(value) && value >= 0 ? value : null;
 };
 
-export default function FilterSidebar({ query, facets, onChange }) {
+export default function FilterSidebar({ query, facets, catalogMode = 'commerce-preview', onChange }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const researchOnly = catalogMode === 'research-only';
   const clearAll = () => onChange({
     genres: [], eras: [], conditions: [], formats: [], inStock: false, minPrice: null, maxPrice: null,
   });
@@ -34,13 +35,13 @@ export default function FilterSidebar({ query, facets, onChange }) {
         {[
           ['Genre', 'genres', facets?.genres],
           ['Era', 'eras', facets?.eras],
-          ['Condition', 'conditions', facets?.conditions],
+          ...(!researchOnly ? [['Condition', 'conditions', facets?.conditions]] : []),
           ['Format', 'formats', facets?.formats],
         ].map(([label, field, values]) => (
           <div className="filter-block" key={field}>
             <div className="filter-group" role="group" aria-labelledby={`${field}-filter-label`}>
               <span className="filter-group-label" id={`${field}-filter-label`}>{label}</span>
-              {(values || []).map(({ value, count }) => (
+              {(values || []).filter(({ count }) => !researchOnly || count > 0).map(({ value, count }) => (
                 <label className="filter-option" key={value}>
                   <input
                     type="checkbox"
@@ -54,22 +55,22 @@ export default function FilterSidebar({ query, facets, onChange }) {
             <hr className="filter-divider" aria-hidden="true" />
           </div>
         ))}
-        <div className="filter-group" role="group" aria-labelledby="price-filter-label">
+        {!researchOnly && <div className="filter-group" role="group" aria-labelledby="price-filter-label">
           <span className="filter-group-label" id="price-filter-label">Price (USD)</span>
           <div className="price-range">
             <input className="price-input" type="number" min="0" value={query.minPrice ?? ''} placeholder={String(facets?.price?.min ?? 0)} aria-label="Minimum price" onChange={(event) => onChange({ minPrice: parsePrice(event.target.value) })} />
             <span aria-hidden="true">-</span>
             <input className="price-input" type="number" min="0" value={query.maxPrice ?? ''} placeholder={String(facets?.price?.max ?? 200)} aria-label="Maximum price" onChange={(event) => onChange({ maxPrice: parsePrice(event.target.value) })} />
           </div>
-        </div>
-        <hr className="filter-divider" aria-hidden="true" />
-        <div className="filter-group" role="group" aria-labelledby="stock-filter-label">
+        </div>}
+        {!researchOnly && <hr className="filter-divider" aria-hidden="true" />}
+        {!researchOnly && <div className="filter-group" role="group" aria-labelledby="stock-filter-label">
           <span className="filter-group-label" id="stock-filter-label">Availability</span>
           <label className="filter-option">
             <input type="checkbox" checked={query.inStock} onChange={(event) => onChange({ inStock: event.target.checked })} />
             <span>In stock only</span>
           </label>
-        </div>
+        </div>}
         <button className="btn btn-outline btn-sm" style={{ width: '100%', marginTop: '.5rem' }} onClick={clearAll}>Clear all filters</button>
       </aside>
     </>
