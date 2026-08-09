@@ -8,7 +8,7 @@ Groovehaus demonstrates how a recommender-powered storefront feels end to end: b
 
 Three things worth knowing up front:
 
-- Recommendations use a session-owned API path: signed-in customers receive deterministic `cold-start` results, visitors receive `anonymous-fallback`, and the restricted showcase remains `demo-profile`. Saved preferences and behavior do not affect ranking yet, and no recommendation-quality claim is made.
+- Recommendations use a session-owned API path: signed-in customers receive `preference-profile` only when the backend's default-off profile and preference flags are enabled and applicable, otherwise `cold-start`; visitors receive `anonymous-fallback`, and the restricted showcase remains `demo-profile`. Exact feedback controls are also default-off and no recommendation-quality claim is made.
 - MongoDB mode currently serves the immutable 2,305-product Amazon Reviews 2023 v2 research catalog. Nullable commerce metadata is shown honestly and cart/checkout controls are absent for dataset products. V1 and the original 116 illustrated records remain reversible backend rollback targets.
 - Product surfaces keep the approved Cover Art Archive proxy -> verified local JPEG -> placeholder chain. Legacy records use their fixed reviewed bundle; accepted v2 matches use a separate dataset bundle; ambiguous and unresolved v2 records skip local artwork and use the generic placeholder. Amazon images are never used.
 - `code_for_website/` is an early design-import snapshot kept for reference, not the running application. The active source lives in `src/`.

@@ -20,11 +20,11 @@ Statuses are `done` or `deferred`. Deferred items are not active work.
 | F-014 | Add approved Cover Art Archive images and fallbacks. | done | FFP-06 completed 2026-07-06; hardened 2026-07-21 with a stale-safe proxy -> verified local endpoint -> placeholder chain, all-116 decode coverage, screenshots, and independent review. |
 | F-015 | Add the integrated administrator UI. | done | Completed 2026-07-09 in FFP-07: RequireRole guard, AdminLayout/dashboard/product table/create-edit form with conflict re-fetch/import UX/artwork refresh. |
 | F-016 | Switch the storefront to the session-owned recommendation endpoint. | done | PERS-02 / FFP-09 completed 2026-07-10 with `/api/recommendations/me`, auth gating, subject keys, abort/generation stale protection, anonymous-only IDs, honest copy, and browser coverage. |
-| F-017 | Render the unified profile summary safely. | deferred | PERS-03; surface safe data-source flags without raw signals. |
-| F-018 | Add preference-aware mode labels and refresh on preference save. | deferred | PERS-04 / FFP-10; `preference-profile` copy and reload after save. |
-| F-019 | Add negative-feedback controls. | deferred | PERS-05 / FFP-11; not-interested, already-own, undo, show-fewer-like-this, accessible and robust. |
-| F-020 | Render behavioral mode honestly and preserve attribution. | deferred | PERS-06 / FFP-12; `behavior-profile` label, opt-out boundary. |
-| F-021 | Render popularity and anonymous-fallback modes honestly. | deferred | PERS-07; fallback labels for anonymous and empty-profile visitors. |
-| F-022 | Render the hybrid mode with truthful reasons. | deferred | PERS-08 / FFP-13; `personalized-hybrid` label, contribution-based reasons, version attribution. |
-| F-023 | Integrate, harden, and close personalization documentation. | deferred | PERS-09 / FFP-14; end-to-end integration, accessibility, documentation closure. |
-| F-024 | Render the current Amazon Reviews 2023 dataset safely. | done | Corrected v2 verified 2026-08-08: research-only facets/sorts/actions, explicit original/edition years, accepted-art local fallback or placeholder, Admin dataset status/read-only rows, live MongoDB smoke, seed plus dataset E2E, and accessibility checks. |
+| F-017 | Preserve the frontend contract during unified-profile setup. | done | PERS-03; backend-only profile prerequisite shipped without public profile fields or UI changes. |
+| F-018 | Add preference-aware mode labels and verify fresh post-save navigation. | done | PERS-04 / FFP-10; `preference-profile` label/intro, no off-surface reload, next Home/Recommendations request uses saved preferences, no relaxation UI. |
+| F-019 | Add negative-feedback controls. | done | PERS-05 / FFP-11; exact-item not-interested, already-own, undo with pessimistic accessible card state; show-fewer deferred. |
+| F-020 | Render behavioral mode honestly and preserve attribution. | deferred | PERS-06 / FFP-12; `behavior-profile`; passive opt-out does not disable direct account actions. |
+| F-021 | Render popularity and anonymous-fallback modes honestly. | deferred | PERS-07; popularity is aggregate research-rating evidence; existing deterministic fallback remains. |
+| F-022 | Render the hybrid mode with truthful reasons. | deferred | PERS-08 / FFP-13; hybrid only for preference + behavior; lower modes distinct; exact version attribution. |
+| F-023 | Integrate, harden, and close personalization documentation. | deferred | PERS-09 / FFP-14; verify existing `/me` provider flow, E2E/a11y/regressions, docs closure; new ranking flags stay off. |
+| F-024 | Render the current Amazon Reviews 2023 dataset safely. | done | Immutable v3 is active: research-only facets/sorts/actions, 208 authoritative original years, accepted-art local fallback or placeholder, Admin dataset status/read-only rows, v2 immediate rollback, v1 identity base, and exactly three showcase customers preserved. |

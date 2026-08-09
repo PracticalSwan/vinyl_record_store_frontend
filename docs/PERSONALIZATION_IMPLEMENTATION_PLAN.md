@@ -1,6 +1,6 @@
 # Personalization Implementation Plan (Frontend)
 
-This roadmap is the frontend half of converting the existing deterministic demo recommender into a genuine personalized recommender system for the Vinyl Record Store (CSX4207). PERS-00 through PERS-02 / FFP-09 were implemented and verified on 2026-07-10. DATA-00 through DATA-15 were re-verified with final lifecycle and browser evidence on 2026-08-08. PERS-03 through PERS-09 remain planning-only, were explicitly excluded from the dataset implementation, and authorize no implementation by themselves.
+This roadmap is the frontend half of converting the existing deterministic demo recommender into a genuine personalized recommender system for the Vinyl Record Store (CSX4207). PERS-00 through PERS-05 / FFP-11 were implemented on 2026-08-10 behind default-off backend flags. DATA-00 through DATA-15 were re-verified with final lifecycle and browser evidence on 2026-08-08. PERS-06 through PERS-09 remain planning-only, were explicitly excluded from the dataset implementation, and authorize no implementation by themselves.
 
 This plan is scheduled AFTER the entire existing documented roadmap: BFP-07 (admin backend), FFP-07 (admin frontend), FFP-08 (simulated checkout), and any backend support already planned for the simulated checkout. It does not reorder, replace, remove, or silently redefine any existing BFP/FFP plan.
 
@@ -12,20 +12,31 @@ Source of truth for current state: live frontend source (`src/` only; `code_for_
 
 ## DATA-15 Adaptation Gate (2026-08-08)
 
-The active MongoDB catalog is the immutable 2,305-product Amazon Reviews 2023 v2 research subset. Product artist, price, currency, stock, condition, detailed format, and original release year can be null; facets are dynamic; 208 accepted dataset-art decisions have a verified separate fallback while ambiguous/unresolved rows use the placeholder; commerce controls are absent. The Admin dashboard exposes safe source/version/counts and dataset rows are CLI-managed. Historical Amazon subjects/ratings remain backend-only. V1, the 116-record legacy catalog, `content-demo-v1`, and exactly three showcase customers are preserved.
+The active MongoDB catalog is immutable `amazon-reviews-2023-cds-vinyl-5core-v3`: 2,305 research-only products, with v2 as the immediate rollback release and v1 as the identity/legacy base. Price/currency/stock/condition are absent for research products; artist/genre/format/year can still be nullable; facets are dynamic; 208 accepted dataset-art decisions have verified local fallbacks while ambiguous/unresolved rows use the placeholder; commerce controls are absent. V3 has 208 non-null original-release years from MusicBrainz release-group evidence. Historical Amazon subjects/ratings remain backend-only. The 116-record legacy catalog, `content-demo-v1`, and exactly three showcase customers are preserved.
 
 The remaining frontend milestones are revised as follows:
 
-- PERS-03 may render only allow-listed dataset/version/readiness flags, never historical subject keys, rows, or counts that could identify a subject.
+- PERS-03 adds no frontend contract or UI. The unified profile stays backend-internal; historical subject keys/rows/counts never enter the frontend.
 - PERS-04/07/08 mode and reason copy must name the actual backend mode and remain valid when artist/genre/format/stock is unknown.
 - PERS-05/06 controls remain live-account behavior and must never imply that Amazon history belongs to the signed-in customer.
 - PERS-09 adds active-dataset/v1/legacy rollback, dynamic-facet, original-versus-edition-year, nullable-field, accepted-art/placeholder, Admin read-only-row, and exact-three-user browser regressions.
 
-Historical data-readiness does not establish recommendation quality and does not authorize new modes, feedback controls, or ranking behavior. A new explicit implementation request is required.
+Historical data-readiness does not establish recommendation quality. The PERS-03 through PERS-05 / FFP-10 through FFP-11 batch is implemented behind default-off backend flags; a new explicit implementation request is required for PERS-06 through PERS-09.
+
+## PERS-04 Through PERS-09 Re-review (2026-08-09)
+
+This revision is authoritative when older wording conflicts with it.
+
+- PERS-04 has no hard preference-relaxation UI. Stored genres/artists/formats are soft ranking signals; budget/condition appear only when the active catalog supports commercial fields. Do not call `reloadRecommendations()` from Profile/Onboarding: `CatalogProvider` disables recommendation loading off `/` and `/recommendations`, so those calls would be no-ops. The next recommendation-surface navigation already performs a fresh `/me` request.
+- PERS-05 initial UI has only `Not interested`, `Already own`, and `Undo`. `Show fewer like this` is deferred.
+- PERS-06 tracking opt-out continues to suppress the frontend analytics queue. Rating/wishlist/cart/feedback remain direct functional API actions and can still influence ranking from their durable server state; do not send duplicate tracking events just to make personalization work.
+- PERS-07 `popularity` copy describes aggregate research ratings, not recent live activity. `anonymous-fallback` remains deterministic catalog browsing when popularity evidence is unavailable.
+- PERS-08 renders `personalized-hybrid` only when preference + behavioral affinity are both available; historical popularity may join that hybrid when available. Lower modes remain pure and product-to-product content similarity stays separate.
+- PERS-09 verifies the existing PERS-02 auth/resource-key endpoint flow; it does not switch endpoints again or mutate DATA-15.
 
 ## Hard Scope Boundaries
 
-Included: routing and provider ordering for identity-safe recommendation loading; a session-owned API client call; auth-aware recommendation state with stale-response prevention; preference-edit refresh; first-class negative-feedback UI; honest mode labels and reasons; loading/empty/error/retry/fallback states; recommendation attribution; accessibility and responsive behavior; browser, component, unit, and a11y tests.
+Included: routing/provider ordering for identity-safe recommendation loading; the session-owned API client call; auth-aware recommendation state with stale-response prevention; fresh recommendation loading after preference-save navigation; first-class exact-item feedback UI; honest mode labels/reasons; loading/empty/error/retry/fallback states; recommendation attribution; accessibility/responsive behavior; browser, component, unit, and a11y tests.
 
 Explicitly excluded (mirroring the backend plan): gathering real users or additional real-world evaluation data; user studies; any claim of measured recommendation quality; completing the live evidence threshold; publishing Precision@k, Recall@k, MAP@k, NDCG@k, or other quality results without an approved model experiment; collaborative filtering and matrix factorization. The existing historical source is isolated evaluation input, not a customer profile or quality result. Synthetic fixtures and clearly labelled classroom demo profiles may be used for development and testing, never presented as real evaluation evidence.
 
@@ -40,9 +51,9 @@ These facts were verified by reading `src/`, not by trusting doc status tables.
 - `AuthProvider` restores the session, guards auth-operation races, and exposes the safe user. `CatalogProvider` consumes `publicId` only as a local resource key; it is never sent as recommendation identity.
 - `StoreProvider` (`src/context/StoreProvider.jsx`) uses session-only guest state, merges guest state only on sign-up, and tracks wishlist/cart/rating events with recommendation attribution. Preference saves do not refresh recommendations (intentional today).
 - Tracking lives in `src/lib/tracking.js` and `src/context/TrackingProvider.jsx`: anonymous id in localStorage, session id in sessionStorage, a durable queue (max 500, batch 25), opt-out (env + per-user), fire-and-forget, impression dedupe, full recommendation attribution (`requestId`/`listId`/`rank`/`mode`/`algorithmVersion`), and `prepareTrackingIdentityChange` which flushes/discards before identity changes.
-- Home and Recommendations render `demo-profile`, `cold-start`, and `anonymous-fallback` honestly; product detail continues to render product-based similarity separately.
-- No negative-feedback UI exists (no not-interested, already-own, show-fewer-like-this). `recommendation_dismiss` is deferred on the frontend (`INTERACTION_LOGGING_PLAN.md`).
-- Preference UI fields (`src/lib/preferences.js`): `favoriteGenres`, `dislikedGenres`, `favoriteArtists`, `budget.{min,max}`, `conditions`, `formats`. Onboarding is a 3-step wizard; profile preferences is a single page. Visible copy states preferences do not change the current demo ranking.
+- Home and Recommendations render `demo-profile`, `cold-start`, `preference-profile`, and `anonymous-fallback` honestly; product detail continues to render product-based similarity separately.
+- Default-off PERS-05 adds only not-interested, already-own, and undo with a pessimistic status placeholder; `show-fewer-like-this` is deferred. `recommendation_dismiss` remains an analytics event concept, not durable feedback state.
+- Preference UI fields (`src/lib/preferences.js`): `favoriteGenres`, `dislikedGenres`, `favoriteArtists`, `budget.{min,max}`, `conditions`, `formats`. Onboarding is a 3-step wizard; profile preferences is a single page. The visible mode/copy stays honest when the backend preference flag is disabled and names `preference-profile` when it is enabled.
 - Tests include API and `CatalogProvider` identity/race contracts plus browser coverage for authenticated `/me`, anonymous/tampered fallback, admin denial, cross-user legacy parity, analytics attribution, and prerequisite account cleanup.
 - Env adds default-on `VITE_PERS_ME_ENDPOINT` beside `VITE_API_BASE_URL`, `VITE_TRACKING_ENABLED`, and `VITE_TRACKING_DEBUG`.
 
@@ -55,7 +66,7 @@ The order is identical to the backend plan. Each PERS milestone maps to the same
 | PERS-00 | Audit and decision freeze | (BDEC-016; BR-020/BR-021) | (FDEC-011; FR-013/FR-014) |
 | PERS-01 | Proper identity enforcement | BFP-08 | (contract tests only) |
 | PERS-02 | Session-owned signed-in-user endpoint | BFP-09 | FFP-09 |
-| PERS-03 | Unified recommendation profile and feedback domain | BFP-10 | (consumed via API) |
+| PERS-03 | Unified recommendation profile and feedback domain | BFP-10 | (no frontend change) |
 | PERS-04 | Preference-aware ranking | BFP-11 | FFP-10 |
 | PERS-05 | Negative-feedback capture and durable suppression | BFP-12 | FFP-11 |
 | PERS-06 | Behavioral-signal personalization | BFP-13 | FFP-12 |
@@ -63,7 +74,7 @@ The order is identical to the backend plan. Each PERS milestone maps to the same
 | PERS-08 | Hybrid recommendation orchestration | BFP-15 | FFP-13 |
 | PERS-09 | Cross-repository integration, migration, regression protection, documentation closure | BFP-16 | FFP-14 |
 
-Frontend uses FFP-09 through FFP-14. Backend uses BFP-08 through BFP-16. No existing BFP, FFP, task, decision, or risk ID is reused. Next-unused task ID is F-016; decision FDEC-011; risk FR-013.
+Frontend uses FFP-09 through FFP-14. Backend uses BFP-08 through BFP-16. Do not reuse IDs allocated by later admin/dataset work. As of this re-review, the next unused supporting frontend IDs are F-025, FDEC-018, and FR-030. Existing PERS task/risk IDs stay as already registered; allocate a new ID only for a genuinely new item.
 
 ## Milestone Template
 
@@ -129,7 +140,7 @@ Frontend decisions to freeze (FDEC-011):
 - Sign-out clears personalized recommendations; in-flight requests are aborted on identity change; stale responses cannot overwrite new-user results.
 - Tracking queues are flushed or discarded before identity changes (already implemented; preserved).
 - Recommendation attribution stays attached to cards and detail-page navigation.
-- Preference edits refresh recommendations for authenticated users (new in PERS-04).
+- Preference edits affect the next authenticated recommendation load (new in PERS-04). FDEC-011's refresh intent is satisfied by the existing route/resource-key load when the user next enters Home/Recommendations; do not add an off-surface reload from Profile/Onboarding.
 - Negative feedback updates the displayed list (new in PERS-05).
 - Loading, empty, retry, partial, and fallback states are distinct.
 - Demo-profile language is removed from true personalized surfaces; synthetic showcase accounts remain clearly labelled as demonstrations.
@@ -403,94 +414,43 @@ None. The implementation uses both provider reorder and an explicit gating condi
 
 ### ID And Title
 
-PERS-03 / BFP-10 (backend) — Unified profile and feedback domain. Frontend consumes the safe surface; no new UI yet.
+PERS-03 / BFP-10 (backend) — Unified profile and feedback domain. No frontend change in this milestone.
 
 ### Status
 
-Planned. Blocked by PERS-02.
+Implemented on 2026-08-10 with no frontend profile-field or public API change; the backend profile remains server-internal behind `PERS_PROFILE_DOMAIN`.
 
 ### Goal
 
-Render the safe `profileSummary` and `dataSourceFlags` the backend now returns, without exposing raw signals.
-
-### Why It Is Required
-
-The unified profile produces a richer (but still safe) summary the frontend should surface honestly.
-
-### Current Implementation Gap
-
-`profileSummary` is rendered as signal-pills today (`RecommendationsPage.jsx`, `ProfileSummary`). New data-source flags are not yet handled.
+Keep the new profile domain server-internal. Preserve the current frontend `/me` handling and existing `profileSummary` UI until PERS-04+ introduces an actual new ranking mode/reason.
 
 ### Dependencies
 
 - Backend BFP-10.
 
-### Non-goals
-
-- New feedback UI (that is FFP-11 in PERS-05).
-- Exposing raw signals or counts that leak private behavior.
-
-### Backend Changes
-
-See backend plan (BFP-10).
-
 ### Frontend Changes
 
-- Extend `ProfileSummary` to render safe `dataSourceFlags` (for example "preferences", "ratings", "wishlist", "cart", "feedback", "behavioral") as labelled pills, with copy that never claims measured quality.
-- Continue to treat the summary as explanatory, not as a quality claim.
+None.
 
 ### API Contract
 
-Consumes the extended `/me` response (`profileSummary`, `dataSourceFlags`). No new route.
-
-### Data-Model Changes
-
-None.
-
-### Algorithm Or Business Rules
-
-None.
-
-### Privacy And Security Rules
-
-- Render only the allow-listed safe fields.
-
-### Edge Cases
-
-- Empty profile summary (cold-start): render the existing cold-start copy.
-- Unknown flag: ignored.
-
-### Failure And Recovery Behavior
-
-- Missing fields: render what is available; never error.
-
-### Migration Strategy
-
-- Additive UI behind the same backend flag; no standalone frontend flag needed.
+No public frontend contract change in PERS-03. Do not add `dataSourceFlags`, profile completeness, raw profile signals, or source counts.
 
 ### Tests
 
-- `tests/components/ProfileSummary.test.jsx` (new): renders safe flags; ignores unknown; cold-start copy when empty; no raw signal text.
-
-### Documentation Updates
-
-- `UI_UX_PLAN.md`: data-source pills.
+- Existing recommendation/profile-summary tests remain regression gates; no new frontend PERS-03 test file is required.
 
 ### Definition Of Done
 
-- Safe summary and flags render honestly; no raw signals; cold-start copy intact.
+- Backend PERS-03 can ship without a frontend diff; current cold-start/demo rendering remains unchanged.
 
 ### Rollback Criteria
 
-Hide the flags; summary reverts to today's pills.
-
-### Risks
-
-- FR-017: a flag leaks private behavior. Mitigation: allow-list test.
+No frontend rollback is needed.
 
 ### Decisions Still Requiring Approval
 
-- Which flags to surface initially (proposed allow-list above).
+None frontend-specific.
 
 ---
 
@@ -498,15 +458,15 @@ Hide the flags; summary reverts to today's pills.
 
 ### ID And Title
 
-PERS-04 / FFP-10 (frontend) + BFP-11 (backend) — Preference-aware ranking surfaces and preference-edit refresh.
+PERS-04 / FFP-10 (frontend) + BFP-11 (backend) — Preference-aware ranking surfaces and fresh post-save recommendation loading.
 
 ### Status
 
-Planned. Blocked by backend BFP-11.
+Implemented on 2026-08-10 behind the backend preference flag; the frontend labels `preference-profile` and leaves Profile/Onboarding independent from recommendation loading.
 
 ### Goal
 
-Render the `preference-profile` mode honestly, refresh recommendations when preferences change, and explain relaxed constraints.
+Render `preference-profile` honestly and rely on the existing route-scoped recommendation load after preferences are saved. Do not add an off-surface refresh or constraint-relaxation UI.
 
 ### Why It Is Required
 
@@ -514,8 +474,8 @@ Preferences become real; the UI must reflect that without overclaiming.
 
 ### Current Implementation Gap
 
-- Mode label only handles `demo-profile`/cold-start.
-- Saving preferences does not refresh recommendations (intentional today; the copy says so).
+- Current mode rendering already handles `demo-profile`, `content-similarity`, `cold-start`, and `anonymous-fallback`, but not `preference-profile`.
+- Preference pages are off the recommendation surfaces; their saves do not need to refresh CatalogProvider. The missing regression is proving that the next Home/Recommendations route load uses the persisted preferences.
 
 ### Dependencies
 
@@ -532,14 +492,17 @@ See backend plan (BFP-11).
 
 ### Frontend Changes
 
-- Add `preference-profile` to the mode-label branch in `RecommendationsPage.jsx` and `HomePage.jsx` with honest copy (for example "Based on the preferences you saved.").
-- Remove/replace the existing copy that says preferences do not affect ranking (`ProfilePreferencesPage.jsx:37`, `OnboardingPage.jsx:30`) once preference ranking is live for authenticated users.
-- Wire `savePreferences` (in `AuthProvider` or the page) to call `reloadRecommendations` for authenticated users after a successful save; keep the showcase `demo-profile` copy where applicable.
-- Render relaxed-constraint notices when the backend reports them (distinct, honest, non-alarmist).
+- Add `preference-profile` to Home/Recommendations mode rendering with honest copy such as `Based on the preferences you saved.`
+- Remove/replace any copy that says saved preferences do not affect ranking once the backend flag is enabled.
+- Do not import/use `useCatalog()` from `ProfilePreferencesPage.jsx` or `OnboardingPage.jsx` just to refresh recommendations. `CatalogProvider` sets its recommendation resource `enabled` only on `/` and `/recommendations`, so `reloadRecommendations()` on those preference routes is intentionally a no-op.
+- Keep the existing save flows: persist preferences, then stay on Profile or continue Onboarding navigation. When the user next enters `/` or `/recommendations`, the existing route/resource-key effect performs a fresh `/api/recommendations/me` request and uses the saved preferences.
+- Failed preference save keeps the existing error behavior and must not navigate as successful. Do not add a second recommendation store, provider coupling, or manual cache invalidation.
+- Research-only preference UI remains genre/artist/format only. Do not show budget/condition ranking explanations while the active catalog has no commercial fields.
+- Do not add relaxed-constraint notices or controls.
 
 ### API Contract
 
-Consumes `mode: "preference-profile"` and reason strings; sends preference changes via `PATCH /api/me/preferences` (unchanged).
+Consumes `mode: "preference-profile"`, `algorithmVersion: "preference-profile-v1"`, and server-owned `reasons[]`; preference writes remain `PATCH /api/me/preferences`.
 
 ### Data-Model Changes
 
@@ -547,7 +510,7 @@ None.
 
 ### Algorithm Or Business Rules
 
-None (backend-owned).
+Frontend never reproduces preference scoring. It renders the returned mode/reasons only and refreshes after successful persisted preference changes.
 
 ### Privacy And Security Rules
 
@@ -555,25 +518,36 @@ None (backend-owned).
 
 ### Edge Cases
 
-- Empty preferences after save: fall through to next ladder rung; copy reflects it.
-- Partial onboarding: refresh uses whatever is saved.
-- Preference edit during an in-flight recommendation request: next request reflects it; in-flight not mutated.
-- Relaxed constraints: notice shown.
-- Showcase account: keeps labelled `demo-profile` or its seeded preference profile, clearly a demonstration.
+- Empty preferences after save: backend returns the appropriate lower mode; frontend renders that mode, not `preference-profile`.
+- Partial onboarding: only successfully persisted fields affect the next recommendation-surface request.
+- Preference save occurs off the recommendation surfaces, so there is no active recommendation request to refresh there. When the user later navigates to Home/Recommendations, the route/resource-key effect starts the fresh request.
+- Research-only catalog: no budget/condition controls or reasons.
+- Showcase/demo path remains clearly labelled and is not converted into a registered-user profile by UI logic.
 
 ### Failure And Recovery Behavior
 
-- Preference save fails: keep prior preferences; show recoverable error; do not refresh.
+- Preference save fails: keep prior saved preferences, show the existing recoverable error, and do not treat the save as successful.
+- The next Home/Recommendations request can fail independently; use the existing recommendation error/retry state without rolling preferences back.
 
 ### Migration Strategy
 
-- Behind the same backend flag `PERS_PREFERENCE_RANKING`.
+- UI behavior is additive and follows backend `PERS_PREFERENCE_RANKING`; no localStorage migration or new provider.
 
 ### Tests
 
-- `tests/components/RecommendationsPage.test.jsx` (new): `preference-profile` label; relaxed-constraint notice; cold-start fallback copy.
-- `tests/components/ProfilePreferencesPage.test.jsx` extended: successful save triggers `reloadRecommendations`; failed save does not.
-- `tests/e2e/analytics.spec.js` extended: authenticated user with preferences sees `preference-profile`.
+- `tests/components/RecommendationsPage.test.jsx`: `preference-profile` versus current cold-start/anonymous fallback labels; server reason rendering; no relaxation UI.
+- `tests/components/ProfilePreferencesPage.test.jsx`: successful save persists state without importing/calling catalog reload; failed save keeps error behavior; unsaved-change blocker still passes.
+- Add/extend onboarding test: successful save keeps the existing navigation; failed save does not navigate. No catalog-reload dependency is introduced.
+- `tests/components/PreferencesForm.test.jsx`: research-only keeps budget/condition hidden and stale saved values safe.
+- E2E: save preferences, then navigate to Home/Recommendations and assert that the route-scoped `/api/recommendations/me` request is fresh and reflects the persisted preference mode/reasons.
+
+### Exact Implementation Order
+
+1. Add mode/reason rendering tests first.
+2. Keep Profile/Onboarding save flows independent from CatalogProvider; add regression tests that no off-surface reload is introduced.
+3. Update obsolete "preferences do not affect ranking" copy only when the feature is enabled/live.
+4. Verify research-only preference form remains unchanged.
+5. Add E2E save → navigate to Home/Recommendations → fresh `/me` load, then run frontend test/lint/build.
 
 ### Documentation Updates
 
@@ -582,20 +556,19 @@ None (backend-owned).
 
 ### Definition Of Done
 
-- `preference-profile` rendered honestly; preference saves refresh recommendations; relaxed-constraint notices work; old "preferences do not affect ranking" copy replaced for authenticated users.
+- `preference-profile` renders honestly; Profile/Onboarding remain uncoupled from the route-scoped recommendation resource; the next Home/Recommendations navigation fetches fresh persisted preferences; research-only commercial controls/reasons stay absent; no relaxation UI exists; obsolete non-personalization copy is replaced when the feature is live.
 
 ### Rollback Criteria
 
-Disable backend flag; UI reverts to cold-start/demo copy.
+Disable backend preference ranking; UI renders the lower returned mode. The save flow remains valid and no client data rollback is required.
 
 ### Risks
 
-- FR-018: copy still claims preferences do not work after they do. Mitigation: copy-update checklist in Definition of Done.
-- FR-019: refresh double-fires or races. Mitigation: gate refresh on save success and abort in-flight.
+- FR-018: preference copy is stale or implementation adds a no-op/off-surface catalog reload that obscures the real route-scoped refresh behavior. Mitigation: feature-aware copy tests plus save → navigate → fresh `/me` E2E.
 
 ### Decisions Still Requiring Approval
 
-- Whether to auto-refresh on every preference save or require a user action (proposed auto-refresh).
+None. Post-success automatic refresh is selected.
 
 ---
 
@@ -607,11 +580,11 @@ PERS-05 / FFP-11 (frontend) + BFP-12 (backend) — First-class negative-feedback
 
 ### Status
 
-Planned. Blocked by backend BFP-12 and ideally after FFP-10.
+Implemented on 2026-08-10 behind the backend feedback flag with pessimistic exact-item controls and contextual Undo; `Show fewer like this` remains deferred.
 
 ### Goal
 
-Add accessible, robust not-interested / already-own / show-fewer-like-this / undo controls that update the displayed list and recover from failure.
+Add accessible `Not interested`, `Already own`, and `Undo` controls for exact-item feedback. Keep writes pessimistic, replace the confirmed card with a local status+Undo placeholder, and defer `Show fewer like this`.
 
 ### Why It Is Required
 
@@ -619,16 +592,17 @@ Negative feedback must be a real feature, not just analytics. The UI is where us
 
 ### Current Implementation Gap
 
-No feedback controls exist. `recommendation_dismiss` is deferred.
+The first-batch durable feedback controls are implemented behind the backend flag. `recommendation_dismiss` remains only an analytics event type; it is not authoritative feedback state.
 
 ### Dependencies
 
 - Backend BFP-12 (feedback routes).
-- FFP-09 (`/me`), FFP-10 (refresh pattern).
+- Existing FFP-09 `/me` recommendation surface and PERS-04/FFP-10 mode handling. No special refresh pattern is required for feedback.
 
 ### Non-goals
 
-- Permanent broad genre suppression from one item (backend-owned; UI only offers explicit genre dislike if approved).
+- Adding a new genre-level feedback control. Broad taste preferences stay in the existing `dislikedGenres` preference UI; one item action never edits that preference.
+- Adding a persistent feedback-management/history screen. V1 Undo is contextual to the confirmed placeholder in the current rendered list; after navigation/reload, stored feedback remains active and a later management surface would be a separate task.
 - Queueing feedback as analytics (it is a functional action).
 
 ### Backend Changes
@@ -637,27 +611,26 @@ See backend plan (BFP-12).
 
 ### Frontend Changes
 
-- Add `src/lib/feedback.js` API helpers: `putFeedback(productId, { kind, scope, reason })`, `deleteFeedback(productId, { kind })`, `fetchFeedback()`.
-- Add `src/components/FeedbackControls.jsx` (or extend `ProductCard.jsx` and `DetailPage.jsx`) with accessible buttons: "Not interested", "Already own", optional "Show fewer like this", and "Undo".
-- Placement: card footer and detail-page actions; visible keyboard focus; adequate touch-target size; mobile layout verified.
-- States: loading (disable while pending), disabled, error with recovery. Prevent double-click.
-- Update strategy: pessimistic for creates (await server confirmation before removing from the list) so a late network failure cannot strand a removed item; undo is optimistic with rollback on error. Final choice in FDEC-012.
-- On success: remove or re-rank the item; announce via an `aria-live` region; update explanations.
-- Error/offline: keep the item; show a recoverable error; do not queue.
-- Cross-tab consistency: refresh feedback state on window focus when authenticated.
-- Send `recommendation_dismiss` (or the new explicit feedback event type) with full attribution when the user acts.
+- Add `src/lib/feedback.js` helpers only for `putFeedback(productId, { kind })` and `deleteFeedback(productId)`. One current feedback row exists per product; choosing the other kind replaces it. Do not add a feedback-list helper or global persisted-feedback store in v1.
+- Add one reusable `FeedbackControls.jsx` with exactly `Not interested`, `Already own`, and `Undo`. Do not add `Show fewer like this`.
+- Initial placement: recommendation cards only. Add detail-page controls only under a later explicit task; do not widen scope for symmetry.
+- Create is pessimistic: disable controls while pending. After durable success, keep the card component mounted but replace its product content with a compact `role="status"` placeholder such as `Removed from recommendations.` plus `Undo`; move focus to that Undo button so keyboard focus is not lost when the original control disappears.
+- Undo is also pessimistic: after successful DELETE, restore the card locally and return focus to the restored feedback control. If create/delete fails, keep the prior visible state/focus and show a recoverable inline error.
+- Do not call `reloadRecommendations()` solely for feedback. The local placeholder updates the current list; the next normal Home/Recommendations load is server-authoritative and will omit stored feedback items. Do not hand-rerank/refill the list in the browser.
+- Do not add window-focus polling/cross-tab feedback synchronization in v1.
+- Functional feedback must not depend on `track()`. If analytics attribution is desired and tracking is enabled, emit it only after durable feedback succeeds; analytics failure cannot revert feedback.
 
 ### API Contract
 
-Consumes backend feedback routes. Sends attributed interaction events.
+Consumes only `PUT /api/me/feedback/:productId` and `DELETE /api/me/feedback/:productId`. `PUT` sends only `{ kind: "not-interested" | "already-own" }`; changing kind replaces the current row. `DELETE` needs no kind query and may return `removed: false` on repeated undo. There is no public feedback-list route and no scope/reason/show-fewer payload in v1.
 
 ### Data-Model Changes
 
-None.
+None frontend-side.
 
 ### Algorithm Or Business Rules
 
-UI sends `{ kind, scope?, reason? }`; backend owns suppression semantics.
+Frontend only sends exact-item feedback kinds and renders server state. Backend owns exclusion/taste semantics.
 
 ### Privacy And Security Rules
 
@@ -666,51 +639,58 @@ UI sends `{ kind, scope?, reason? }`; backend owns suppression semantics.
 
 ### Edge Cases
 
-- Duplicate dismiss (rapid double-click): disabled-while-pending prevents; idempotent anyway.
-- Undo twice: idempotent.
-- Dismiss a since-deleted product: backend handles; UI shows success then removes.
-- Network failure after optimistic removal: pessimistic strategy avoids for creates; undo rollback handles its own failure.
-- Feedback during a refreshing recommendation request: next request reflects it.
-- Conflict (rating 5 and not-interested): UI allows both; suppression wins on the item.
+- Rapid duplicate create: pending button prevents it; backend idempotency remains authoritative.
+- Undo twice: second request is harmless/idempotent and UI stays consistent.
+- Product becomes inactive after feedback was stored: the current confirmed placeholder remains harmless; the next normal recommendation load simply omits the product.
+- A separate recommendation reload occurs while the placeholder is shown: backend state is authoritative; the item stays omitted if feedback still exists.
+- Rating 5 plus not-interested: UI permits both; item remains excluded and no "you dislike this artist" copy is invented.
+- Tracking disabled: feedback still succeeds; no passive/analytics queue requirement.
 
 ### Failure And Recovery Behavior
 
-- Backend unavailable: create rejected with recoverable error; existing list unchanged.
-- Partial failure: rollback optimistic state.
+- Create/delete fails: keep the prior card/placeholder state and show a recoverable inline error.
+- After confirmed create, the placeholder is the current source of UI truth until the next normal recommendation load. Do not trigger a special reload or automatically undo durable feedback because another request fails.
 
 ### Migration Strategy
 
-- Additive UI behind the same backend flag `PERS_NEGATIVE_FEEDBACK`.
+- Additive UI behind backend `PERS_NEGATIVE_FEEDBACK`; no local persistence migration.
 
 ### Tests
 
-- `tests/components/FeedbackControls.test.jsx` (new): submission, undo, loading/disabled, error recovery, keyboard operation, screen-reader announcement, double-click prevention.
-- `tests/components/ProductCard.test.jsx` (new or extended): controls render with attribution; pessimistic removal.
-- `tests/e2e/` extended: not-interested removes and suppresses; already-own excludes without implying dislike; undo restores.
+- `tests/components/FeedbackControls.test.jsx`: two allowed kinds, contextual undo, pending/double-click prevention, create/delete errors, keyboard/focus/touch semantics, `aria-live` announcement.
+- Recommendation card/page tests: confirmed create replaces the card content with status+Undo without calling catalog reload; failed create keeps the original card; confirmed undo restores it; failed undo keeps the placeholder; tracking disabled does not disable functional feedback; no show-fewer control.
+- E2E: not-interested/already-own create the confirmed placeholder; navigate away/back (or otherwise perform a normal recommendation load) and assert backend suppression omits the item; undo restores future eligibility; stale requests cannot overwrite a newer recommendation resource generation.
+
+### Exact Implementation Order
+
+1. Add feedback API helper tests for exact v1 payloads and one-row-per-product replacement/undo behavior.
+2. Add reusable controls on recommendation cards with pessimistic create/delete and local status+Undo placeholder state.
+3. Verify confirmed create hides product content locally without calling catalog reload; confirmed undo restores it. A later normal recommendation load must enforce backend suppression.
+4. Add optional analytics mirror only through the existing tracker and only if enabled; never make it required.
+5. Run component/a11y tests, full frontend test/lint/build, then feedback E2E with tracking both on and off.
 
 ### Documentation Updates
 
 - `UI_UX_PLAN.md`: control placement, states, accessibility.
 - `RECOMMENDER_SYSTEM_PLAN.md`: feedback semantics summary.
-- `INTERACTION_LOGGING_PLAN.md`: `recommendation_dismiss`/feedback event un-deferred.
+- `INTERACTION_LOGGING_PLAN.md`: document that durable feedback is a functional API and any `recommendation_dismiss`/feedback analytics mirror is optional, tracking-gated, and never authoritative.
 
 ### Definition Of Done
 
-- All controls work accessibly; pessimistic creates; undo idempotent; list updates; announcements fire; mobile/keyboard verified; events attributed.
+- Only `Not interested`, `Already own`, and `Undo` ship; create/delete writes are pessimistic; confirmed create becomes an accessible local status+Undo placeholder without a special recommendation reload; next normal load enforces backend suppression; errors are recoverable; tracking opt-out does not disable feedback; keyboard/screen-reader/mobile behavior passes.
 
 ### Rollback Criteria
 
-Hide controls; backend flag off. No data to roll back.
+Hide controls/disable backend feedback flag. Existing durable feedback rows remain server-side and harmless; no client data rollback.
 
 ### Risks
 
-- FR-020: optimistic removal strands items on network failure. Mitigation: pessimistic creates.
-- FR-021: controls inaccessible. Mitigation: axe + keyboard tests.
+- FR-019: UI state diverges from durable feedback or Undo becomes unreachable after suppression. Mitigation: pessimistic writes plus a confirmed in-card status+Undo placeholder; the next normal recommendation load remains server-authoritative.
+- FR-020: feedback controls are inaccessible. Mitigation: component a11y + keyboard/focus/touch-target tests.
 
 ### Decisions Still Requiring Approval
 
-- Pessimistic vs optimistic create (proposed pessimistic).
-- Genre-level dislike control (proposed optional, off by default).
+None for v1. Pessimistic create is selected; `Show fewer like this` and genre-level feedback are deferred.
 
 ---
 
@@ -726,15 +706,15 @@ Planned. Blocked by backend BFP-13.
 
 ### Goal
 
-Render `behavior-profile` mode honestly, ensure attribution continues to flow, and verify opt-out stops passive capture while explicit actions still send.
+Render `behavior-profile` honestly, preserve attribution for passive events that are actually captured, and verify tracking opt-out stops passive analytics without disabling direct rating/wishlist/cart/feedback features.
 
 ### Why It Is Required
 
-Behavioral ranking is the largest signal source; the UI must be honest and must not break attribution or opt-out.
+Behavioral affinity combines durable account actions with optional weak passive activity. The UI must not imply that opting out disables functional account state or that every behavioral reason came from passive tracking.
 
 ### Current Implementation Gap
 
-Mode label does not handle `behavior-profile`. Opt-out is frontend-enforced for passive events already.
+Mode rendering does not handle `behavior-profile`. Frontend opt-out already disables the tracking queue; direct account actions use separate APIs and must stay separate.
 
 ### Dependencies
 
@@ -752,13 +732,15 @@ See backend plan (BFP-13).
 
 ### Frontend Changes
 
-- Add `behavior-profile` to the mode-label branch with honest copy (for example "Based on records you have viewed and saved.").
-- Verify opt-out stops passive event capture (already implemented) and that explicit functional actions (ratings, wishlist, cart, feedback) still send under opt-out.
-- Preserve full attribution on every event.
+- Add `behavior-profile` to Home/Recommendations mode rendering. Use neutral copy such as `Based on activity and account signals available for this profile.`; specific evidence belongs in server `reasons[]`.
+- Keep the existing tracker rule: when tracking is disabled, `track()` returns false and no passive analytics queue is sent.
+- Do not force ratings, wishlist, cart, or feedback through `track()`. Those direct functional APIs must continue to work while tracking is disabled.
+- Preserve recommendation attribution only on passive events that are actually captured; do not invent attribution for durable account state.
+- Render backend reason strings as-is within normal UI escaping. A behavior reason may still be valid under opt-out when it came from durable rating/wishlist/cart/feedback state.
 
 ### API Contract
 
-Consumes `mode: "behavior-profile"` and behavioral reasons. Under opt-out, the backend will not return behavioral reasons.
+Consumes `mode: "behavior-profile"`, `algorithmVersion: "behavior-profile-v1"`, and server-owned `reasons[]`. Frontend does not receive raw interaction rows or signal weights.
 
 ### Data-Model Changes
 
@@ -766,31 +748,44 @@ None.
 
 ### Algorithm Or Business Rules
 
-None (backend-owned).
+Frontend does not infer behavioral taste or hide all behavioral reasons under opt-out. It renders the backend-selected mode/reasons.
 
 ### Privacy And Security Rules
 
-- Opt-out honored for passive events; explicit actions still sent.
+- Opt-out means no passive analytics capture/delivery.
+- Direct account actions still call their functional endpoints; this is not tracking bypass.
+- Never render raw search text, raw interaction rows, historical Amazon identity, or component weights.
 
 ### Edge Cases
 
-- Opt-out active: no passive events sent; no behavioral reasons rendered.
-- Anonymous visitor: no behavioral profile; anonymous fallback rendered.
-- Identity change during queued delivery: generation guard discards stale batches (already implemented).
+- Opt-out active + user has ratings/wishlist: `behavior-profile` may still appear with durable-state reasons.
+- Opt-out active + no usable behavioral state: render the lower mode the backend actually returns. Before PERS-07 this is preference/cold-start/anonymous fallback; popularity becomes possible only after PERS-07.
+- Anonymous visitor: no live-customer behavioral profile.
+- Identity change during queued delivery: existing generation guard discards stale batches.
+- Tracking enabled but passive queue delivery fails: direct account actions and current recommendation UI remain functional.
 
 ### Failure And Recovery Behavior
 
-- No behavioral evidence: backend returns a different mode; UI renders accordingly.
+- No behavioral evidence: backend returns a lower mode; UI does not force a behavior label.
+- Passive tracking failure is non-blocking UI analytics failure, not a recommendation-page fatal error.
 
 ### Migration Strategy
 
-- Additive label behind the same backend flag `PERS_BEHAVIORAL_RANKING`.
+- Additive mode/reason handling behind backend `PERS_BEHAVIORAL_RANKING`; no tracker storage migration.
 
 ### Tests
 
-- `tests/unit/tracking.test.js` extended: opt-out suppresses passive; explicit actions still sent.
-- `tests/components/RecommendationsPage.test.jsx` extended: `behavior-profile` label; no behavioral reason under opt-out.
-- `tests/e2e/analytics.spec.js` extended: opt-out stops passive delivery; explicit actions still delivered.
+- `tests/unit/tracking.test.js`: opt-out suppresses passive capture/queue/delivery; identity-change generation guard remains; tracking-enabled attribution stays complete.
+- Functional store/feedback tests: rating/wishlist/cart/feedback APIs still execute with tracking disabled and do not require `track()` success.
+- Recommendation page tests: `behavior-profile` label/reasons; durable-state reason allowed under opt-out; lower mode rendered when backend returns one.
+- E2E: tracking off → no passive `/interactions` delivery, direct account actions still succeed, recommendation refresh can reflect durable state.
+
+### Exact Implementation Order
+
+1. Add tests proving direct functional actions do not depend on tracking.
+2. Add `behavior-profile` label/reason rendering only; do not redesign tracking provider.
+3. Update opt-out copy/tests to distinguish passive analytics from direct account features.
+4. Run tracking/unit/component tests, full frontend test/lint/build, then opt-out E2E.
 
 ### Documentation Updates
 
@@ -799,15 +794,15 @@ None (backend-owned).
 
 ### Definition Of Done
 
-- `behavior-profile` rendered honestly; attribution preserved; opt-out boundary correct.
+- `behavior-profile` renders honestly; passive attribution is preserved only when captured; opt-out stops passive analytics; direct account actions still work and durable-state reasons remain allowed when truthful.
 
 ### Rollback Criteria
 
-Disable backend flag; UI reverts to prior modes.
+Disable backend behavioral ranking; UI renders the lower returned mode. Existing tracking opt-out behavior remains unchanged.
 
 ### Risks
 
-- FR-022: behavioral reason rendered under opt-out. Mitigation: backend-suppression + UI test.
+- FR-021: UI wrongly treats opt-out as "disable all personalization" or disables functional actions. Mitigation: durable-state-under-opt-out and direct-action tests.
 
 ### Decisions Still Requiring Approval
 
@@ -827,15 +822,15 @@ Planned. Blocked by backend BFP-14.
 
 ### Goal
 
-Render `popularity` and `anonymous-fallback` modes honestly for anonymous visitors and fallback cases.
+Add honest rendering for the new `popularity` mode while preserving the already implemented `anonymous-fallback` and cold-start handling.
 
 ### Why It Is Required
 
-Anonymous visitors and empty-profile users need an honest fallback label.
+PERS-07 replaces plain catalog ordering with active-dataset historical popularity when aggregate evidence is available. The UI must distinguish that research-data aggregate from both personalization and the existing deterministic fallback.
 
 ### Current Implementation Gap
 
-No `popularity`/`anonymous-fallback` mode handling.
+`anonymous-fallback` is already implemented. Only `popularity` mode/version/reason handling is new.
 
 ### Dependencies
 
@@ -851,12 +846,14 @@ See backend plan (BFP-14).
 
 ### Frontend Changes
 
-- Add `popularity` and `anonymous-fallback` to the mode-label branch with honest copy (for example "Popular recent picks." and "Browse the catalog.").
-- Ensure anonymous visitors see the fallback on Home and Recommendations without any authenticated-only affordance.
+- Add only the new `popularity` branch where recommendation mode labels are rendered. Use copy such as `Popular in the research ratings dataset.`; never say `recent`, `trending`, or `popular with users like you`.
+- Keep existing `anonymous-fallback`/cold-start copy unchanged unless backend wording requires a contract-safe update.
+- Render server reasons without exposing raw rating counts/means or historical subject information.
+- Anonymous and authenticated lower-fallback surfaces use the same mode renderer; do not add authenticated-only controls to popularity cards.
 
 ### API Contract
 
-Consumes `mode: "popularity"` / `"anonymous-fallback"`.
+Consumes `mode: "popularity"`, `algorithmVersion: "popularity-v1"`, or the already supported lower fallback modes.
 
 ### Data-Model Changes
 
@@ -864,28 +861,36 @@ None.
 
 ### Algorithm Or Business Rules
 
-None.
+Frontend does not calculate popularity or infer recency. It renders the backend mode/reasons only.
 
 ### Privacy And Security Rules
 
-- No per-user data in fallback responses.
+- Popularity wording describes aggregate research ratings only; it never implies the signed-in customer's history or exposes historical users.
 
 ### Edge Cases
 
-- No popularity evidence: backend returns `anonymous-fallback`; UI renders catalog browsing copy.
+- Historical evidence available → `popularity`.
+- No evidence/seed mode → existing `anonymous-fallback` or `cold-start` according to the backend response.
+- Backend returns popularity to an authenticated empty-profile user → render it as non-personal aggregate, not "for you".
 
 ### Failure And Recovery Behavior
 
-- Backend unavailable: recoverable error with retry for anonymous fallback.
+- Backend request failure uses the existing recoverable recommendation error/retry state; frontend must not fabricate catalog results locally.
 
 ### Migration Strategy
 
-- Additive label behind the same backend flag `PERS_POPULARITY`.
+- One additive mode label behind backend `PERS_POPULARITY`; no provider/state migration.
 
 ### Tests
 
-- `tests/components/RecommendationsPage.test.jsx` extended: `popularity` and `anonymous-fallback` labels.
-- `tests/e2e/routes.spec.js` extended: anonymous Home/Recommendations render fallback.
+- Recommendation page/Home tests: popularity label/version/reason; no `recent`/personalized wording; existing anonymous-fallback copy regression.
+- E2E MongoDB anonymous: popularity rendered when backend returns it. Seed/no-evidence fixture: deterministic fallback label remains.
+
+### Exact Implementation Order
+
+1. Add mode-label tests for popularity vs anonymous/cold-start.
+2. Add the popularity label/reason branch only.
+3. Run focused components, full frontend test/lint/build, then anonymous Home/Recommendations E2E.
 
 ### Documentation Updates
 
@@ -893,15 +898,15 @@ None.
 
 ### Definition Of Done
 
-- Fallback modes render honestly for anonymous and empty-profile users.
+- `popularity` is clearly labeled as aggregate research-rating popularity; existing cold-start/anonymous fallback still renders correctly; no recency or personalization claim is introduced.
 
 ### Rollback Criteria
 
-Disable backend flag; UI reverts to cold-start copy.
+Disable backend popularity; frontend simply renders the lower mode returned by the existing API.
 
 ### Risks
 
-- FR-023: fallback labeled as personalized. Mitigation: copy review + test.
+- FR-022: historical aggregate popularity is mislabeled as recent or personalized. Mitigation: exact copy assertions.
 
 ### Decisions Still Requiring Approval
 
@@ -921,11 +926,11 @@ Planned. Blocked by backend BFP-15.
 
 ### Goal
 
-Surface the hybrid result honestly with reasons drawn from actual score contributions, and carry the hybrid version in attribution.
+Render `personalized-hybrid` only when the backend actually combined preference and behavioral components, show server-owned reasons, and preserve hybrid version attribution without exposing scores/weights.
 
 ### Why It Is Required
 
-The hybrid is the final authenticated recommendation; the UI must explain it truthfully without exposing raw weights.
+The hybrid is one authenticated mode, not a permanent label for every signed-in request. Preference-only, behavior-only, popularity, and deterministic fallback must remain independently visible when the backend selects them.
 
 ### Current Implementation Gap
 
@@ -947,14 +952,16 @@ See backend plan (BFP-15).
 
 ### Frontend Changes
 
-- Add `personalized-hybrid` to the mode-label branch with honest copy (for example "Based on your preferences, activity, and what is popular.").
-- Render multiple reasons per card (the response carries `reasons[]`); keep explanations user-facing and non-numeric.
-- Carry `algorithmVersion: "personalized-hybrid-v1"` in attribution.
-- Remove demo-profile language from true personalized surfaces; keep synthetic showcase accounts clearly labelled as demonstrations.
+- Add `personalized-hybrid` to the shared mode renderer. Use neutral copy such as `Personalized from the preferences and account activity available for this profile.` Do not mention product-content similarity as a separate hybrid source.
+- Render up to the existing maximum two `reasons[]` per card; do not compute/order reasons by client-side weights.
+- Preserve the response `algorithmVersion`; when mode is hybrid it must be `personalized-hybrid-v1`. Lower modes preserve their own versions.
+- Keep request/list/mode/version/rank attribution attached to the rendered item and supported passive events.
+- Do not add or render profile-completeness/source-flag fields; the hybrid surface needs only the existing recommendation envelope, mode/version, and reasons.
+- Remove demo-profile wording only from registered personalized surfaces; keep the restricted synthetic demo path clearly labeled.
 
 ### API Contract
 
-Consumes `mode: "personalized-hybrid"`, `algorithmVersion`, `reasons[]`, fallback reason, `profileCompleteness`.
+Consumes the existing recommendation envelope plus `mode`, `algorithmVersion`, and `reasons[]`. No profile-completeness/source-flag/component-score/weight contract is added to the frontend.
 
 ### Data-Model Changes
 
@@ -962,30 +969,38 @@ None.
 
 ### Algorithm Or Business Rules
 
-None.
+Frontend trusts backend mode selection. It never labels preference-only/behavior-only/popularity results as hybrid.
 
 ### Privacy And Security Rules
 
-- Reasons reveal no more than the user's own data and safe aggregates.
-- No raw weights.
+- Reasons reveal only safe user-facing statements returned by backend; no raw weights, component scores, historical identity, or interaction rows.
 
 ### Edge Cases
 
-- Fallback reason present (a lower ladder rung was used): render it honestly.
-- Explanation does not match the visible item: backend guarantees contribution-based reasons; UI test asserts reason belongs to the item.
+- Hybrid; preference-only; behavior-only; popularity; deterministic fallback; opt-out with durable behavior still available; all reasons empty; one reason; two reasons; old/stale request aborted by current generation guard.
+- If `mode !== "personalized-hybrid"`, do not force hybrid copy because the user is authenticated.
 
 ### Failure And Recovery Behavior
 
-- Any component unavailable: backend returns a lower mode; UI renders accordingly.
+- Backend returns a lower mode when evidence is unavailable; UI uses that mode's existing copy/reasons.
+- Request failure uses existing error/retry state; frontend does not combine locally cached component results.
 
 ### Migration Strategy
 
-- Additive label behind the same backend flag `PERS_HYBRID`.
+- One additive hybrid mode branch behind backend `PERS_HYBRID`; no provider/state migration.
 
 ### Tests
 
-- `tests/components/RecommendationsPage.test.jsx` extended: `personalized-hybrid` label; multi-reason rendering; fallback reason; no raw weight text.
-- `tests/e2e/analytics.spec.js` extended: authenticated user with preferences + activity sees hybrid; attribution carries the version.
+- Recommendation page/Home tests: hybrid exact label/version; up-to-two reasons; lower mode not mislabeled hybrid; no raw weight/score/profile-quality text.
+- Attribution test: hybrid mode/version/rank survives into supported passive event payload.
+- E2E: user fixture with preference+behavior returns hybrid; remove one personalized component and verify frontend renders the returned component mode instead.
+
+### Exact Implementation Order
+
+1. Add mode-matrix component tests before UI changes.
+2. Add hybrid label/reason/version branch in the existing renderer only.
+3. Verify attribution carries the response mode/version without client recomputation.
+4. Run focused component tests, full frontend test/lint/build, then hybrid/lower-mode E2E.
 
 ### Documentation Updates
 
@@ -994,20 +1009,20 @@ None.
 
 ### Definition Of Done
 
-- Hybrid mode rendered honestly; reasons contribution-based; attribution carries version; demo-profile language removed from personalized surfaces; showcases labelled.
+- Hybrid renders only for backend hybrid responses; lower modes remain distinct; up to two server reasons render; attribution carries the exact mode/version; no raw scoring details or quality percentage appear; synthetic demo copy stays isolated.
 
 ### Rollback Criteria
 
-Disable backend flag; UI reverts to component modes then `content-demo-v1` parity.
+Disable backend hybrid; frontend renders whatever lower component/fallback mode the API returns. No client rollback.
 
 ### Risks
 
-- FR-024: reason/score mismatch. Mitigation: backend guarantee + UI assertion.
-- FR-025: demo-profile language lingers on personalized surface. Mitigation: copy-removal checklist.
+- FR-022: an authenticated lower-mode result is mislabeled hybrid or reason/version drifts from the response. Mitigation: full mode-matrix fixtures and attribution assertions.
+- FR-023: demo-profile language leaks onto a registered personalized surface. Mitigation: route/mode-specific copy tests.
 
 ### Decisions Still Requiring Approval
 
-- How many reasons to show per card (proposed: up to two, consistent with today).
+None. Show at most two reasons per card, matching the existing UI limit.
 
 ---
 
@@ -1019,23 +1034,24 @@ PERS-09 / FFP-14 (frontend) + BFP-16 (backend) — Full frontend integration, re
 
 ### Status
 
-Planned. Blocked by PERS-01 through PERS-08.
+PERS-01, PERS-02, and DATA-15 are complete; PERS-03 through PERS-05 are implemented and verified for this batch, while PERS-09 remains planned until the later PERS-06 through PERS-08 work.
 
 ### Goal
 
-Land the personalized storefront end-to-end with distinct states, correct attribution, honest labels, accessibility, and closed documentation.
+Verify PERS-03 through PERS-08 end-to-end on top of the already implemented PERS-02 `/me` resource flow, close cross-repository regressions/accessibility/documentation, and leave new ranking flags default-off until a separate enablement task.
 
 ### Why It Is Required
 
-Each prior milestone is flag-gated; PERS-09 integrates, hardens, and closes documentation.
+Each later feature is independently reversible. PERS-09 proves their contracts and UI states coexist without redoing auth/provider architecture, mutating DATA-15, or overstating recommendation quality.
 
 ### Current Implementation Gap
 
-Fragmented flag-gated changes; no end-to-end integration tests or closed docs yet.
+PERS-06 through PERS-08 are still planning-only. The PERS-03 through PERS-05 batch and endpoint/auth restoration/resource-key/stale-response foundation are implemented and should be regression-tested, not replaced.
 
 ### Dependencies
 
-- All PERS-01 through PERS-08.
+- PERS-03 through PERS-08 implemented and individually verified.
+- PERS-01/PERS-02 identity and `/me` contracts remain regression gates, not unfinished dependencies.
 
 ### Non-goals
 
@@ -1048,29 +1064,27 @@ See backend plan (BFP-16).
 
 ### Frontend Changes
 
-- Authenticated users use `/api/recommendations/me`; anonymous visitors use the documented fallback.
-- Recommendation loading does not start before auth restoration resolves.
-- Sign-in changes the resource key; sign-out clears personalized recommendations.
-- In-flight requests aborted on identity changes; stale responses cannot overwrite new-user results.
-- Tracking queues flushed or discarded before identity changes.
-- Recommendation attribution remains attached to cards and detail navigation.
-- Preferences update and refresh recommendations safely.
-- Negative feedback updates the displayed list.
-- Distinct loading/empty/retry/partial/fallback states.
-- Demo-profile language removed from true personalized surfaces; synthetic showcase accounts clearly labelled.
-- Accessibility and responsive behavior covered for every new control and state.
+- Re-verify existing PERS-02 behavior instead of rebuilding it: auth restoration gates loading; `/me` is used for authenticated customers; anonymous fallback remains public; identity changes abort/stale-guard old requests; sign-out clears personalized recommendation state.
+- Verify Profile/Onboarding preference saves do not call the disabled off-surface recommendation reload. After a successful save, the next navigation to Home/Recommendations must trigger the existing fresh route/resource-key request.
+- Verify `Not interested`/`Already own`/`Undo` controls are server-confirmed and cannot be undone by an older in-flight recommendation response.
+- Verify all backend-returned modes render distinctly: `preference-profile`, `behavior-profile`, `popularity`, `personalized-hybrid`, `cold-start`, `anonymous-fallback`, plus the restricted `demo-profile` path.
+- Verify passive recommendation attribution remains correct through Home/Recommendations → card click/view tracking; direct account actions do not depend on the tracking queue.
+- Verify tracking opt-out removes passive analytics but does not disable rating/wishlist/cart/feedback or durable-state personalization.
+- Keep one recommendation state/provider. Do not add a second cache/store for personalization components.
+- Keep loading, empty, retry, and fallback states; lower component modes represent partial evidence, so no separate `partial hybrid` UI is required.
+- Re-run keyboard/focus/screen-reader/touch/mobile checks for new controls and states.
 
 ### API Contract
 
-Final consolidated contract reflected in `API_CONTRACT_PLAN.md`.
+Mirror the final backend `/api/recommendations/me` and feedback contracts in `API_CONTRACT_PLAN.md`; frontend never consumes raw component weights/scores/historical identity.
 
 ### Data-Model Changes
 
-None frontend-side.
+None frontend-side; no localStorage migration for recommendation/profile data.
 
 ### Algorithm Or Business Rules
 
-All modes rendered; fallback ladder documented; `content-demo-v1` showcase retained.
+Frontend renders backend-selected modes only. Product detail continues to use the separate product-similarity API; `content-demo-v1` demo behavior remains regression-only and is not substituted for a registered customer.
 
 ### Privacy And Security Rules
 
@@ -1080,21 +1094,34 @@ All modes rendered; fallback ladder documented; `content-demo-v1` showcase retai
 
 ### Edge Cases
 
-Consolidated coverage (see appendix). Notably: anonymous, expired, tampered, disabled, deleted, admin, seeded, MongoDB demo, registered; auth transition; multiple tabs; concurrent login/logout; MongoDB unavailable; seed mode; missing env vars; transaction failure; retry after timeout; cache corruption; account deleted during ranking; product changed during ranking; tracking opt-out; cross-tab/storage behavior.
+Minimum final frontend matrix: anonymous; registered; showcase demo; admin denial; expired/tampered/disabled/deleted session; sign-in/sign-out during request; preference save success/failure then fresh-load navigation; feedback duplicate/double undo/stale request; tracking on/off; durable-state behavior under opt-out; popularity vs deterministic fallback; each hybrid component availability mode; research-only null commercial fields; seed mode; explicit MongoDB failure; product removed during refresh; mobile/keyboard/screen-reader states.
 
 ### Failure And Recovery Behavior
 
-Every mode fails safe to the next ladder rung; authenticated users never silently get demo results.
+- Backend returns a lower recommendation mode because evidence is unavailable → render it honestly.
+- Backend/catalog/persistence request fails → use existing recoverable error/retry state; do not fabricate a lower list in the browser.
+- Auth changes → existing resource-key/generation guard owns cancellation and stale-response rejection.
 
 ### Migration Strategy
 
-Follow the release pattern in the appendix. Frontend switches over only after the backend endpoint is stable.
+No frontend endpoint/provider migration: PERS-02 already switched to `/api/recommendations/me`. PERS-09 is integration/verification only. No dataset action and no local recommendation-profile persistence.
 
 ### Tests
 
-- Unit/component: auth restoration before load; authenticated endpoint selection; anonymous fallback; sign-in refresh; sign-out cleanup; stale-response prevention; preference-edit refresh; feedback submission/undo; error recovery; loading/empty states; fallback labels; reason rendering; accessibility; keyboard; mobile; attribution; tracking opt-out; cross-tab/storage.
-- E2E (both repos running): registered account with preferences; showcase demo accounts with distinct deterministic profiles; rating changes recommendation input; wishlist/cart affect profile per rules; not-interested removes and suppresses; already-own excludes without implying dislike; anonymous user receives popularity/catalog fallback; one account cannot access another's profile-derived results; historical `content-demo-v1` behavior remains testable; admin and checkout functionality do not regress.
-- Synthetic fixture tests are never labeled recommendation-quality evaluation.
+- Unit/component: current PERS-02 auth/resource-key/stale guards; all mode labels/reasons; Profile/Onboarding have no catalog-reload coupling; feedback create/undo/error; opt-out vs direct actions; attribution; loading/empty/retry/fallback; accessibility/keyboard/mobile.
+- E2E both repos: registered preference ordering; rating/wishlist behavioral effect; exact not-interested/already-own exclusion + undo; opt-out no passive delivery while direct state works; anonymous MongoDB popularity; seed deterministic fallback; lower hybrid modes; cross-user denial; admin rejection; legacy demo and product similarity regression; checkout/admin unrelated functionality unchanged.
+- Browser/read-only data regressions: v3 active response metadata, v2/v1/legacy boundaries where surfaced, research null fields, dynamic facets, 208 accepted artwork fallback vs placeholder behavior, exactly three showcase customers. Do not mutate dataset lifecycle.
+- Synthetic fixture tests are regression/function evidence only, never recommendation-quality evaluation.
+
+### Exact Implementation Order
+
+1. Verify backend PERS-03 through PERS-08 contracts are stable; do not code around an unstable response in frontend.
+2. Run focused component tests for each new mode/control, then audit one shared mode renderer and one recommendation state provider.
+3. Run full frontend tests/lint/build.
+4. Run both repos and execute authenticated, anonymous, feedback, opt-out, identity-transition, popularity, hybrid/lower-mode E2E cases.
+5. Run accessibility/mobile checks for changed controls/states.
+6. Review the final frontend semantic diff for stale demo/non-personalization copy and duplicate state logic.
+7. Synchronize frontend plan/contract/UI/tracking/backlog/status docs only. Leave new PERS ranking flags off pending separate authorization.
 
 ### Documentation Updates
 
@@ -1109,24 +1136,27 @@ Follow the release pattern in the appendix. Frontend switches over only after th
 - `PRESENTATION_NOTES.md`: honest updated wording.
 - `README.md`: register the new plan doc.
 - `CLAUDE.md`/`AGENTS.md`: only if instructions genuinely need updating.
-- `implementation_plan_order.txt`.
+- `implementation_plan_order.txt`: verify the existing PERS sequence/status is still correct; update only if implementation status changed.
 
 ### Definition Of Done
 
-- All milestones integrated; end-to-end tests pass; documentation closed and consistent; honesty constraints hold; no quality claim; `content-demo-v1` and old route retained and restricted.
+- PERS-03 through PERS-08 work through the existing PERS-02 recommendation provider with one state/resource path; all modes/feedback/opt-out states pass focused + full tests and required E2E/a11y/mobile checks.
+- Research-only v3 behavior, existing anonymous/cold-start paths, legacy demo route, product similarity, admin/checkout surfaces, and exactly three showcase customers do not regress.
+- Frontend docs consistently treat hard relaxation, show-fewer v1, recent-live popularity, and duplicate content hybrid scoring as excluded/deferred rather than planned behavior, and make no recommendation-quality claim.
+- New PERS-04 through PERS-08 ranking flags remain default-off until separately authorized.
 
 ### Rollback Criteria
 
-Each flag disables independently; full rollback returns the storefront to `content-demo-v1` demo behavior.
+Each backend algorithm flag disables independently; frontend renders the lower returned mode using the same provider. No endpoint/provider/local-data rollback is required.
 
 ### Risks
 
-- FR-026: integration exposes a cross-repo contract gap. Mitigation: shared contract tests.
-- FR-027: documentation drift after integration. Mitigation: documentation-closure checklist.
+- FR-022 / FR-023: cross-repo mode/version/reason/copy contracts drift from the selected approach. Mitigation: shared response fixtures, full E2E mode matrix, and final stale-term review.
+- FR-013 / FR-014: integration overstates recommendation quality or regresses identity-transition stale-response protection. Mitigation: existing honesty wording plus auth/resource-generation regression tests.
 
 ### Decisions Still Requiring Approval
 
-- Whether to enable any PERS flag by default at closure (proposed: leave off; enable in a separate explicit step).
+Production enablement only. Default at closure is off; enabling new ranking flags requires a separate explicit task.
 
 ---
 
@@ -1137,9 +1167,9 @@ Every case below is covered by at least one milestone's tests.
 - Identity and authorization: anonymous; expired; tampered; disabled; deleted; admin; seeded; MongoDB demo; registered; cross-user attempt (frontend cannot select another user); auth transition during request; multiple tabs; concurrent login/logout.
 - Preferences: empty; partial onboarding; conflicting favorite/disliked genres; unsupported condition/format; preference edits during ranking; preference deletion; no matching products; extremely narrow preferences; missing metadata.
 - Behavior: duplicate events; refresh-generated views; passive tracking disabled; anonymous-to-authenticated transition; guest-state merge retry; interaction references deleted product; interaction references unknown recommendation list.
-- Negative feedback: duplicate dismiss; undo twice; dismiss deleted product; already-owned becomes unavailable; conflicts; feedback during refreshing request; network failure after optimistic removal.
-- Popularity and fallback: anonymous visitor; no evidence; cached score stale.
-- Hybrid: missing component (lower mode); fallback reason; reason/item mismatch; stable ordering.
+- Negative feedback: duplicate create; undo twice; product deleted after stored feedback; rating-5 plus not-interested conflict; confirmed card becomes status+Undo; failed undo keeps placeholder; later normal load enforces suppression; tracking disabled.
+- Popularity and fallback: anonymous visitor; authenticated empty profile; active historical evidence; no evidence; seed mode; v2/v3 coexistence; no historical identity in UI.
+- Hybrid: preference+behavior hybrid; preference-only; behavior-only; popularity-only; all unavailable; exact exclusion; reason/item mismatch; stable ordering.
 - Persistence and availability: MongoDB unavailable; seed mode; missing env vars; retry after timeout; account deleted during ranking; product changed during ranking.
 - Privacy: tracking opt-out; no PII; no raw events rendered; no cross-user inference; account deletion; TTL expiration; durable suppression vs expiring analytics; synthetic data clearly labelled.
 - Accessibility and responsive: keyboard operation; screen-reader announcements; mobile layout; visible focus; touch targets.
@@ -1155,11 +1185,11 @@ Deterministic synthetic fixtures and labelled classroom demo profiles only. No r
 
 ## Migration And Rollout Plan
 
-Each stage is reversible. Frontend switches over only after the backend endpoint is stable. Recommended pattern mirrors the backend plan: backend models/repositories first, then identity, endpoint, profile, preference, feedback, behavioral, popularity, hybrid, then frontend switch-over, then restrict legacy paths last. Feature flags per milestone; backward compatibility maintained; rollback to `content-demo-v1` retained.
+Each stage is reversible. PERS-02 already moved recommendation loading to the stable `/api/recommendations/me` resource, so later frontend work is additive mode/control integration rather than another endpoint switch. Backend contracts are implemented first for each later milestone; frontend then consumes the stable contract. PERS-04 through PERS-08 flags remain independently reversible and default-off until separately enabled. No frontend recommendation/profile localStorage migration is planned; `content-demo-v1` and the restricted legacy path remain regression behavior.
 
 ## Decision Register (Recorded Or Proposed)
 
-Completed PERS-00 through PERS-02 resolve FDEC-011, provider order plus auth gating, limit 12, customer-only access with administrator rejection, fixed `/me` identity, and default-on reversible endpoint flags. FDEC-012 and other later-milestone decisions remain proposed; see each milestone's final section.
+Completed PERS-00 through PERS-02 resolve FDEC-011, provider order/auth gating, limit 12, customer-only `/me`, and identity-transition protection. This 2026-08-09 re-review additionally fixes the frontend choices for PERS-04 through PERS-08: no off-surface preference reload (fresh route-scoped load on next recommendation navigation); pessimistic exact-item feedback with only not-interested/already-own/undo; tracking opt-out does not disable direct account actions; popularity copy refers to research ratings; hybrid renders only the backend three-component mode and at most two reasons. Remaining approval is production enablement of the new ranking flags.
 
 ## Honesty Contract
 

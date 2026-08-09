@@ -31,13 +31,13 @@ The frontend does not own database access, catalog ingestion/enrichment, API rou
 
 ## Current Limitations
 
-- Preferences are saved for future recommendation work but do not change the active deterministic demo ranking.
-- User results are explicitly `cold-start` for a verified customer or `anonymous-fallback` without one; the restricted showcase remains `demo-profile`. Session ownership is real, but saved preferences/behavior still do not affect ranking and no quality claim is made.
+- Preferences are saved and, when the backend's default-off preference flag is enabled, can produce the explicit `preference-profile` mode; the disabled path remains the deterministic cold-start ranking.
+- User results are explicitly `cold-start` for a verified customer without applicable signals, `preference-profile` when the effective first-batch flags are enabled, or `anonymous-fallback` without a customer session; the restricted showcase remains `demo-profile`. Session ownership is real, negative feedback is exact-item-only, and no quality claim is made.
 - Guest state ends with the tab by design. Existing-account login never imports guest state.
 - Checkout is a preview only: no real payment, no backend order, and sessionStorage-only confirmation persistence. The administrator workspace requires the MongoDB catalog source for writes; in seed-catalog mode, admin reads work but create/edit/delete/restore/import/artwork surface a persistence-unavailable error.
 - The active MongoDB dataset contains 2,305 products. Dataset-managed Admin rows are CLI-managed and read-only; the three showcase customers remain unchanged and historical Amazon pseudonyms never reach the client.
 - Interaction and recommendation logs use 90-day eventual TTL retention in MongoDB mode; seed mode does not persist recommendation request logs.
-- PERS-00 through PERS-02 / FFP-09 are complete. Preference, feedback, behavioral, popularity, and hybrid personalization (PERS-03 through PERS-09) remains planned; no quality claim is made.
+- PERS-00 through PERS-05 / FFP-09 through FFP-11 are complete behind default-off backend flags. Behavioral, popularity, and hybrid personalization (PERS-06 through PERS-09) remains planned; no quality claim is made.
 
 ## Academic Focus
 

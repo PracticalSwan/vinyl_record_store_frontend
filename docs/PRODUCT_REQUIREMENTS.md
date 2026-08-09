@@ -15,7 +15,7 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 | FFR-003 | Search, filter, and sort products. | Implemented | URL-backed literal server search, repeated facets, deterministic sort, and pagination. |
 | FFR-004 | Display wishlist, cart, quantity, and rating actions. | Implemented | Session guest adapter and authenticated server adapter with optimistic rollback. |
 | FFR-005 | Display product-based recommendations. | Implemented | Detail route consumes backend similarity results. |
-| FFR-006 | Display user-based recommendations. | Implemented identity boundary | Verified customers use session-owned `cold-start`, visitors use `anonymous-fallback`, and the restricted `demo-user` showcase remains `demo-profile`; preference/behavior ranking is still deferred. |
+| FFR-006 | Display user-based recommendations. | Implemented with default-off preference branch | Verified customers use session-owned `preference-profile` when the backend flags and saved signals permit it, otherwise `cold-start`; visitors use `anonymous-fallback`, and the restricted `demo-user` showcase remains `demo-profile`. PERS-06+ behavior remains deferred. |
 | FFR-007 | Show recommendation explanations. | Implemented | Cards display backend reasons. |
 | FFR-008 | Handle loading, empty, error, and success states. | Implemented | Independent route query and recommendation states. |
 | FFR-009 | Verify critical browser and accessibility behavior. | Implemented | Vitest, React Testing Library, Playwright browser matrix, and axe. |

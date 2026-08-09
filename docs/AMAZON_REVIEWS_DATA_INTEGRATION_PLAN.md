@@ -14,7 +14,7 @@ When immutable `amazon-reviews-2023-cds-vinyl-5core-v2` is active, product respo
 
 The research catalog intentionally has no Groovehaus price, currency, stock, condition, cart, or checkout behavior. Users can browse, search, filter, paginate, open details, save a wishlist item, and rate a record. This is a real source-derived research catalog, not Groovehaus commercial inventory.
 
-The change does not implement preference-aware, behavioral, popularity, collaborative, matrix-factorization, SVD, or hybrid ranking. Current lists remain explicitly labelled `demo-profile`, session-owned `cold-start`, or `anonymous-fallback`; no recommendation-quality claim is made.
+The dataset change does not implement preference-aware, behavioral, popularity, collaborative, matrix-factorization, SVD, or hybrid ranking. The separately implemented PERS-03 through PERS-05 / FFP-10 through FFP-11 batch remains default-off and data-lifecycle independent. Current lists are labelled `demo-profile`, session-owned `cold-start` or optional `preference-profile`, or `anonymous-fallback`; no recommendation-quality claim is made.
 
 ## UI Behavior Matrix
 
@@ -95,4 +95,4 @@ Observed on 2026-08-08:
 
 ## Recommender Gate
 
-Dataset UI completion does not authorize PERS-03 through PERS-09, BFP-10 through BFP-16, FFP-10 through FFP-14, or any new ranking implementation. Those plans must remain deferred until the user starts a separate recommender task. That future task must preserve the v2 source/version boundary, historical/live separation, exact three demo users, truthful mode copy, positive-rating-skew disclosure, and `content-demo-v1` regression behavior.
+Dataset UI completion does not authorize PERS-06 through PERS-09, BFP-13 through BFP-16, FFP-12 through FFP-14, or any new ranking implementation. PERS-03 through PERS-05 / FFP-10 through FFP-11 were opened separately behind default-off flags. Future work must preserve the v2 source/version boundary, historical/live separation, exact three demo users, truthful mode copy, positive-rating-skew disclosure, and `content-demo-v1` regression behavior.

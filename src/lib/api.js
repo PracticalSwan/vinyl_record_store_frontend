@@ -199,6 +199,24 @@ export function removeProductRating(productId, { signal } = {}) {
   return request(`/api/ratings/${encodeURIComponent(productId)}`, { method: 'DELETE', signal });
 }
 
+export function putFeedback(productId, { kind }, { signal } = {}) {
+  return request(`/api/me/feedback/${encodeURIComponent(productId)}`, {
+    method: 'PUT',
+    body: { kind },
+    signal,
+  });
+}
+
+export function deleteFeedback(productId, { signal } = {}) {
+  return request(`/api/me/feedback/${encodeURIComponent(productId)}`, {
+    method: 'DELETE',
+    signal,
+  });
+}
+
+export const createFeedback = putFeedback;
+export const removeFeedback = deleteFeedback;
+
 export function mergeGuestState(state, { signal } = {}) {
   return request('/api/me/merge-guest-state', { method: 'POST', body: state, signal });
 }

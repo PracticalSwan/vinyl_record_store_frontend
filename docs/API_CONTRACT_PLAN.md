@@ -29,6 +29,7 @@ Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceU
 | Local cover art | `GET` | `/api/artwork/local/:publicId` | Second source. Canonical legacy and accepted-v2 IDs redirect to separately verified immutable, content-addressed JPEGs; absent/invalid/image errors advance to the placeholder. |
 | Similar products | `GET` | `/api/recommendations/product/:id?limit=6&surface=product-detail` | Product detail row with request/list attribution. |
 | Session-owned recommendations | `GET` | `/api/recommendations/me?limit=12&surface=...` | Home and recommendation routes only; customer identity comes from the cookie, otherwise anonymous fallback. |
+| Recommendation feedback | `PUT` / `DELETE` | `/api/me/feedback/:productId` | Recommendation cards only; sends exact `not-interested`/`already-own` kind or idempotent undo. No public list route. |
 | Legacy showcase | `GET` | `/api/recommendations/user/demo-user?limit=12&surface=...` | Fixed rollback/showcase path only; no production helper accepts another user ID. |
 | Health | `GET` | `/api/health` | Operational check. |
 
@@ -36,7 +37,7 @@ Product query parameters are `q`, repeated `genre`, repeated `format`, repeated 
 
 Product-list metadata includes `page`, `limit`, `total`, `totalPages`, `sort`, and full-active-catalog facets for dynamic genres/formats, conditions, stock, prices, and years. Repeated values are ORed within a facet and different facets are ANDed.
 
-Recommendation responses include `requestId`, `listId`, `algorithmVersion`, `mode`, ordered ranked items, and `recommendationLogged`. The client sends `X-Tracking-Enabled`; enabled user requests also send a pseudonymous `X-Anonymous-Id`. Opt-out suppresses both interaction capture and MongoDB recommendation-request logging.
+Recommendation responses include `requestId`, `listId`, `algorithmVersion`, `mode`, ordered ranked items, and `recommendationLogged`. The client sends `X-Tracking-Enabled`; enabled user requests also send a pseudonymous `X-Anonymous-Id`. Opt-out suppresses passive interaction capture and MongoDB recommendation-request logging but does not disable functional feedback. The first-batch `preference-profile` mode and feedback routes remain backend-flagged and fail closed when disabled.
 
 ## Implemented Authentication Calls
 
@@ -69,11 +70,11 @@ Backend order/payment calls are not implemented. Administrator catalog calls are
 
 ## Personalization Calls
 
-PERS-00 through PERS-02 / FFP-09 are implemented. DATA-00 through DATA-15 changed only the catalog/data contract. Remaining entries in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` stay planned and require separate authorization.
+PERS-00 through PERS-05 / FFP-09 through FFP-11 are implemented behind default-off backend flags. DATA-00 through DATA-15 changed only the catalog/data contract. Remaining entries in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` stay planned and require separate authorization.
 
-- `GET /api/recommendations/me` (implemented PERS-02 / FFP-09): verified customers receive `cold-start`, visitors or invalid/expired sessions receive `anonymous-fallback`, and administrators receive `403`. The client never sends a user ID; authenticated requests omit `X-Anonymous-Id`.
-- `PUT`, `DELETE /api/me/feedback/:productId` and `GET /api/me/feedback` (PERS-05 / FFP-11): not-interested, already-own, optional show-fewer-like-this, and undo.
-- Current mode labels render `demo-profile`, `content-similarity`, `cold-start`, and `anonymous-fallback` honestly. Future milestones add `preference-profile`, `behavior-profile`, `popularity`, and `personalized-hybrid`; no raw weights are displayed.
+- `GET /api/recommendations/me` (implemented PERS-02 / FFP-09, extended PERS-04 / FFP-10): verified customers receive `preference-profile` only when the backend flags are enabled and applicable signals exist, otherwise `cold-start`; visitors or invalid/expired sessions receive `anonymous-fallback`, and administrators receive `403`. The client never sends a user ID; authenticated requests omit `X-Anonymous-Id`.
+- `PUT /api/me/feedback/:productId` and `DELETE /api/me/feedback/:productId` (PERS-05 / FFP-11): one current exact-item intent per customer/product. `PUT` accepts only `not-interested` or `already-own` and returns `{ productPublicId, kind }`; `DELETE` needs no kind query and returns `{ productPublicId, removed }` idempotently. No public feedback-list route is added in v1. `show-fewer-like-this`, free-text reason, and broad scope are deferred.
+- Current mode labels render `demo-profile`, `content-similarity`, `cold-start`, `preference-profile`, and `anonymous-fallback` honestly. Future milestones add `behavior-profile`, aggregate-research `popularity`, and `personalized-hybrid`. Hybrid is rendered only when the backend selects that mode (both personalized components available); lower modes keep their pure component score/version and remain distinct. No raw weights, component scores, historical identity, or quality percentages are displayed.
 
 ## Error Handling
 
