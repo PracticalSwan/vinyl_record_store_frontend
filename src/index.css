@@ -148,6 +148,16 @@ button, input, select { font-family: inherit; font-size: inherit; }
 .btn-sm       { padding: 6px 12px; font-size: 13px; }
 .btn-icon     { padding: 8px; }
 
+.feedback-controls,
+.feedback-status {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 12px;
+}
+.feedback-controls .btn,
+.feedback-status .btn { min-height: 44px; }
+.feedback-controls .form-error,
+.feedback-status .form-error { width: 100%; }
+
 /* ── Product Card ──────────────────────────────────── */
 .product-card {
   background: var(--surface);

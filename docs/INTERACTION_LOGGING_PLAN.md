@@ -16,7 +16,7 @@ The active Amazon Reviews 2023 historical ratings are a separate backend-only ev
 - Tracking is enabled by default for the academic demo. Opt-out immediately prevents capture and request logging, clears unsent events, and remains authoritative in memory when browser storage rejects the preference write.
 - Authentication operations flush or discard pending events before login, registration, or logout. Generation checks prevent an older failed delivery from re-entering the queue under a different identity.
 - Recommendation impressions are deduplicated for the full request/list/product/surface page view. Ordinary render-effect duplicates use a short two-second window.
-- Analytics failure never rolls back wishlist, cart, rating, search, or navigation behavior.
+- Analytics failure never rolls back wishlist, cart, rating, feedback, search, or navigation behavior. Durable feedback is a functional `/api/me/feedback/:productId` action, not an analytics event and never a source of authoritative suppression through `recommendation_dismiss`.
 
 ## Event Contract
 

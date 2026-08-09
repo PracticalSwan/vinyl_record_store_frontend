@@ -102,7 +102,7 @@ describe('ProductImage', () => {
     const datasetRecord = {
       ...record,
       id: 100001,
-      datasetKey: 'amazon-reviews-2023-cds-vinyl-5core-v2',
+      datasetKey: 'amazon-reviews-2023-cds-vinyl-5core-v3',
       image: null,
     };
     const view = render(<ProductImage record={{ ...datasetRecord, localArtworkAvailable: true }} />);

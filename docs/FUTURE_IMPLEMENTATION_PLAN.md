@@ -1,6 +1,6 @@
 # Frontend Future Implementation Plan
 
-Status: FFP-01 through FFP-09 and DATA-00 through DATA-15 are complete. Personalization from FFP-10 onward remains future work pending a separate explicit task and was not implemented with the dataset.
+Status: FFP-01 through FFP-11 and DATA-00 through DATA-15 are complete. PERS-03 through PERS-05 / FFP-10 through FFP-11 are default-off personalization behavior; PERS-06 through PERS-09 remain future work and were not implemented with the dataset.
 
 Audience: developers implementing the Groovehaus Vite/React storefront and backend developers maintaining the shared API contracts.
 
@@ -8,9 +8,9 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 
 ## Current Dataset Gate (Completed and Rehearsed 2026-08-08)
 
-`AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md` records the frontend half of DATA-00 through DATA-15. MongoDB mode exposes one active 2,305-product Amazon Reviews 2023 vinyl subset while the backend preserves the v1 dataset, the 116-record legacy fallback, the separate 208-file accepted-v2 local set, and exactly three showcase customers. The UI supports dynamic genre/format facets, nullable metadata, verified local fallback for strict MusicBrainz/Cover Art Archive matches with a placeholder for unresolved rows, non-purchasable unknown price/stock, Admin dataset status, and CLI-managed dataset rows.
+`AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md` records the frontend half of DATA-00 through DATA-15. MongoDB mode exposes immutable v3 with 2,305 research-only products; v2 is the immediate rollback release and v1 is the identity/legacy base. The backend preserves the 116-record legacy catalog, the current 208-file accepted local artwork set with independently pinned v2 rollback evidence, and exactly three showcase customers. The UI supports dynamic genre/format facets, nullable metadata, 208 authoritative original-release years, verified local fallback for strict MusicBrainz/Cover Art Archive matches with a placeholder for unresolved rows, non-purchasable unknown price/stock, Admin dataset status, and CLI-managed dataset rows.
 
-Remaining recommender plans must preserve these contracts, distinguish historical readiness from live evidence, never surface pseudonymous historical rows, handle nullable data without invented reasons, and receive a new explicit implementation request. This plan does not authorize PERS-03 through PERS-09.
+Remaining recommender plans must preserve these contracts, distinguish historical readiness from live evidence, never surface pseudonymous historical rows, handle nullable data without invented reasons, and receive a new explicit implementation request. This plan does not authorize PERS-06 through PERS-09.
 
 ## User Decisions Recorded On 2026-07-03
 
@@ -636,7 +636,7 @@ After FFP-04 establishes the test commands, also run the affected unit, componen
 
 ## Personalization Roadmap (PERS-00 - PERS-09)
 
-This section records the frontend half of the dependency-safe personalization roadmap. PERS-00 through PERS-02 / FFP-09 were completed on 2026-07-10 after BFP-07, FFP-07, and FFP-08; PERS-03 through PERS-09 remain planned. The same cross-repository order is in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` and the backend plan.
+This section records the frontend half of the dependency-safe personalization roadmap. PERS-00 through PERS-05 / FFP-11 were completed on 2026-08-10 after BFP-07, FFP-07, and FFP-08; PERS-06 through PERS-09 remain planned and default-off. The same cross-repository order is in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` and the backend plan.
 
 The honesty wording that the current ranker is not personalized stays in force until PERS-04 onward actually personalizes. No quality claim is made; the `insufficient-evidence` evaluator status is unchanged.
 
@@ -647,13 +647,13 @@ The honesty wording that the current ranker is not personalized stays in force u
 | PERS-00 / FDEC-011 | Audit and decision freeze | Completed 2026-07-10 | Frontend endpoint, provider, identity-key, rollback, copy, and no-quality-claim decisions are frozen. |
 | PERS-01 | Identity enforcement (frontend contract only) | Completed 2026-07-10 | Production has no arbitrary-user selection; the legacy helper is fixed to `demo-user`. |
 | PERS-02 / FFP-09 | Session-owned endpoint | Completed 2026-07-10 | `/me`, auth gating, anonymous fallback, abort/generation stale protection, and browser coverage are active. |
-| PERS-03 | Unified profile surface | Planned | Render safe data-source flags without raw signals. |
-| PERS-04 / FFP-10 | Preference-aware ranking UI | Planned | Honest `preference-profile` label; refresh on preference save. |
-| PERS-05 / FFP-11 | Negative feedback UI | Planned | Accessible not-interested, already-own, undo, show-fewer-like-this. |
-| PERS-06 / FFP-12 | Behavioral mode UI | Planned | Honest `behavior-profile` label; opt-out boundary preserved. |
-| PERS-07 | Popularity and fallback UI | Planned | Honest `popularity`/`anonymous-fallback` labels. |
-| PERS-08 / FFP-13 | Hybrid mode UI | Planned | Honest `personalized-hybrid` label; contribution-based reasons; version attribution. |
-| PERS-09 / FFP-14 | Integration and hardening | Planned | End-to-end integration; accessibility; documentation closure. |
+| PERS-03 | Unified profile domain (backend prerequisite) | Completed 2026-08-10 | Backend-only normalized profile/feedback domain; no frontend profile contract or UI change. |
+| PERS-04 / FFP-10 | Preference-aware ranking UI | Completed 2026-08-10 | Honest `preference-profile`; no off-surface reload; next Home/Recommendations navigation fetches fresh saved preferences; no relaxation UI. |
+| PERS-05 / FFP-11 | Negative feedback UI | Completed 2026-08-10 | Accessible not-interested, already-own, undo with pessimistic card state; show-fewer deferred. |
+| PERS-06 / FFP-12 | Behavioral mode UI | Planned | Honest `behavior-profile`; passive opt-out does not disable direct account actions. |
+| PERS-07 | Popularity and fallback UI | Planned | `popularity` explicitly describes aggregate research ratings; existing fallbacks preserved. |
+| PERS-08 / FFP-13 | Hybrid mode UI | Planned | Hybrid only for preference + behavior combination; lower modes stay distinct; version attribution. |
+| PERS-09 / FFP-14 | Integration and hardening | Planned | Verify existing `/me` provider flow, E2E/a11y/regressions, docs closure; new flags stay off. |
 
 ### Dependency-Safe Personalization Order (Appended After FFP-08)
 

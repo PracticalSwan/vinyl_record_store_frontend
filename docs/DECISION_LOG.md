@@ -92,7 +92,7 @@ Decision: Plan, without implementing, the frontend half of the personalization r
 
 Rationale: Provider ordering, the API client, recommendation state, and feedback UI all change across milestones; fixing these decisions up front avoids rework. No quality claim is made.
 
-Status: Frozen and completed 2026-07-10. The user opened PERS-00 through PERS-02 after FFP-08. The implementation uses both provider order and an auth-status gate, limit 12, customer-only access with administrator rejection, subject-key plus abort/generation stale protection, and a default-on `VITE_PERS_ME_ENDPOINT` rollback switch. Preference/behavior ranking and quality claims remain inactive.
+Status: Frozen and completed 2026-07-10, with a 2026-08-10 update for PERS-03 through PERS-05 / FFP-10 through FFP-11. The implementation uses both provider order and an auth-status gate, limit 12, customer-only access with administrator rejection, subject-key plus abort/generation stale protection, and a default-on `VITE_PERS_ME_ENDPOINT` rollback switch. Preference-profile and exact feedback UI remain default-off; PERS-06+ behavior and quality claims remain inactive.
 
 ## FDEC-012: Administrator Workspace And Client-Only Simulated Checkout
 
@@ -138,7 +138,7 @@ Decision: Dataset-owned products never use Amazon imagery or borrow a legacy bin
 
 Rationale: The 116-record artwork bundle is identity-bound to reviewed legacy releases, accepted v2 files have a separate exact manifest, and one-off browser mutations would break the reproducible dataset version.
 
-Status: Implemented with DATA-10 through DATA-12; PERS-03 through PERS-09 remain deferred.
+Status: Implemented with DATA-10 through DATA-12; PERS-03 through PERS-05 / FFP-10 through FFP-11 were subsequently completed behind default-off flags, while PERS-06 through PERS-09 remain deferred.
 
 ## FDEC-017: Keep Live Dataset Smoke Separate From Deterministic Fixtures
 

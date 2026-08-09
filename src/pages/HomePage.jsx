@@ -12,6 +12,7 @@ const recommendationLabel = (mode) => ({
   'demo-profile': 'Curated showcase profile',
   'anonymous-fallback': 'Anonymous catalog fallback',
   'cold-start': 'Session-owned cold-start',
+  'preference-profile': 'Saved preference profile',
 }[mode] || 'Explainable ranked suggestions');
 
 const recommendationAriaLabel = (mode) => mode === 'demo-profile'

@@ -16,7 +16,7 @@ Groovehaus is an implemented Vite 8.1 and React 19.2.7 storefront. It loads the 
 - Keep guest wishlist/cart/rating state in versioned `sessionStorage` and authenticated state behind one `StoreProvider` interface.
 - Merge guest state only into a brand-new registration. A persisted merge key resumes a failed merge after refresh; existing-account login and ordinary restore discard unrelated guest state.
 - Capture bounded pseudonymous analytics with an immediate visible opt-out and recommendation request/list attribution.
-- Render backend-approved Cover Art Archive mappings through one resilient `ProductImage` component with responsive sizing, attribution, accessibility, and a proxy -> committed local JPEG -> placeholder chain. The fixed legacy bundle covers all 116 records; a separate v2 bundle covers every strict accepted dataset match. Ambiguous and unresolved v2 records use the placeholder, and Amazon images are excluded.
+- Render backend-approved Cover Art Archive mappings through one resilient `ProductImage` component with responsive sizing, attribution, accessibility, and a proxy -> committed local JPEG -> placeholder chain. The fixed legacy bundle covers all 116 records; a separate v3 bundle covers every strict accepted dataset match, with the same stable set pinned for v2 rollback. Ambiguous and unresolved v3 records use the placeholder, and Amazon images are excluded.
 - FFP-07 administrator workspace: a `RequireRole`-guarded `/admin` area (dashboard, product table with soft-delete/restore, create/edit form with optimistic-concurrency conflict re-fetch, import preview/apply, artwork refresh) consumes role-gated `/api/admin/*` routes. FFP-08 checkout preview: a `/checkout` wizard and `/orders/preview/:reference` confirmation with sessionStorage persistence, availability blocking, and cart clear on confirm. No real payment or backend order.
 - Preference clearing is draft-only. The data router intercepts every dirty SPA/history transition, preserves the pending destination, and provides a focus-contained save/discard/cancel dialog plus a direct back path to `/account`. The flex page shell keeps the footer below short content on every route.
 
@@ -31,13 +31,13 @@ The frontend does not own database access, catalog ingestion/enrichment, API rou
 
 ## Current Limitations
 
-- Preferences are saved for future recommendation work but do not change the active deterministic demo ranking.
-- User results are explicitly `cold-start` for a verified customer or `anonymous-fallback` without one; the restricted showcase remains `demo-profile`. Session ownership is real, but saved preferences/behavior still do not affect ranking and no quality claim is made.
+- Preferences are saved and, when the backend's default-off preference flag is enabled, can produce the explicit `preference-profile` mode; the disabled path remains the deterministic cold-start ranking.
+- User results are explicitly `cold-start` for a verified customer without applicable signals, `preference-profile` when the effective first-batch flags are enabled, or `anonymous-fallback` without a customer session; the restricted showcase remains `demo-profile`. Session ownership is real, negative feedback is exact-item-only, and no quality claim is made.
 - Guest state ends with the tab by design. Existing-account login never imports guest state.
 - Checkout is a preview only: no real payment, no backend order, and sessionStorage-only confirmation persistence. The administrator workspace requires the MongoDB catalog source for writes; in seed-catalog mode, admin reads work but create/edit/delete/restore/import/artwork surface a persistence-unavailable error.
 - The active MongoDB dataset contains 2,305 products. Dataset-managed Admin rows are CLI-managed and read-only; the three showcase customers remain unchanged and historical Amazon pseudonyms never reach the client.
 - Interaction and recommendation logs use 90-day eventual TTL retention in MongoDB mode; seed mode does not persist recommendation request logs.
-- PERS-00 through PERS-02 / FFP-09 are complete. Preference, feedback, behavioral, popularity, and hybrid personalization (PERS-03 through PERS-09) remains planned; no quality claim is made.
+- PERS-00 through PERS-05 / FFP-09 through FFP-11 are complete behind default-off backend flags. Behavioral, popularity, and hybrid personalization (PERS-06 through PERS-09) remains planned; no quality claim is made.
 
 ## Academic Focus
 

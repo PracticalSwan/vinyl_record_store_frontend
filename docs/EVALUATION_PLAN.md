@@ -6,12 +6,12 @@ This plan records the automated release evidence for the storefront. It does not
 
 | Check | Command | Current Evidence |
 | --- | --- | --- |
-| Unit and component tests | `npm run test:unit` | 93/93 passed on 2026-08-08 across 16 test files, including research display/purchase rules, dynamic active preference choices, and accepted-art local fallback isolation. |
-| Seed browser and integration tests | `npm run test:e2e:seed` | 67 passed with 1 intentional skip on 2026-08-08 across Chromium desktop/mobile/tablet, Firefox, and WebKit. The matrix retains all 116 seed-art checks and the ordinary Admin write UI; teardown preserved the dataset collections. |
-| Dataset browser and integration tests | `npm run test:e2e:dataset` | 10 passed with 2 intentional project-specific skips on 2026-08-08 across desktop/mobile Chromium. Invented deterministic fixtures cover research-only facets/actions, original/edition years, accepted-local/placeholder art, Admin read-only rows, and axe checks. |
-| Accessibility subset | `npm run test:a11y` | 20/20 passed on 2026-08-08 across desktop/mobile Chromium with no serious or critical axe violations. |
-| ESLint | `npm run lint` | Passed on 2026-08-08. |
-| Production bundle | `npm run build` | Passed on 2026-08-08 with Vite 8.1.0. |
+| Unit and component tests | `npm run test:unit` | 99/99 passed on 2026-08-10 across 18 test files, including research display/purchase rules, dynamic active preference choices, feedback-card state and focus recovery, and accepted-art local fallback isolation. |
+| Seed browser and integration tests | `npm run test:e2e:seed` | 69 passed with 1 intentional skip on 2026-08-10 across Chromium desktop/mobile/tablet, Firefox, and WebKit. The matrix retains all 116 seed-art checks and the ordinary Admin write UI; teardown preserved the dataset collections. |
+| Dataset browser and integration tests | `npm run test:e2e:dataset` | 10 passed with 2 intentional project-specific skips on 2026-08-10 across desktop/mobile Chromium. Invented deterministic v3 fixtures cover research-only facets/actions, original/edition years, accepted-local/placeholder art, Admin read-only rows, and axe checks. |
+| Accessibility subset | `npm run test:a11y` | 20/20 passed on 2026-08-10 across desktop/mobile Chromium with no serious or critical axe violations. |
+| ESLint | `npm run lint` | Passed on 2026-08-10. |
+| Production bundle | `npm run build` | Passed on 2026-08-10 with Vite 8.1.0. |
 
 ## Browser Scenarios
 

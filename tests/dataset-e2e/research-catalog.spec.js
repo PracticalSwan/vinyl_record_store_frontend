@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 const apiBaseUrl = 'http://localhost:3000';
-const datasetKey = 'amazon-reviews-2023-cds-vinyl-5core-v2';
+const datasetKey = 'amazon-reviews-2023-cds-vinyl-5core-v3';
 
 function fixtureProduct(index) {
   const id = 100_001 + index;
@@ -36,7 +36,7 @@ function fixtureProduct(index) {
     } : null,
     localArtworkAvailable: acceptedArtwork,
     source: 'amazon-reviews-2023',
-    sourceVersion: '2023-cds-vinyl-5core-v2',
+    sourceVersion: '2023-cds-vinyl-5core-v3',
     datasetKey,
     catalogMode: 'research-only',
     fieldOrigins: {
@@ -250,7 +250,7 @@ test('administrator dashboard identifies the active research dataset and CLI-man
       dataset: {
         datasetKey,
         productCollection: 'datasetProducts',
-        sourceVersion: '2023-cds-vinyl-5core-v2',
+        sourceVersion: '2023-cds-vinyl-5core-v3',
         catalogMode: 'research-only',
         counts: { products: 2305, users: 2387, ratings: 20288 },
         activatedAt: '2026-08-02T00:00:00.000Z',

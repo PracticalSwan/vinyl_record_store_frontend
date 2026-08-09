@@ -17,6 +17,7 @@ The backend owns active-version candidate generation, scoring, diversity, exclus
 | `content-similarity` | Results match one source product's metadata. | Describe them as similar records. |
 | `cold-start` | No stored history is available. | Describe results as generic in-stock suggestions. |
 | `anonymous-fallback` | No verified customer session resolved. | State that results are catalog-based fallback suggestions without account history. |
+| `preference-profile` | Effective first-batch preference flag is enabled and saved preference signals are available. | State that results use the preferences saved for this account. |
 
 ## Display Rules
 
@@ -36,4 +37,4 @@ UI review can measure comprehension and accessibility. Ranking-quality metrics b
 
 ## Personalization Roadmap
 
-PERS-00 through PERS-02 / FFP-09 are complete: decisions are frozen, the client has no arbitrary-user selection surface, and authenticated/anonymous storefront requests use the session-owned endpoint safely. PERS-03 through PERS-09 remain planned, were explicitly excluded from DATA implementation, and must keep historical readiness separate from live customer evidence. Ranking remains `content-demo-v1`, and no quality claim is made.
+PERS-00 through PERS-05 / FFP-11 are complete behind default-off flags: the client has no arbitrary-user selection surface, authenticated/anonymous storefront requests use the session-owned endpoint safely, `preference-profile` is labelled honestly, and recommendation cards expose exact feedback controls only when enabled. PERS-06 through PERS-09 remain planned. Behavioral, aggregate-research popularity, and hybrid modes are not implemented. Lower modes preserve their pure backend score/version, and no quality claim is made.

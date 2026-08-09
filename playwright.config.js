@@ -6,6 +6,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 const frontendDirectory = path.dirname(fileURLToPath(import.meta.url));
 const backendDirectory = path.resolve(frontendDirectory, '..', 'vinyl_record_store_backend');
+const enablePersFirstBatch = process.env.E2E_ENABLE_PERS_FIRST_BATCH === '1';
+const persFirstBatchFlag = enablePersFirstBatch ? 'true' : 'false';
+const reuseExistingServer = !process.env.CI && !enablePersFirstBatch;
 process.env.E2E_REGISTER_PASSWORD = randomBytes(18).toString('base64url');
 process.env.E2E_REGISTER_USERNAME = `e2e_${randomBytes(8).toString('hex')}`;
 
@@ -33,9 +36,13 @@ export default defineConfig({
         CATALOG_DATA_SOURCE: 'seed',
         FRONTEND_ORIGIN: 'http://localhost:5173',
         AUTH_SECRET: randomBytes(48).toString('base64url'),
+        PERS_ME_ENDPOINT: 'true',
+        PERS_PROFILE_DOMAIN: persFirstBatchFlag,
+        PERS_PREFERENCE_RANKING: persFirstBatchFlag,
+        PERS_NEGATIVE_FEEDBACK: persFirstBatchFlag,
       },
       url: 'http://localhost:3000/api/health',
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer,
       timeout: 120_000,
     },
     {
@@ -44,9 +51,12 @@ export default defineConfig({
       env: {
         ...process.env,
         VITE_API_BASE_URL: 'http://localhost:3000',
+        VITE_PERS_ME_ENDPOINT: 'true',
+        VITE_PERS_PROFILE_DOMAIN: persFirstBatchFlag,
+        VITE_PERS_NEGATIVE_FEEDBACK: persFirstBatchFlag,
       },
       url: 'http://localhost:5173',
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer,
       timeout: 120_000,
     },
   ],

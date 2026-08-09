@@ -1,9 +1,17 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/useStore';
 import { useTracking } from '../context/useTracking';
+import { useAuth } from '../context/useAuth';
 import { IconHeart } from './Icons';
 import ProductImage from './ProductImage';
+import FeedbackControls from './FeedbackControls';
+import { deleteFeedback, putFeedback } from '../lib/feedback';
+import {
+  personalizationNegativeFeedbackEnabled,
+  personalizationMeEndpointEnabled,
+  personalizationProfileDomainEnabled,
+} from '../lib/features';
 import {
   availabilityLabel,
   displayArtist,
@@ -29,12 +37,31 @@ function StockDot({ stock }) {
 export default function ProductCard({ record, showReason = false, surface = 'catalog', queryLength = 0, searchRank = null }) {
   const navigate = useNavigate();
   const tracking = useTracking();
+  const auth = useAuth();
   const cardRef = useRef(null);
   const store = useStore();
   const { wishlist, toggleWishlist } = store;
   const saved = wishlist.includes(record.id);
   const recommendationContext = record.recommendationContext;
   const researchOnly = isResearchProduct(record);
+  const [feedbackStatus, setFeedbackStatus] = useState('idle');
+  const [feedbackPending, setFeedbackPending] = useState(false);
+  const [feedbackError, setFeedbackError] = useState(null);
+  const feedbackUndoRef = useRef(null);
+  const feedbackPrimaryRef = useRef(null);
+  const feedbackSecondaryRef = useRef(null);
+  const feedbackFocusIntentRef = useRef(null);
+  const lastFeedbackKindRef = useRef('not-interested');
+  const feedbackEnabled = Boolean(
+    recommendationContext
+    && ['home', 'recommendations'].includes(surface)
+    && auth.status === 'authenticated'
+    && auth.user?.role === 'customer'
+    && personalizationMeEndpointEnabled()
+    && !['demo-profile', 'content-similarity'].includes(recommendationContext.mode)
+    && personalizationProfileDomainEnabled()
+    && personalizationNegativeFeedbackEnabled(),
+  );
 
   useEffect(() => {
     if (!recommendationContext?.requestId || !cardRef.current) return undefined;
@@ -80,6 +107,50 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
     await toggleWishlist(record.id, recommendationContext ? { recommendationContext, surface } : { surface });
   };
 
+  useEffect(() => {
+    if (feedbackPending || !feedbackFocusIntentRef.current) return;
+    const target = feedbackFocusIntentRef.current;
+    feedbackFocusIntentRef.current = null;
+    if (target === 'undo') {
+      feedbackUndoRef.current?.focus();
+    } else if (target === 'already-own') {
+      feedbackSecondaryRef.current?.focus();
+    } else {
+      feedbackPrimaryRef.current?.focus();
+    }
+  }, [feedbackError, feedbackPending, feedbackStatus]);
+
+  const createFeedback = async (kind) => {
+    lastFeedbackKindRef.current = kind;
+    setFeedbackPending(true);
+    setFeedbackError(null);
+    try {
+      await putFeedback(record.id, { kind });
+      feedbackFocusIntentRef.current = 'undo';
+      setFeedbackStatus('confirmed');
+    } catch (error) {
+      feedbackFocusIntentRef.current = kind;
+      setFeedbackError(error.message || 'Feedback could not be saved. Try again.');
+    } finally {
+      setFeedbackPending(false);
+    }
+  };
+
+  const undoFeedback = async () => {
+    setFeedbackPending(true);
+    setFeedbackError(null);
+    try {
+      await deleteFeedback(record.id);
+      feedbackFocusIntentRef.current = lastFeedbackKindRef.current;
+      setFeedbackStatus('idle');
+    } catch (error) {
+      feedbackFocusIntentRef.current = 'undo';
+      setFeedbackError(error.message || 'Feedback could not be undone. Try again.');
+    } finally {
+      setFeedbackPending(false);
+    }
+  };
+
   return (
     <article
       ref={cardRef}
@@ -87,7 +158,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
       role="listitem"
       aria-label={`${record.title} by ${displayArtist(record)}`}
     >
-      <div className="card-cover">
+      {!(feedbackStatus === 'confirmed' && feedbackEnabled) && <div className="card-cover">
         <ProductImage record={record} decorative />
         {!researchOnly && <StockDot stock={record.stock} />}
         <button
@@ -98,9 +169,18 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
         >
           <IconHeart filled={saved} />
         </button>
-      </div>
+      </div>}
 
       <div className="card-body">
+        {feedbackStatus === 'confirmed' && feedbackEnabled ? (
+          <FeedbackControls
+            status="confirmed"
+            pending={feedbackPending}
+            onUndo={undoFeedback}
+            error={feedbackError}
+            undoRef={feedbackUndoRef}
+          />
+        ) : <>
         <h3 className="card-title">{record.title}</h3>
         <p className="card-artist">{displayArtist(record)}</p>
         <div className="card-meta" aria-label="Record details">
@@ -120,9 +200,18 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
             View record
           </button>
         </div>
+        {feedbackEnabled && <FeedbackControls
+          status="idle"
+          pending={feedbackPending}
+          onCreate={createFeedback}
+          error={feedbackError}
+          ref={feedbackPrimaryRef}
+          secondaryRef={feedbackSecondaryRef}
+        />}
+        </>}
       </div>
 
-      {showReason && record.reason && (
+      {feedbackStatus !== 'confirmed' && showReason && record.reason && (
         <p className="card-reason" role="note">{record.reason}</p>
       )}
     </article>

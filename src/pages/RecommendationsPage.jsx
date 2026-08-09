@@ -18,12 +18,17 @@ const modeLabel = (mode) => ({
   'demo-profile': 'Showcase profile',
   'anonymous-fallback': 'Anonymous fallback',
   'cold-start': 'Session-owned cold-start',
+  'preference-profile': 'Saved preferences',
 }[mode] || 'Current ranking mode');
 
 function RecommendationResults({ recommendations, mode }) {
   const topPicks = recommendations.slice(0, 8);
   const genre = recommendations.find((record) => record.genre)?.genre;
-  const genreMatches = genre ? recommendations.filter((record) => record.genre === genre) : [];
+  // Keep the secondary section disjoint from top picks so feedback state cannot
+  // leave a second mounted card that still presents the same recommendation.
+  const genreMatches = genre
+    ? recommendations.slice(topPicks.length).filter((record) => record.genre === genre)
+    : [];
   return (
     <>
       <h2 className="section-heading" style={{ fontSize: 20 }} id="top-picks-heading">
@@ -78,7 +83,10 @@ function recommendationIntro(mode) {
     return 'No customer session is active, so these are catalog-based fallback suggestions without account history.';
   }
   if (mode === 'cold-start') {
-    return 'This request is owned by the signed-in session, but ranking remains cold-start until preference-aware personalization is implemented.';
+    return 'This request is owned by the signed-in session, but the preference-profile branch is disabled or has no applicable signal, so ranking remains cold-start.';
+  }
+  if (mode === 'preference-profile') {
+    return 'These results use the preferences you saved for this account.';
   }
   return 'These results use the active backend ranking mode and its item-level explanations.';
 }
