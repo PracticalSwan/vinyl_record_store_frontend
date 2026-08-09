@@ -7,6 +7,7 @@ const FeedbackControls = forwardRef(function FeedbackControls({
   onUndo,
   error = null,
   undoRef,
+  secondaryRef,
 }, ref) {
   if (status === 'confirmed') {
     return (
@@ -24,7 +25,7 @@ const FeedbackControls = forwardRef(function FeedbackControls({
       <button ref={ref} className="btn btn-secondary btn-sm" type="button" onClick={() => onCreate('not-interested')} disabled={pending}>
         Not interested
       </button>
-      <button className="btn btn-secondary btn-sm" type="button" onClick={() => onCreate('already-own')} disabled={pending}>
+      <button ref={secondaryRef} className="btn btn-secondary btn-sm" type="button" onClick={() => onCreate('already-own')} disabled={pending}>
         Already own
       </button>
       {error && <p className="form-error" role="alert">{error}</p>}

@@ -9,8 +9,8 @@ Groovehaus demonstrates how a recommender-powered storefront feels end to end: b
 Three things worth knowing up front:
 
 - Recommendations use a session-owned API path: signed-in customers receive `preference-profile` only when the backend's default-off profile and preference flags are enabled and applicable, otherwise `cold-start`; visitors receive `anonymous-fallback`, and the restricted showcase remains `demo-profile`. Exact feedback controls are also default-off and no recommendation-quality claim is made.
-- MongoDB mode currently serves the immutable 2,305-product Amazon Reviews 2023 v2 research catalog. Nullable commerce metadata is shown honestly and cart/checkout controls are absent for dataset products. V1 and the original 116 illustrated records remain reversible backend rollback targets.
-- Product surfaces keep the approved Cover Art Archive proxy -> verified local JPEG -> placeholder chain. Legacy records use their fixed reviewed bundle; accepted v2 matches use a separate dataset bundle; ambiguous and unresolved v2 records skip local artwork and use the generic placeholder. Amazon images are never used.
+- MongoDB mode currently serves the immutable 2,305-product Amazon Reviews 2023 v3 research catalog. Nullable commerce metadata is shown honestly and cart/checkout controls are absent for dataset products. V2 is the immediate rollback release, V1 is the identity/legacy base, and the original 116 illustrated records remain preserved.
+- Product surfaces keep the approved Cover Art Archive proxy -> verified local JPEG -> placeholder chain. Legacy records use their fixed reviewed bundle; accepted v3 matches use a separate dataset bundle; ambiguous and unresolved v3 records skip local artwork and use the generic placeholder. The v2 rollback evidence pins the same stable accepted-art set. Amazon images are never used.
 - `code_for_website/` is an early design-import snapshot kept for reference, not the running application. The active source lives in `src/`.
 
 ## What you can do
@@ -18,7 +18,7 @@ Three things worth knowing up front:
 - Browse the catalog with independently scrollable dynamic genre/format, condition, era, price, and stock controls, with sorting and pagination.
 - Search records as you type with a 300 ms debounce, keep up to five account/guest-scoped recent searches, and replay any committed term from the search menu.
 - View similar records and demo recommendations, each with a short explanation.
-- View responsive release artwork without losing product details or actions when a remote image is slow, missing, or unavailable; every legacy record and every strict accepted v2 match has a verified backend-local JPEG fallback.
+- View responsive release artwork without losing product details or actions when a remote image is slow, missing, or unavailable; every legacy record and every strict accepted v3 match has a verified backend-local JPEG fallback.
 - Save records to a wishlist and cart as a guest or a signed-in customer.
 - Register, sign in, and manage an account with onboarding preferences. Preference clearing changes only the draft, and every dirty SPA/history transition offers a focus-contained save, discard, or cancel choice before leaving.
 - Run the client-only checkout preview and view its session-scoped confirmation without implying a real payment or backend order.

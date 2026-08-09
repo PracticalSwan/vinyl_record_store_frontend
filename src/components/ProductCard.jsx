@@ -49,7 +49,9 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
   const [feedbackError, setFeedbackError] = useState(null);
   const feedbackUndoRef = useRef(null);
   const feedbackPrimaryRef = useRef(null);
-  const previousFeedbackStatus = useRef('idle');
+  const feedbackSecondaryRef = useRef(null);
+  const feedbackFocusIntentRef = useRef(null);
+  const lastFeedbackKindRef = useRef('not-interested');
   const feedbackEnabled = Boolean(
     recommendationContext
     && ['home', 'recommendations'].includes(surface)
@@ -106,20 +108,28 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
   };
 
   useEffect(() => {
-    if (feedbackStatus === 'confirmed') feedbackUndoRef.current?.focus();
-    if (previousFeedbackStatus.current === 'confirmed' && feedbackStatus === 'idle') {
+    if (feedbackPending || !feedbackFocusIntentRef.current) return;
+    const target = feedbackFocusIntentRef.current;
+    feedbackFocusIntentRef.current = null;
+    if (target === 'undo') {
+      feedbackUndoRef.current?.focus();
+    } else if (target === 'already-own') {
+      feedbackSecondaryRef.current?.focus();
+    } else {
       feedbackPrimaryRef.current?.focus();
     }
-    previousFeedbackStatus.current = feedbackStatus;
-  }, [feedbackStatus]);
+  }, [feedbackError, feedbackPending, feedbackStatus]);
 
   const createFeedback = async (kind) => {
+    lastFeedbackKindRef.current = kind;
     setFeedbackPending(true);
     setFeedbackError(null);
     try {
       await putFeedback(record.id, { kind });
+      feedbackFocusIntentRef.current = 'undo';
       setFeedbackStatus('confirmed');
     } catch (error) {
+      feedbackFocusIntentRef.current = kind;
       setFeedbackError(error.message || 'Feedback could not be saved. Try again.');
     } finally {
       setFeedbackPending(false);
@@ -131,8 +141,10 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
     setFeedbackError(null);
     try {
       await deleteFeedback(record.id);
+      feedbackFocusIntentRef.current = lastFeedbackKindRef.current;
       setFeedbackStatus('idle');
     } catch (error) {
+      feedbackFocusIntentRef.current = 'undo';
       setFeedbackError(error.message || 'Feedback could not be undone. Try again.');
     } finally {
       setFeedbackPending(false);
@@ -146,18 +158,18 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
       role="listitem"
       aria-label={`${record.title} by ${displayArtist(record)}`}
     >
-      <div className="card-cover">
+      {!(feedbackStatus === 'confirmed' && feedbackEnabled) && <div className="card-cover">
         <ProductImage record={record} decorative />
         {!researchOnly && <StockDot stock={record.stock} />}
-        {feedbackStatus !== 'confirmed' && <button
+        <button
           className={`card-wishlist-btn${saved ? ' active' : ''}`}
           aria-label={`${saved ? 'Remove' : 'Add'} ${record.title} ${saved ? 'from' : 'to'} wishlist`}
           disabled={store.isPending('wishlist', record.id)}
           onClick={toggleSaved}
         >
           <IconHeart filled={saved} />
-        </button>}
-      </div>
+        </button>
+      </div>}
 
       <div className="card-body">
         {feedbackStatus === 'confirmed' && feedbackEnabled ? (
@@ -194,11 +206,12 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
           onCreate={createFeedback}
           error={feedbackError}
           ref={feedbackPrimaryRef}
+          secondaryRef={feedbackSecondaryRef}
         />}
         </>}
       </div>
 
-      {showReason && record.reason && (
+      {feedbackStatus !== 'confirmed' && showReason && record.reason && (
         <p className="card-reason" role="note">{record.reason}</p>
       )}
     </article>

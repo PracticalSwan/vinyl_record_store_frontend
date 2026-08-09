@@ -1,6 +1,6 @@
 # Amazon Reviews 2023 Frontend Integration
 
-Status: corrected immutable v2 dataset UI and live integration verified on 2026-08-08. This document is the frontend companion to `../../vinyl_record_store_backend/docs/AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md`; the backend runbook is authoritative for source evidence, transformation, import, activation, rollback, and exact counts.
+Status: corrected immutable v3 dataset UI and integration regression verified on 2026-08-10. Historical v2 live integration verification from 2026-08-08 remains recorded below; v2 is the immediate rollback release and V1 is the identity/legacy base. This document is the frontend companion to `../../vinyl_record_store_backend/docs/AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md`; the backend runbook is authoritative for source evidence, transformation, import, activation, rollback, and exact counts.
 
 Audience: Groovehaus frontend maintainers, reviewers, and Admin GUI operators.
 
@@ -10,7 +10,7 @@ Source of truth: active React source under `src/`, public API contracts, unit/co
 
 ## Current Contract
 
-When immutable `amazon-reviews-2023-cds-vinyl-5core-v2` is active, product responses carry `catalogMode: research-only`, source/version, controlled field origins/quality flags, original-versus-edition year fields, and an explicit local-artwork availability flag. V1 and the 116-record legacy catalog remain backend rollback targets. The application customers remain exactly `demo-jazz`, `demo-rock`, and `demo-soul`.
+When immutable `amazon-reviews-2023-cds-vinyl-5core-v3` is active, product responses carry `catalogMode: research-only`, source/version, controlled field origins/quality flags, original-versus-edition year fields, and an explicit local-artwork availability flag. V2 is the immediate rollback release, V1 is the identity/legacy base, and the 116-record legacy catalog remains preserved. The application customers remain exactly `demo-jazz`, `demo-rock`, and `demo-soul`.
 
 The research catalog intentionally has no Groovehaus price, currency, stock, condition, cart, or checkout behavior. Users can browse, search, filter, paginate, open details, save a wishlist item, and rate a record. This is a real source-derived research catalog, not Groovehaus commercial inventory.
 
@@ -18,7 +18,7 @@ The dataset change does not implement preference-aware, behavioral, popularity, 
 
 ## UI Behavior Matrix
 
-| Surface | V2 behavior |
+| Surface | V3 behavior |
 | --- | --- |
 | Home | Research-catalog headline/stat context; no inventory or price claim. |
 | Catalog/search | Dynamic nonzero genre/format/era facets; no price, condition, stock filters, or price sorts; old price-sort URLs canonicalize to newest. |
@@ -54,7 +54,7 @@ The current Admin GUI still provides:
 - ordinary MusicBrainz/Cover Art Archive preview/apply;
 - bounded CSV/JSON preview and one-time apply.
 
-The browser import and artwork controls do not manage Amazon v2. Dataset preparation, strict artwork decisions, local artwork publication, import, verification, activation, failed-import cleanup, and rollback remain backend CLI operations. Dataset mutation attempts fail with a conflict and a CLI recovery message.
+The browser import and artwork controls do not manage Amazon v3. Dataset preparation, strict artwork decisions, local artwork publication, import, verification, activation, failed-import cleanup, and rollback remain backend CLI operations. Dataset mutation attempts fail with a conflict and a CLI recovery message.
 
 ## Test Modes
 
@@ -62,6 +62,13 @@ Seed mode remains the full regression suite:
 
 ```powershell
 npm.cmd run test:e2e:seed
+```
+
+The seed suite forces the PERS-03 through PERS-05 flags off and verifies the signed-in cold-start/no-feedback contract. To run the controlled first-batch preference and feedback path explicitly, set `E2E_ENABLE_PERS_FIRST_BATCH=1` for that invocation.
+
+```powershell
+$env:E2E_ENABLE_PERS_FIRST_BATCH = '1'
+npm.cmd run test:e2e:seed -- tests/e2e/personalization.spec.js
 ```
 
 The deterministic dataset mode uses invented fixtures and no developer Atlas dependency:
@@ -74,15 +81,14 @@ It covers the 2,305 total/pagination contract, controlled facets, original/editi
 
 ## Validation Record
 
-Observed on 2026-08-08:
+Current regression evidence observed on 2026-08-10:
 
-- unit/component tests: 93/93 passed across 16 test files;
-- seed Playwright: 67 passed, 1 intentional skip;
-- dataset Playwright: 10 passed, 2 intentional device-specific skips;
-- accessibility: dedicated seed-mode axe suite passed 20/20 with no serious/critical violations in the tested desktop/mobile routes; the deterministic dataset suite also passed its axe cases;
-- ESLint and Vite production build: both passed on 2026-08-08;
-- live v2 browser/API/artwork/Admin inspection: passed live catalog count/facets, accepted local fallback, unresolved placeholder with no local request, mobile keyboard filters, Admin v2 source/version/read-only rows, and authenticated wishlist/rating behavior;
-- post-test cleanup preserved v1/v2/legacy evidence and exactly three showcase customers: dry-run ended with zero `e2e_` users and zero residue after the approved apply workflow; `datasetProducts` remained 2,305, `datasetImports` 2, and historical ratings remained 40,576 across v1/v2;
+- unit/component tests: 99/99 passed across 18 test files;
+- `npm run test:all`: seed Playwright passed 69 with one intentional skip, deterministic dataset Playwright passed 10 with two project-specific skips, ESLint passed, and the Vite production build passed;
+- explicit `E2E_ENABLE_PERS_FIRST_BATCH=1` personalization coverage passed 2/2 (desktop and mobile), exercising preference-profile ranking plus exact feedback/Undo;
+- dedicated seed-mode accessibility passed 20/20 with no serious or critical axe violations; the deterministic dataset suite also passed its axe cases;
+- post-test cleanup preserved the protected catalog/dataset collections and exactly three showcase customers; the final dry-run found zero `e2e_` users and zero residue;
+- the earlier 2026-08-08 v2 browser/API/artwork/Admin inspection and v1/v2 counts remain historical release evidence, not current v3 runtime claims;
 - dependency audit: patched development transitive findings; the remaining React Router RSC-mode advisory is not exercised by this Vite SPA and requires a separate compatible major-upgrade decision.
 
 ## Known Limits
@@ -95,4 +101,4 @@ Observed on 2026-08-08:
 
 ## Recommender Gate
 
-Dataset UI completion does not authorize PERS-06 through PERS-09, BFP-13 through BFP-16, FFP-12 through FFP-14, or any new ranking implementation. PERS-03 through PERS-05 / FFP-10 through FFP-11 were opened separately behind default-off flags. Future work must preserve the v2 source/version boundary, historical/live separation, exact three demo users, truthful mode copy, positive-rating-skew disclosure, and `content-demo-v1` regression behavior.
+Dataset UI completion does not authorize PERS-06 through PERS-09, BFP-13 through BFP-16, FFP-12 through FFP-14, or any new ranking implementation. PERS-03 through PERS-05 / FFP-10 through FFP-11 were opened separately behind default-off flags. Future work must preserve the v3 source/version boundary, v2 rollback evidence, historical/live separation, exact three demo users, truthful mode copy, positive-rating-skew disclosure, and `content-demo-v1` regression behavior.

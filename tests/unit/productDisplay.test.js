@@ -24,7 +24,7 @@ describe('dataset-safe product display', () => {
 
   it('keeps dataset records research-only even if commercial fields appear', () => {
     const record = {
-      datasetKey: 'amazon-reviews-2023-cds-vinyl-5core-v2',
+      datasetKey: 'amazon-reviews-2023-cds-vinyl-5core-v3',
       catalogMode: 'research-only',
       price: 25,
       currency: 'USD',

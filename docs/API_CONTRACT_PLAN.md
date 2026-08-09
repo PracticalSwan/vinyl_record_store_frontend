@@ -18,7 +18,7 @@ Error:
 
 ## Implemented Catalog And Recommendation Calls
 
-Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceUrl }` only after backend approval. `imageUrl` remains a nullable compatibility field. Products also expose safe `source`, `datasetKey`, `sourceVersion`, `fieldOrigins`, `qualityFlags`, `originalReleaseYear`, `editionReleaseYear`, `yearDisplayType`, `catalogMode`, and `localArtworkAvailable`. Artist, price, currency, stock, condition, and detailed format may be `null`. `ProductImage` derives the stable local route only when the backend confirms a legacy or accepted-v2 binding; ambiguous and unresolved dataset rows use the generic placeholder.
+Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceUrl }` only after backend approval. `imageUrl` remains a nullable compatibility field. Products also expose safe `source`, `datasetKey`, `sourceVersion`, `fieldOrigins`, `qualityFlags`, `originalReleaseYear`, `editionReleaseYear`, `yearDisplayType`, `catalogMode`, and `localArtworkAvailable`. Artist, price, currency, stock, condition, and detailed format may be `null`. `ProductImage` derives the stable local route only when the backend confirms a legacy or accepted-v3 binding; ambiguous and unresolved dataset rows use the generic placeholder. V2 remains the immediate rollback release with the same pinned accepted-art set.
 
 | Frontend Need | Method | Path | Current Use |
 | --- | --- | --- | --- |
@@ -26,7 +26,7 @@ Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceU
 | Product detail | `GET` | `/api/products/:id` | Detail and ID-based local-list hydration. |
 | Search alias | `GET` | `/api/search` | Shares the product query service and response shape. |
 | Remote cover art | `GET` | `/api/artwork?u=` | Preferred source. `ProductImage` asks the bounded backend proxy instead of loading `coverartarchive.org` directly. |
-| Local cover art | `GET` | `/api/artwork/local/:publicId` | Second source. Canonical legacy and accepted-v2 IDs redirect to separately verified immutable, content-addressed JPEGs; absent/invalid/image errors advance to the placeholder. |
+| Local cover art | `GET` | `/api/artwork/local/:publicId` | Second source. Canonical legacy and accepted-v3 IDs redirect to separately verified immutable, content-addressed JPEGs; absent/invalid/image errors advance to the placeholder. V2 rollback IDs remain pinned to the same accepted-art set. |
 | Similar products | `GET` | `/api/recommendations/product/:id?limit=6&surface=product-detail` | Product detail row with request/list attribution. |
 | Session-owned recommendations | `GET` | `/api/recommendations/me?limit=12&surface=...` | Home and recommendation routes only; customer identity comes from the cookie, otherwise anonymous fallback. |
 | Recommendation feedback | `PUT` / `DELETE` | `/api/me/feedback/:productId` | Recommendation cards only; sends exact `not-interested`/`already-own` kind or idempotent undo. No public list route. |

@@ -19,7 +19,7 @@ This file records current completion and deferred scope. It does not authorize c
 - FFP-07 integrated administrator workspace and FFP-08 client-only simulated checkout.
 - PERS-00/01/02 and FFP-09 architecture freeze, fixed identity contract, auth-gated `/api/recommendations/me` consumption, stale-response protection, and honest anonymous fallback.
 - PERS-03/04/05 and FFP-10/11 server-internal profile integration, default-off `preference-profile` labelling, and exact-item feedback controls with pessimistic Undo state.
-- DATA-00 through DATA-15 corrected v2 frontend compatibility: 2,305-product research catalog, controlled nonzero facets, original/edition year semantics, no commerce controls, strict accepted-art local fallback or placeholder, active dataset Admin status, CLI-managed rows, separate seed/dataset browser coverage, and preserved three showcase customers.
+- DATA-00 through DATA-15 corrected v3 frontend compatibility: 2,305-product research catalog, controlled nonzero facets, original/edition year semantics, no commerce controls, strict accepted-art local fallback or placeholder, active dataset Admin status, CLI-managed rows, separate seed/dataset browser coverage, v2 immediate rollback, and preserved three showcase customers.
 
 ## Deferred And Not Started
 
