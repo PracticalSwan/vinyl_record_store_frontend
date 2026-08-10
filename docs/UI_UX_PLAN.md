@@ -54,8 +54,8 @@ Groovehaus uses a cream surface, dark brown navigation and cards, rust accent, s
 - Use “demo profile” for the sample profile.
 - Use “cold-start” when no history exists.
 - Use “anonymous fallback” when no verified customer session resolves; do not imply account history.
-- Describe session ownership separately from ranking personalization: the request is customer-owned, while the default-off preference branch is active only when the backend flags and applicable signals permit it.
+- Describe session ownership separately from ranking personalization: the request is customer-owned, while the default-off preference, behavior, popularity, and hybrid branches are active only when the backend flags and applicable evidence permit.
 - Describe guest state as current-tab-only and authenticated state as account-backed.
-- When the preference flag is off, state that saved preferences do not alter the current `cold-start` ranking; when it is on, label the `preference-profile` mode and reasons from the saved fields.
+- When a personalized flag is off or evidence is unavailable, render the lower mode returned by the backend; when enabled, label `preference-profile`, `behavior-profile`, `popularity`, or `personalized-hybrid` and render only server-provided reasons.
 - Keep the usage-data opt-out visible and immediately authoritative.
 - Label checkout as a preview and never imply real payment, shipment, persistence, or a backend order.

@@ -101,4 +101,4 @@ Current regression evidence observed on 2026-08-10:
 
 ## Recommender Gate
 
-Dataset UI completion does not authorize PERS-06 through PERS-09, BFP-13 through BFP-16, FFP-12 through FFP-14, or any new ranking implementation. PERS-03 through PERS-05 / FFP-10 through FFP-11 were opened separately behind default-off flags. Future work must preserve the v3 source/version boundary, v2 rollback evidence, historical/live separation, exact three demo users, truthful mode copy, positive-rating-skew disclosure, and `content-demo-v1` regression behavior.
+Dataset UI completion does not authorize PERS-06 through PERS-08, BFP-13 through BFP-15, FFP-12 through FFP-13, or any dataset change. PERS-03 through PERS-08 / FFP-10 through FFP-13 were opened separately behind default-off flags. PERS-09 remains deferred. The implementation preserves the v3 source/version boundary, v2 rollback evidence, historical/live separation, exact three demo users, truthful mode copy, positive-rating-skew disclosure, and `content-demo-v1` regression behavior.

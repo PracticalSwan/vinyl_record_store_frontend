@@ -1,6 +1,7 @@
 import { ProductGrid, RecScroll, SkeletonGrid } from '../components/ProductGrid';
 import { IconAlert } from '../components/Icons';
 import { useCatalog } from '../context/useCatalog';
+import { recommendationPresentation } from '../lib/recommendationPresentation';
 
 function ProfileSummary({ signals }) {
   if (!signals.length) return null;
@@ -14,13 +15,6 @@ function ProfileSummary({ signals }) {
   );
 }
 
-const modeLabel = (mode) => ({
-  'demo-profile': 'Showcase profile',
-  'anonymous-fallback': 'Anonymous fallback',
-  'cold-start': 'Session-owned cold-start',
-  'preference-profile': 'Saved preferences',
-}[mode] || 'Current ranking mode');
-
 function RecommendationResults({ recommendations, mode }) {
   const topPicks = recommendations.slice(0, 8);
   const genre = recommendations.find((record) => record.genre)?.genre;
@@ -32,7 +26,7 @@ function RecommendationResults({ recommendations, mode }) {
   return (
     <>
       <h2 className="section-heading" style={{ fontSize: 20 }} id="top-picks-heading">
-        Top ranked picks <small>{modeLabel(mode)}</small>
+        Top ranked picks <small>{recommendationPresentation(mode).pageLabel}</small>
       </h2>
       <hr className="section-rule" aria-hidden="true" />
       <ProductGrid records={topPicks} showReason surface="recommendations" />
@@ -72,32 +66,17 @@ function RecommendationState({ status, error, retry, recommendations, mode }) {
   return <RecommendationResults recommendations={recommendations} mode={mode} />;
 }
 
-function recommendationIntro(mode) {
-  if (!mode) {
-    return 'The storefront will label the active recommendation mode when the ranked list is ready.';
-  }
-  if (mode === 'demo-profile') {
-    return 'These explainable results use a curated showcase profile rather than a signed-in customer.';
-  }
-  if (mode === 'anonymous-fallback') {
-    return 'No customer session is active, so these are catalog-based fallback suggestions without account history.';
-  }
-  if (mode === 'cold-start') {
-    return 'This request is owned by the signed-in session, but the preference-profile branch is disabled or has no applicable signal, so ranking remains cold-start.';
-  }
-  if (mode === 'preference-profile') {
-    return 'These results use the preferences you saved for this account.';
-  }
-  return 'These results use the active backend ranking mode and its item-level explanations.';
-}
-
 export default function RecommendationsPage() {
   const catalog = useCatalog();
   return (
     <main>
       <div className="container rec-page">
         <h1 className="section-heading" style={{ fontSize: 28 }}>Recommendations</h1>
-        <p className="rec-page-intro">{recommendationIntro(catalog.recommendationMode)}</p>
+        <p className="rec-page-intro">
+          {catalog.recommendationMode
+            ? recommendationPresentation(catalog.recommendationMode).intro
+            : 'The storefront will label the active recommendation mode when the ranked list is ready.'}
+        </p>
         <ProfileSummary signals={catalog.profileSummary} />
         <RecommendationState
           status={catalog.recommendationStatus}

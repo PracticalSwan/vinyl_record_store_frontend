@@ -151,4 +151,34 @@ describe('ProductCard feedback flow', () => {
     await waitFor(() => expect(alreadyOwn).toHaveFocus());
   });
 
+  it('renders at most two unique non-empty server reasons without score or weight fields', () => {
+    render(
+      <MemoryRouter>
+        <ProductCard
+          record={{
+            ...record,
+            recommendationReasons: [
+              'Matches your Jazz preference.',
+              '  ',
+              'Matches your Jazz preference.',
+              'Reflects records saved to your account.',
+              'This third reason must not render.',
+            ],
+            recommendationScore: 0.91,
+            componentWeights: { preference: 0.6, behavior: 0.4 },
+          }}
+          showReason
+          surface="recommendations"
+        />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Matches your Jazz preference.')).toBeVisible();
+    expect(screen.getByText('Reflects records saved to your account.')).toBeVisible();
+    expect(screen.queryByText('This third reason must not render.')).toBeNull();
+    expect(screen.queryByText('0.91')).toBeNull();
+    expect(screen.queryByText('0.6')).toBeNull();
+    expect(screen.queryByText('0.4')).toBeNull();
+  });
+
 });
