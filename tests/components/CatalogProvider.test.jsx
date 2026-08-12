@@ -19,12 +19,16 @@ const deferred = () => {
   return { promise, resolve, reject };
 };
 
-function response(title, mode = 'cold-start') {
+function response(title, mode = 'cold-start', {
+  algorithmVersion = 'content-demo-v1',
+  rank = 1,
+  reasons = ['Test reason.'],
+} = {}) {
   const requestId = `request-${title.toLowerCase().replace(/\s+/g, '-')}`;
   return {
     data: {
       mode,
-      algorithmVersion: 'content-demo-v1',
+      algorithmVersion,
       requestId,
       listId: `${requestId}:primary`,
       recommendationLogged: false,
@@ -32,9 +36,9 @@ function response(title, mode = 'cold-start') {
       recommendations: [{
         product: { id: title.length, title, artist: 'Test Artist', genre: 'Jazz' },
         score: 1,
-        reasons: ['Test reason.'],
-        rank: 1,
-        algorithmVersion: 'content-demo-v1',
+        reasons,
+        rank,
+        algorithmVersion,
       }],
     },
   };
@@ -47,6 +51,10 @@ function Probe() {
       <output aria-label="Recommendation status">{catalog.recommendationStatus}</output>
       <output aria-label="Recommendation mode">{catalog.recommendationMode || 'none'}</output>
       <output aria-label="Recommendation title">{catalog.recommendations[0]?.title || 'none'}</output>
+      <output aria-label="Recommendation reason">{catalog.recommendations[0]?.reason || 'none'}</output>
+      <output aria-label="Recommendation reasons">{catalog.recommendations[0]?.recommendationReasons?.join('|') || 'none'}</output>
+      <output aria-label="Backend reasons">{catalog.recommendations[0]?.reasons?.join('|') || 'none'}</output>
+      <output aria-label="Recommendation attribution">{JSON.stringify(catalog.recommendations[0]?.recommendationContext || null)}</output>
       <button type="button" onClick={catalog.reloadRecommendations}>Reload recommendations</button>
     </>
   );
@@ -144,5 +152,33 @@ describe('CatalogProvider recommendation identity', () => {
     await waitFor(() => expect(screen.getByLabelText('Recommendation status')).toHaveTextContent('error'));
     await user.click(screen.getByRole('button', { name: 'Reload recommendations' }));
     await screen.findByText('Recovered result');
+  });
+
+  it('preserves ordered reasons and complete server attribution for hybrid results', async () => {
+    api.fetchMyRecommendations.mockResolvedValueOnce(response('Hybrid result', 'personalized-hybrid', {
+      algorithmVersion: 'personalized-hybrid-v1',
+      rank: 4,
+      reasons: ['Matches your saved preferences.', 'Reflects records in your account.'],
+    }));
+    render(tree({
+      status: 'authenticated',
+      user: { publicId: 'user-owner', role: 'customer' },
+    }));
+
+    await screen.findByText('Hybrid result');
+    expect(screen.getByLabelText('Recommendation reason')).toHaveTextContent('Matches your saved preferences.');
+    expect(screen.getByLabelText('Recommendation reasons')).toHaveTextContent(
+      'Matches your saved preferences.|Reflects records in your account.',
+    );
+    expect(screen.getByLabelText('Backend reasons')).toHaveTextContent(
+      'Matches your saved preferences.|Reflects records in your account.',
+    );
+    expect(JSON.parse(screen.getByLabelText('Recommendation attribution').textContent)).toEqual({
+      requestId: 'request-hybrid-result',
+      algorithmVersion: 'personalized-hybrid-v1',
+      mode: 'personalized-hybrid',
+      rank: 4,
+      listId: 'request-hybrid-result:primary',
+    });
   });
 });

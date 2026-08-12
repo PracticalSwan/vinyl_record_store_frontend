@@ -92,7 +92,7 @@ Decision: Plan, without implementing, the frontend half of the personalization r
 
 Rationale: Provider ordering, the API client, recommendation state, and feedback UI all change across milestones; fixing these decisions up front avoids rework. No quality claim is made.
 
-Status: Frozen and completed 2026-07-10, with a 2026-08-10 update for PERS-03 through PERS-05 / FFP-10 through FFP-11. The implementation uses both provider order and an auth-status gate, limit 12, customer-only access with administrator rejection, subject-key plus abort/generation stale protection, and a default-on `VITE_PERS_ME_ENDPOINT` rollback switch. Preference-profile and exact feedback UI remain default-off; PERS-06+ behavior and quality claims remain inactive.
+Status: Frozen and completed 2026-07-10, with a 2026-08-10 update for PERS-03 through PERS-08 / FFP-10 through FFP-13. The implementation uses both provider order and an auth-status gate, limit 12, customer-only access with administrator rejection, subject-key plus abort/generation stale protection, a shared mode renderer, up-to-two server reasons, and a default-on `VITE_PERS_ME_ENDPOINT` rollback switch. New ranking flags and exact feedback UI remain default-off; no quality claim is made.
 
 ## FDEC-012: Administrator Workspace And Client-Only Simulated Checkout
 
@@ -138,7 +138,7 @@ Decision: Dataset-owned products never use Amazon imagery or borrow a legacy bin
 
 Rationale: The 116-record artwork bundle is identity-bound to reviewed legacy releases, accepted v2 files have a separate exact manifest, and one-off browser mutations would break the reproducible dataset version.
 
-Status: Implemented with DATA-10 through DATA-12; PERS-03 through PERS-05 / FFP-10 through FFP-11 were subsequently completed behind default-off flags, while PERS-06 through PERS-09 remain deferred.
+Status: Implemented with DATA-10 through DATA-12; PERS-03 through PERS-08 / FFP-10 through FFP-13 were subsequently completed behind default-off flags, while PERS-09 remains deferred.
 
 ## FDEC-017: Keep Live Dataset Smoke Separate From Deterministic Fixtures
 
@@ -149,5 +149,15 @@ Decision: Keep the dataset Playwright project deterministic and fixture-backed, 
 Rationale: Fixture-backed tests provide stable contract coverage without an Atlas dependency, while a separate live smoke proves the integration boundary against the actual active pointer and committed artwork. Separating the two avoids turning network/database drift into nondeterministic UI tests.
 
 Status: Verified. The deterministic dataset project passed 10 tests with two mobile-only skips; the live browser path passed all listed checks, and approved cleanup preserved the v1/v2/legacy evidence and exactly three showcase customers.
+
+## FDEC-018: Render The Backend Mode Matrix Without Recomputing Scores
+
+Date: 2026-08-10
+
+Decision: Keep one shared frontend presentation map for `preference-profile`, `behavior-profile`, `popularity`, and `personalized-hybrid` plus the existing lower/demo modes. Preserve the full server `reasons[]` and request/list/version/mode/rank attribution, render at most two ordered unique non-empty reasons, and never display raw component scores or weights. Tracking opt-out remains passive-only; direct wishlist/cart/rating/feedback APIs stay functional.
+
+Rationale: The backend owns evidence, availability, weights, and mode selection. A thin presentation boundary prevents stale copy, client-side scoring drift, and accidental historical-identity or quality claims while keeping attribution auditable.
+
+Status: Implemented and verified in the PERS-06 through PERS-08 frontend delta; PERS-09 integration closure remains deferred.
 
 Rationale: These boundaries prevent analytics inflation from search prefixes, cross-account history leakage, accidental preference saves, footer overlap, and storefront copy that could imply a real order or unfinished implementation.

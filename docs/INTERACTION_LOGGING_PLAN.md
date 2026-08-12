@@ -13,7 +13,7 @@ The active Amazon Reviews 2023 historical ratings are a separate backend-only ev
 - `src/lib/tracking.js` owns a maximum 500-event queue, 25-event batches, five bounded retry attempts, exponential backoff, and page-hide/visibility flushes.
 - The queue and pseudonymous anonymous ID use versioned `localStorage`; the per-tab session ID uses `sessionStorage`.
 - `TrackingProvider` exposes the current usage-data choice. `TrackingPreference` appears in the footer and profile-preferences page.
-- Tracking is enabled by default for the academic demo. Opt-out immediately prevents capture and request logging, clears unsent events, and remains authoritative in memory when browser storage rejects the preference write.
+- Tracking is enabled by default for the academic demo. Opt-out immediately prevents capture and request logging, clears unsent events, and remains authoritative in memory when browser storage rejects the preference write. The backend interaction route also accepts the exact `X-Tracking-Enabled: false` backstop with zero accepted/duplicate writes after origin validation.
 - Authentication operations flush or discard pending events before login, registration, or logout. Generation checks prevent an older failed delivery from re-entering the queue under a different identity.
 - Recommendation impressions are deduplicated for the full request/list/product/surface page view. Ordinary render-effect duplicates use a short two-second window.
 - Analytics failure never rolls back wishlist, cart, rating, feedback, search, or navigation behavior. Durable feedback is a functional `/api/me/feedback/:productId` action, not an analytics event and never a source of authoritative suppression through `recommendation_dismiss`.
@@ -37,7 +37,7 @@ Search events store query length and result rank, not raw search text. No event 
 
 `POST /api/interactions` accepts 1 through 50 version-1 events, validates controlled fields, derives authenticated ownership from the signed session, strips anonymous ownership for authenticated batches, and uses unique event IDs for idempotency. Anonymous batches require an anonymous ID. Stored events have a 90-day eventual TTL target.
 
-Recommendation endpoints receive `X-Tracking-Enabled`; user-recommendation requests also receive `X-Anonymous-Id` when enabled. MongoDB mode persists the exact served list before returning it; opt-out and seed mode suppress that request log.
+Recommendation endpoints receive `X-Tracking-Enabled`; user-recommendation requests also receive `X-Anonymous-Id` when enabled. MongoDB mode persists the exact served list before returning it; opt-out and seed mode suppress that request log. Direct wishlist/cart/rating/feedback APIs do not depend on this header or queue.
 
 ## Verification
 

@@ -2,18 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import { ProductGrid, RecScroll, SkeletonGrid } from '../components/ProductGrid';
 import { useCatalog } from '../context/useCatalog';
 import { useProductQuery } from '../hooks/useRemoteProducts';
+import { recommendationPresentation } from '../lib/recommendationPresentation';
 
 const HOME_QUERY = {
   q: '', page: 1, limit: 4, genres: [], eras: [], conditions: [],
   minPrice: null, maxPrice: null, inStock: false, sort: 'newest',
 };
-
-const recommendationLabel = (mode) => ({
-  'demo-profile': 'Curated showcase profile',
-  'anonymous-fallback': 'Anonymous catalog fallback',
-  'cold-start': 'Session-owned cold-start',
-  'preference-profile': 'Saved preference profile',
-}[mode] || 'Explainable ranked suggestions');
 
 const recommendationAriaLabel = (mode) => mode === 'demo-profile'
   ? 'Recommended records for the showcase profile'
@@ -74,7 +68,7 @@ export default function HomePage() {
           {catalog.items.length > 0 && <ProductGrid records={catalog.items} surface="home" />}
         </section>
         <section aria-labelledby="rec-home-heading" className="rec-section">
-          <h2 className="section-heading" id="rec-home-heading">Recommendation picks <small>{recommendationLabel(recommendationMode)}</small></h2>
+          <h2 className="section-heading" id="rec-home-heading">Recommendation picks <small>{recommendationPresentation(recommendationMode).homeLabel}</small></h2>
           <hr className="section-rule" aria-hidden="true" />
           {recommendationStatus === 'loading' && <p className="inline-state">Loading recommendations...</p>}
           {recommendationStatus === 'error' && <div className="inline-state" role="alert"><span>{recommendationError?.message}</span><button className="btn btn-outline btn-sm" onClick={reloadRecommendations}>Try again</button></div>}

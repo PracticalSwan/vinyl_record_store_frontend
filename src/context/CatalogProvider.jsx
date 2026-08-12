@@ -13,19 +13,24 @@ const INITIAL_RECOMMENDATIONS = {
   profileSummary: [],
 };
 
-const withReason = (item, response) => ({
-  ...item.product,
-  reason: item.reasons?.[0] || '',
-  recommendationScore: item.score,
-  recommendationRank: item.rank,
-  recommendationContext: {
-    requestId: response.requestId,
-    algorithmVersion: response.algorithmVersion,
-    mode: response.mode,
-    rank: item.rank,
-    listId: response.listId,
-  },
-});
+const withReason = (item, response) => {
+  const recommendationReasons = Array.isArray(item.reasons) ? item.reasons : [];
+  return {
+    ...item.product,
+    reason: recommendationReasons[0] || '',
+    reasons: recommendationReasons,
+    recommendationReasons,
+    recommendationScore: item.score,
+    recommendationRank: item.rank,
+    recommendationContext: {
+      requestId: response.requestId,
+      algorithmVersion: response.algorithmVersion,
+      mode: response.mode,
+      rank: item.rank,
+      listId: response.listId,
+    },
+  };
+};
 
 const selectRecommendations = (response) => ({
   data: response.data.recommendations.map((item) => withReason(item, response.data)),

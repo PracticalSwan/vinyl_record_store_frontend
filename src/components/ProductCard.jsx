@@ -34,6 +34,22 @@ function StockDot({ stock }) {
   return <span className={`card-stock-dot ${cls}`} title={label} aria-hidden="true" />;
 }
 
+function visibleRecommendationReasons(record) {
+  const candidates = [
+    ...(Array.isArray(record.recommendationReasons) ? record.recommendationReasons : []),
+    record.reason,
+  ];
+  const reasons = [];
+  for (const candidate of candidates) {
+    if (typeof candidate !== 'string') continue;
+    const reason = candidate.trim();
+    if (!reason || reasons.includes(reason)) continue;
+    reasons.push(reason);
+    if (reasons.length === 2) break;
+  }
+  return reasons;
+}
+
 export default function ProductCard({ record, showReason = false, surface = 'catalog', queryLength = 0, searchRank = null }) {
   const navigate = useNavigate();
   const tracking = useTracking();
@@ -43,6 +59,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
   const { wishlist, toggleWishlist } = store;
   const saved = wishlist.includes(record.id);
   const recommendationContext = record.recommendationContext;
+  const recommendationReasons = visibleRecommendationReasons(record);
   const researchOnly = isResearchProduct(record);
   const [feedbackStatus, setFeedbackStatus] = useState('idle');
   const [feedbackPending, setFeedbackPending] = useState(false);
@@ -211,9 +228,9 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
         </>}
       </div>
 
-      {feedbackStatus !== 'confirmed' && showReason && record.reason && (
-        <p className="card-reason" role="note">{record.reason}</p>
-      )}
+      {feedbackStatus !== 'confirmed' && showReason && recommendationReasons.map((reason) => (
+        <p className="card-reason" role="note" key={reason}>{reason}</p>
+      ))}
     </article>
   );
 }

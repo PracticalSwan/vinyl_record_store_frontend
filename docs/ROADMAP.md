@@ -25,6 +25,6 @@ This file records current completion and deferred scope. It does not authorize c
 
 - A recommendation-quality result: historical inputs are ready for a separately approved experiment, but no model was evaluated and live evidence remains insufficient.
 - Real payments, deployment automation, and production commerce.
-- Remaining personalization (PERS-06 through PERS-09 / FFP-12 through FFP-14): behavior, popularity, hybrid presentation, and closure. PERS-03 through PERS-05 / FFP-10 through FFP-11 are implemented behind default-off backend flags, including preference-profile labelling and exact feedback controls. No quality claim is made.
+- PERS-09 integration/closure remains deferred. PERS-06 through PERS-08 / FFP-12 through FFP-13 are implemented behind default-off backend flags, including behavior/popularity/hybrid labels, up-to-two reasons, attribution, and exact feedback controls. No quality claim is made.
 
-Detailed plans and the approved cross-repository order are in `FUTURE_IMPLEMENTATION_PLAN.md`. FFP-01 through FFP-11 are complete. Deferred items require a separate explicit implementation task.
+Detailed plans and the approved cross-repository order are in `FUTURE_IMPLEMENTATION_PLAN.md`. FFP-01 through FFP-13 are complete. Deferred items require a separate explicit implementation task.

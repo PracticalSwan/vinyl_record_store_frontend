@@ -1,6 +1,6 @@
 # Personalization Implementation Plan (Frontend)
 
-This roadmap is the frontend half of converting the existing deterministic demo recommender into a genuine personalized recommender system for the Vinyl Record Store (CSX4207). PERS-00 through PERS-05 / FFP-11 were implemented on 2026-08-10 behind default-off backend flags. DATA-00 through DATA-15 were re-verified with final lifecycle and browser evidence on 2026-08-08. PERS-06 through PERS-09 remain planning-only, were explicitly excluded from the dataset implementation, and authorize no implementation by themselves.
+This roadmap is the frontend half of converting the existing deterministic demo recommender into a genuine personalized recommender system for the Vinyl Record Store (CSX4207). PERS-00 through PERS-05 / FFP-11 were implemented on 2026-08-10 behind default-off backend flags, and PERS-06 through PERS-08 / FFP-12 through FFP-13 were implemented on `feat/personalization-pers-06-08` on 2026-08-10. DATA-00 through DATA-15 were re-verified with final lifecycle and browser evidence on 2026-08-08. PERS-09 remains deferred and was not implemented or used to authorize dataset changes.
 
 This plan is scheduled AFTER the entire existing documented roadmap: BFP-07 (admin backend), FFP-07 (admin frontend), FFP-08 (simulated checkout), and any backend support already planned for the simulated checkout. It does not reorder, replace, remove, or silently redefine any existing BFP/FFP plan.
 
@@ -21,7 +21,7 @@ The remaining frontend milestones are revised as follows:
 - PERS-05/06 controls remain live-account behavior and must never imply that Amazon history belongs to the signed-in customer.
 - PERS-09 adds active-dataset/v1/legacy rollback, dynamic-facet, original-versus-edition-year, nullable-field, accepted-art/placeholder, Admin read-only-row, and exact-three-user browser regressions.
 
-Historical data-readiness does not establish recommendation quality. The PERS-03 through PERS-05 / FFP-10 through FFP-11 batch is implemented behind default-off backend flags; a new explicit implementation request is required for PERS-06 through PERS-09.
+Historical data-readiness does not establish recommendation quality. The PERS-03 through PERS-08 / FFP-10 through FFP-13 batch is implemented behind default-off backend flags; PERS-09 remains outside this batch.
 
 ## PERS-04 Through PERS-09 Re-review (2026-08-09)
 
@@ -702,7 +702,7 @@ PERS-06 / FFP-12 (frontend) + BFP-13 (backend) — Honest rendering of behavior-
 
 ### Status
 
-Planned. Blocked by backend BFP-13.
+Implemented 2026-08-10 on `feat/personalization-pers-06-08`, consuming backend `behavior-profile-v1` behind default-off `PERS_BEHAVIORAL_RANKING`. Mode labels, server-reason rendering, attribution preservation, and tracking/direct-action regressions are covered; no quality claim is made.
 
 ### Goal
 
@@ -714,7 +714,7 @@ Behavioral affinity combines durable account actions with optional weak passive 
 
 ### Current Implementation Gap
 
-Mode rendering does not handle `behavior-profile`. Frontend opt-out already disables the tracking queue; direct account actions use separate APIs and must stay separate.
+Closed for FFP-12: shared mode rendering handles `behavior-profile`, preserves up to two server reasons and attribution, and keeps the existing passive opt-out/direct-action boundary.
 
 ### Dependencies
 
@@ -818,7 +818,7 @@ PERS-07 / BFP-14 (backend) — Popularity baseline and fallback. Frontend render
 
 ### Status
 
-Planned. Blocked by backend BFP-14.
+Implemented 2026-08-10 on `feat/personalization-pers-06-08`, consuming backend `popularity-v1` behind default-off `PERS_POPULARITY`. Aggregate research-rating copy is distinct from personalized and deterministic fallback wording.
 
 ### Goal
 
@@ -830,7 +830,7 @@ PERS-07 replaces plain catalog ordering with active-dataset historical popularit
 
 ### Current Implementation Gap
 
-`anonymous-fallback` is already implemented. Only `popularity` mode/version/reason handling is new.
+Closed for FFP-12/consumed FFP-14 scope: `popularity` mode/version/reasons and the existing anonymous/cold-start fallback labels share one renderer.
 
 ### Dependencies
 
@@ -922,7 +922,7 @@ PERS-08 / FFP-13 (frontend) + BFP-15 (backend) — Render the `personalized-hybr
 
 ### Status
 
-Planned. Blocked by backend BFP-15.
+Implemented 2026-08-10 on `feat/personalization-pers-06-08`, consuming backend `personalized-hybrid-v1` behind default-off `PERS_HYBRID`. Lower component modes remain distinct and raw component scores/weights are not rendered.
 
 ### Goal
 
@@ -934,7 +934,7 @@ The hybrid is one authenticated mode, not a permanent label for every signed-in 
 
 ### Current Implementation Gap
 
-No `personalized-hybrid` mode handling.
+Closed for FFP-13: the shared mode renderer and card reason handling recognize `personalized-hybrid` while preserving request/list/version/mode/rank attribution.
 
 ### Dependencies
 
@@ -1034,7 +1034,7 @@ PERS-09 / FFP-14 (frontend) + BFP-16 (backend) — Full frontend integration, re
 
 ### Status
 
-PERS-01, PERS-02, and DATA-15 are complete; PERS-03 through PERS-05 are implemented and verified for this batch, while PERS-09 remains planned until the later PERS-06 through PERS-08 work.
+Deferred and explicitly outside the PERS-06 through PERS-08 batch. No PERS-09 integration/closure implementation or dataset lifecycle work was performed.
 
 ### Goal
 
@@ -1046,7 +1046,7 @@ Each later feature is independently reversible. PERS-09 proves their contracts a
 
 ### Current Implementation Gap
 
-PERS-06 through PERS-08 are still planning-only. The PERS-03 through PERS-05 batch and endpoint/auth restoration/resource-key/stale-response foundation are implemented and should be regression-tested, not replaced.
+PERS-06 through PERS-08 are implemented and regression-tested in their child branches. A later PERS-09 task may add broader cross-repository browser/data verification; it is not part of this implementation.
 
 ### Dependencies
 
