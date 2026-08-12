@@ -40,4 +40,4 @@ UI review can measure comprehension and accessibility. Ranking-quality metrics b
 
 ## Personalization Roadmap
 
-PERS-00 through PERS-08 / FFP-13 are complete behind default-off flags: the client has no arbitrary-user selection surface, authenticated/anonymous storefront requests use the session-owned endpoint safely, all returned modes are labelled honestly, server-owned reasons render with up to two unique entries, and recommendation cards expose exact feedback controls only when enabled. PERS-09 remains deferred. Lower modes preserve their pure backend score/version, and no quality claim is made.
+PERS-00 through PERS-09 / FFP-14 are complete. PERS-04 through PERS-08 remain behind default-off flags: the client has no arbitrary-user selection surface, authenticated/anonymous storefront requests use the session-owned endpoint safely, identity and surface changes cannot reveal stale results, all returned modes are labelled honestly, server-owned reasons render with up to two unique entries, and recommendation cards expose exact feedback controls only when enabled. Lower modes preserve their pure backend score/version, and no quality claim is made.

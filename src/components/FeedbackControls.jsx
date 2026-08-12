@@ -8,11 +8,12 @@ const FeedbackControls = forwardRef(function FeedbackControls({
   error = null,
   undoRef,
   secondaryRef,
+  confirmedKind = null,
 }, ref) {
   if (status === 'confirmed') {
     return (
       <div className="feedback-status" role="status" aria-live="polite">
-        <span>Removed from recommendations.</span>
+        <span>{confirmedKind === 'already-own' ? 'Marked as already owned.' : 'Removed from recommendations.'}</span>
         <button ref={undoRef || ref} className="btn btn-secondary btn-sm" type="button" onClick={onUndo} disabled={pending}>
           Undo
         </button>

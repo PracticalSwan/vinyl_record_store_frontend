@@ -125,13 +125,15 @@ describe('ProductCard feedback flow', () => {
     await user.click(alreadyOwn);
     const undo = await screen.findByRole('button', { name: 'Undo' });
     await waitFor(() => expect(undo).toHaveFocus());
+    expect(screen.getByRole('status')).toHaveTextContent('Marked as already owned.');
+    expect(screen.getByRole('status')).not.toHaveTextContent(/not interested|dislike/i);
 
     deleteFeedback.mockRejectedValueOnce(new Error('Feedback could not be undone.'));
     await user.click(undo);
 
     await screen.findByRole('alert');
     await waitFor(() => expect(undo).toHaveFocus());
-    expect(screen.getByRole('status')).toHaveTextContent('Removed from recommendations.');
+    expect(screen.getByRole('status')).toHaveTextContent('Marked as already owned.');
     expect(screen.queryByText('Review Record')).toBeNull();
   });
 

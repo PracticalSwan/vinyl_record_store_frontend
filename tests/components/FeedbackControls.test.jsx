@@ -19,4 +19,10 @@ describe('FeedbackControls', () => {
     await user.click(screen.getByRole('button', { name: 'Undo' }));
     expect(onUndo).toHaveBeenCalledOnce();
   });
+
+  it('uses neutral already-owned confirmation copy without dislike wording', () => {
+    render(<FeedbackControls status="confirmed" confirmedKind="already-own" onUndo={vi.fn()} />);
+    expect(screen.getByRole('status')).toHaveTextContent('Marked as already owned.');
+    expect(screen.getByRole('status')).not.toHaveTextContent(/not interested|dislike/i);
+  });
 });

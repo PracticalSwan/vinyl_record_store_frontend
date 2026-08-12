@@ -11,6 +11,6 @@ The approved design and dependency gates are documented in `FUTURE_IMPLEMENTATIO
 - Real checkout and payment integration.
 - TypeScript migration.
 - Future image optimization service only if deployment requirements justify it; the current backend proxy and committed local-artwork endpoint need no added frontend dependency.
-- PERS-09 integration/closure remains deferred. PERS-00 through PERS-08 / FFP-09 through FFP-13 are complete behind default-off flags. Do not enable the new ranking flags or start PERS-09 without a separate explicit task; preserve honesty wording and the evidence boundary.
+- PERS-00 through PERS-09 / FFP-09 through FFP-14 are complete. Keep the PERS-04 through PERS-08 ranking flags default-off unless a separate rollout is authorized; preserve honesty wording and the evidence boundary.
 
 Do not install packages or begin these changes solely because they appear here. Recheck current framework versions and update decisions before any future dependency work.

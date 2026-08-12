@@ -11,8 +11,8 @@ These files describe the implemented Groovehaus storefront and its current backe
 - `RECOMMENDER_SYSTEM_PLAN.md`: recommendation presentation and honesty rules.
 - `ARCHITECTURE_PLAN.md`: current source and state ownership.
 - `EVALUATION_PLAN.md`: automated and manual frontend checks.
-- `FUTURE_IMPLEMENTATION_PLAN.md`: completed FFP-01 through FFP-13 records plus remaining deferred work and the cross-repository order.
-- `PERSONALIZATION_IMPLEMENTATION_PLAN.md`: PERS-00 through PERS-08 / FFP-09 through FFP-13 completed 2026-08-10 behind default-off flags; PERS-09 remains deferred, with no quality claim.
+- `FUTURE_IMPLEMENTATION_PLAN.md`: completed FFP-01 through FFP-14 records plus remaining deferred work and the cross-repository order.
+- `PERSONALIZATION_IMPLEMENTATION_PLAN.md`: PERS-00 through PERS-09 / FFP-09 through FFP-14 completed through 2026-08-13; ranking flags remain default-off and no quality claim is made.
 - `INTERACTION_LOGGING_PLAN.md`: implemented FFP-01 queue, privacy, attribution, and verification design.
 - `ROADMAP.md` and `TASK_BACKLOG.md`: completed implementation and explicitly deferred work.
 - `DECISION_LOG.md`, `RISK_REGISTER.md`, and `PRESENTATION_NOTES.md`: durable decisions, risks, and course-facing summary.

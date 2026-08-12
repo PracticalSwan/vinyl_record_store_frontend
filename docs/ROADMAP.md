@@ -19,12 +19,13 @@ This file records current completion and deferred scope. It does not authorize c
 - FFP-07 integrated administrator workspace and FFP-08 client-only simulated checkout.
 - PERS-00/01/02 and FFP-09 architecture freeze, fixed identity contract, auth-gated `/api/recommendations/me` consumption, stale-response protection, and honest anonymous fallback.
 - PERS-03/04/05 and FFP-10/11 server-internal profile integration, default-off `preference-profile` labelling, and exact-item feedback controls with pessimistic Undo state.
+- PERS-06 through PERS-09 / FFP-12 through FFP-14 behavior/popularity/hybrid presentation, server-reason attribution, passive-only opt-out semantics, identity/surface stale-response protection, accessible exact-feedback state, full-gate browser/data regressions, and documentation closure.
 - DATA-00 through DATA-15 corrected v3 frontend compatibility: 2,305-product research catalog, controlled nonzero facets, original/edition year semantics, no commerce controls, strict accepted-art local fallback or placeholder, active dataset Admin status, CLI-managed rows, separate seed/dataset browser coverage, v2 immediate rollback, and preserved three showcase customers.
 
 ## Deferred And Not Started
 
 - A recommendation-quality result: historical inputs are ready for a separately approved experiment, but no model was evaluated and live evidence remains insufficient.
 - Real payments, deployment automation, and production commerce.
-- PERS-09 integration/closure remains deferred. PERS-06 through PERS-08 / FFP-12 through FFP-13 are implemented behind default-off backend flags, including behavior/popularity/hybrid labels, up-to-two reasons, attribution, and exact feedback controls. No quality claim is made.
+- Ranking-flag production enablement, collaborative filtering, matrix factorization/SVD, and learned ranking remain separate decisions. PERS-04 through PERS-08 stay behind default-off backend flags, and no quality claim is made.
 
-Detailed plans and the approved cross-repository order are in `FUTURE_IMPLEMENTATION_PLAN.md`. FFP-01 through FFP-13 are complete. Deferred items require a separate explicit implementation task.
+Detailed plans and the approved cross-repository order are in `FUTURE_IMPLEMENTATION_PLAN.md`. FFP-01 through FFP-14 are complete. Deferred items require a separate explicit implementation task.

@@ -1,6 +1,6 @@
 # Amazon Reviews 2023 Frontend Integration
 
-Status: corrected immutable v3 dataset UI and integration regression verified on 2026-08-10. Historical v2 live integration verification from 2026-08-08 remains recorded below; v2 is the immediate rollback release and V1 is the identity/legacy base. This document is the frontend companion to `../../vinyl_record_store_backend/docs/AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md`; the backend runbook is authoritative for source evidence, transformation, import, activation, rollback, and exact counts.
+Status: corrected immutable v3 dataset UI and PERS-09 integration regression verified through 2026-08-13. Historical v2 live integration verification from 2026-08-08 remains recorded below; v2 is the immediate rollback release and V1 is the identity/legacy base. This document is the frontend companion to `../../vinyl_record_store_backend/docs/AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md`; the backend runbook is authoritative for source evidence, transformation, import, activation, rollback, and exact counts.
 
 Audience: Groovehaus frontend maintainers, reviewers, and Admin GUI operators.
 
@@ -14,7 +14,7 @@ When immutable `amazon-reviews-2023-cds-vinyl-5core-v3` is active, product respo
 
 The research catalog intentionally has no Groovehaus price, currency, stock, condition, cart, or checkout behavior. Users can browse, search, filter, paginate, open details, save a wishlist item, and rate a record. This is a real source-derived research catalog, not Groovehaus commercial inventory.
 
-The dataset change does not implement preference-aware, behavioral, popularity, collaborative, matrix-factorization, SVD, or hybrid ranking. The separately implemented PERS-03 through PERS-05 / FFP-10 through FFP-11 batch remains default-off and data-lifecycle independent. Current lists are labelled `demo-profile`, session-owned `cold-start` or optional `preference-profile`, or `anonymous-fallback`; no recommendation-quality claim is made.
+The dataset change itself did not implement recommendation ranking. The separately implemented PERS-03 through PERS-09 / FFP-10 through FFP-14 path is data-lifecycle independent, and the PERS-04 through PERS-08 ranking flags remain default-off. Current lists truthfully render `demo-profile`, session-owned `cold-start`, `preference-profile`, `behavior-profile`, `popularity`, `personalized-hybrid`, or `anonymous-fallback`; collaborative filtering, matrix factorization/SVD, learned ranking, and any recommendation-quality claim remain excluded.
 
 ## UI Behavior Matrix
 
@@ -71,6 +71,16 @@ $env:E2E_ENABLE_PERS_FIRST_BATCH = '1'
 npm.cmd run test:e2e:seed -- tests/e2e/personalization.spec.js
 ```
 
+To exercise the complete PERS-09 integration matrix without changing production defaults, enable the test-only full gate. For the bounded live MongoDB contract, also set `E2E_PERS_CATALOG_DATA_SOURCE=mongodb`; this disables local server reuse and the test asserts `research-only` mode. Omit the selector for deterministic seed integration. The isolated unavailable-MongoDB contract uses its own configuration.
+
+```powershell
+$env:E2E_ENABLE_PERS_INTEGRATION = '1'
+npm.cmd run test:e2e:seed -- --project=chromium-desktop --project=chromium-mobile tests/e2e/personalization.spec.js
+$env:E2E_PERS_CATALOG_DATA_SOURCE = 'mongodb'
+npm.cmd run test:e2e:seed -- --project=chromium-desktop tests/e2e/recommendation-contract.spec.js
+npm.cmd run test:e2e:mongodb-failure
+```
+
 The deterministic dataset mode uses invented fixtures and no developer Atlas dependency:
 
 ```powershell
@@ -81,12 +91,13 @@ It covers the 2,305 total/pagination contract, controlled facets, original/editi
 
 ## Validation Record
 
-Current regression evidence observed on 2026-08-10:
+Current regression evidence observed through 2026-08-13:
 
-- unit/component tests: 99/99 passed across 18 test files;
-- `npm run test:all`: seed Playwright passed 69 with one intentional skip, deterministic dataset Playwright passed 10 with two project-specific skips, ESLint passed, and the Vite production build passed;
-- explicit `E2E_ENABLE_PERS_FIRST_BATCH=1` personalization coverage passed 2/2 (desktop and mobile), exercising preference-profile ranking plus exact feedback/Undo;
-- dedicated seed-mode accessibility passed 20/20 with no serious or critical axe violations; the deterministic dataset suite also passed its axe cases;
+- unit/component tests: 112/112 passed across 19 test files;
+- seed Playwright passed 74 with three intentional project-specific skips across desktop/mobile/tablet Chromium, Firefox, and WebKit; deterministic dataset Playwright passed 10 with two project-specific skips;
+- explicit `E2E_ENABLE_PERS_INTEGRATION=1` seed personalization coverage passed 4/4 across desktop and mobile, exercising the true two-component preference+behavior hybrid available without historical dataset keys, opt-out/direct-action separation, exact feedback/Undo, and loaded-state screenshots; popularity is covered separately by backend fixtures and the live MongoDB contract;
+- live MongoDB recommendation-contract coverage passed 1/1, and the isolated unavailable-MongoDB safe-503 contract passed 1/1;
+- accessibility scans reported no serious or critical axe violations; tablet/Firefox/WebKit keyboard smoke, ESLint, and the Vite production build passed;
 - post-test cleanup preserved the protected catalog/dataset collections and exactly three showcase customers; the final dry-run found zero `e2e_` users and zero residue;
 - the earlier 2026-08-08 v2 browser/API/artwork/Admin inspection and v1/v2 counts remain historical release evidence, not current v3 runtime claims;
 - dependency audit: patched development transitive findings; the remaining React Router RSC-mode advisory is not exercised by this Vite SPA and requires a separate compatible major-upgrade decision.
@@ -97,8 +108,8 @@ Current regression evidence observed on 2026-08-10:
 - The catalog exposes broad `Vinyl`, not LP/EP/single/diameter/disc-count semantics.
 - Cover artwork is third-party material with source provenance; the code license does not grant image rights.
 - Research browsing is not a real inventory, store offer, order, or payment system.
-- Historical readiness is not model evaluation and does not personalize the signed-in customer.
+- Historical readiness is not model evaluation. It contributes only aggregate popularity when that default-off path is enabled and never becomes a signed-in customer identity or profile.
 
 ## Recommender Gate
 
-Dataset UI completion does not authorize PERS-06 through PERS-08, BFP-13 through BFP-15, FFP-12 through FFP-13, or any dataset change. PERS-03 through PERS-08 / FFP-10 through FFP-13 were opened separately behind default-off flags. PERS-09 remains deferred. The implementation preserves the v3 source/version boundary, v2 rollback evidence, historical/live separation, exact three demo users, truthful mode copy, positive-rating-skew disclosure, and `content-demo-v1` regression behavior.
+Dataset UI completion did not itself authorize personalization. PERS-03 through PERS-09 / FFP-10 through FFP-14 were implemented separately, while the PERS-04 through PERS-08 ranking flags remain default-off. PERS-09 preserves the v3 source/version boundary, v2 rollback evidence, historical/live separation, exact three demo users, truthful mode copy, positive-rating-skew disclosure, and `content-demo-v1` regression behavior; it does not authorize dataset mutation or a quality claim.

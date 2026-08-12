@@ -46,8 +46,8 @@ Recommendation endpoints receive `X-Tracking-Enabled`; user-recommendation reque
 - Browser tests verify that user recommendation requests occur only on Home and Recommendations, so unseen lists are not logged.
 - Backend tests cover PII/unknown-field rejection, complete recommendation context, authenticated ownership, duplicate IDs, logging opt-out, ordered list persistence, and TTL indexes.
 
-## Deferred
+## Current Boundaries
 
-- `recommendation_dismiss` waits for a real not-interested control.
-- `demo_checkout_complete` waits for FFP-08.
-- Dataset construction, minimum-evidence checks, leakage-safe splits, baselines, and metric reports remain BFP-02 Part B.
+- Exact not-interested/already-own feedback is implemented as durable functional account state; no `recommendation_dismiss` analytics mirror is emitted or treated as authoritative suppression.
+- `demo_checkout_complete` is implemented only for the client-side checkout preview and contains bounded demo reference/item-count/total fields, never shipping details or a real purchase claim.
+- Dataset construction, evidence checks, leakage-safe splits, baselines, and aggregate reporting are implemented backend-side; the live evaluator remains `insufficient-evidence` and no quality result is claimed.

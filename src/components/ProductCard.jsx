@@ -62,6 +62,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
   const recommendationReasons = visibleRecommendationReasons(record);
   const researchOnly = isResearchProduct(record);
   const [feedbackStatus, setFeedbackStatus] = useState('idle');
+  const [confirmedFeedbackKind, setConfirmedFeedbackKind] = useState(null);
   const [feedbackPending, setFeedbackPending] = useState(false);
   const [feedbackError, setFeedbackError] = useState(null);
   const feedbackUndoRef = useRef(null);
@@ -144,6 +145,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
     try {
       await putFeedback(record.id, { kind });
       feedbackFocusIntentRef.current = 'undo';
+      setConfirmedFeedbackKind(kind);
       setFeedbackStatus('confirmed');
     } catch (error) {
       feedbackFocusIntentRef.current = kind;
@@ -159,6 +161,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
     try {
       await deleteFeedback(record.id);
       feedbackFocusIntentRef.current = lastFeedbackKindRef.current;
+      setConfirmedFeedbackKind(null);
       setFeedbackStatus('idle');
     } catch (error) {
       feedbackFocusIntentRef.current = 'undo';
@@ -196,6 +199,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
             onUndo={undoFeedback}
             error={feedbackError}
             undoRef={feedbackUndoRef}
+            confirmedKind={confirmedFeedbackKind}
           />
         ) : <>
         <h3 className="card-title">{record.title}</h3>
