@@ -18,6 +18,7 @@ const withReason = (item, response) => {
   return {
     ...item.product,
     reason: recommendationReasons[0] || '',
+    reasons: recommendationReasons,
     recommendationReasons,
     recommendationScore: item.score,
     recommendationRank: item.rank,

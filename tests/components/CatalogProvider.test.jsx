@@ -53,6 +53,7 @@ function Probe() {
       <output aria-label="Recommendation title">{catalog.recommendations[0]?.title || 'none'}</output>
       <output aria-label="Recommendation reason">{catalog.recommendations[0]?.reason || 'none'}</output>
       <output aria-label="Recommendation reasons">{catalog.recommendations[0]?.recommendationReasons?.join('|') || 'none'}</output>
+      <output aria-label="Backend reasons">{catalog.recommendations[0]?.reasons?.join('|') || 'none'}</output>
       <output aria-label="Recommendation attribution">{JSON.stringify(catalog.recommendations[0]?.recommendationContext || null)}</output>
       <button type="button" onClick={catalog.reloadRecommendations}>Reload recommendations</button>
     </>
@@ -167,6 +168,9 @@ describe('CatalogProvider recommendation identity', () => {
     await screen.findByText('Hybrid result');
     expect(screen.getByLabelText('Recommendation reason')).toHaveTextContent('Matches your saved preferences.');
     expect(screen.getByLabelText('Recommendation reasons')).toHaveTextContent(
+      'Matches your saved preferences.|Reflects records in your account.',
+    );
+    expect(screen.getByLabelText('Backend reasons')).toHaveTextContent(
       'Matches your saved preferences.|Reflects records in your account.',
     );
     expect(JSON.parse(screen.getByLabelText('Recommendation attribution').textContent)).toEqual({

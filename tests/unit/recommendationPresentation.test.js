@@ -38,3 +38,10 @@ describe('recommendation presentation', () => {
     expect(recommendationPresentation('popularity').pageLabel).toBe('Research-rating popularity');
   });
 });
+
+it('keeps cold-start copy generic across preference, behavior, and popularity fallbacks', () => {
+  const presentation = recommendationPresentation('cold-start');
+  expect(presentation.intro).toContain('no enabled personalized ranking signal is applicable');
+  expect(presentation.intro).toContain('deterministic cold-start fallback');
+  expect(presentation.intro).not.toContain('preference-profile branch');
+});

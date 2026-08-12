@@ -12,7 +12,7 @@ const MODE_PRESENTATION = {
   'cold-start': {
     homeLabel: 'Session-owned cold-start',
     pageLabel: 'Session-owned cold-start',
-    intro: 'This request is owned by the signed-in session, but the preference-profile branch is disabled or has no applicable signal, so ranking remains cold-start.',
+    intro: 'This request is owned by the signed-in session, but no enabled personalized ranking signal is applicable, so results use the deterministic cold-start fallback.',
   },
   'preference-profile': {
     homeLabel: 'Saved preference profile',
