@@ -92,7 +92,7 @@ Decision: Plan, without implementing, the frontend half of the personalization r
 
 Rationale: Provider ordering, the API client, recommendation state, and feedback UI all change across milestones; fixing these decisions up front avoids rework. No quality claim is made.
 
-Status: Frozen and completed 2026-07-10, with a 2026-08-10 update for PERS-03 through PERS-08 / FFP-10 through FFP-13. The implementation uses both provider order and an auth-status gate, limit 12, customer-only access with administrator rejection, subject-key plus abort/generation stale protection, a shared mode renderer, up-to-two server reasons, and a default-on `VITE_PERS_ME_ENDPOINT` rollback switch. New ranking flags and exact feedback UI remain default-off; no quality claim is made.
+Status: Frozen and completed 2026-07-10, updated for PERS-03 through PERS-08 / FFP-10 through FFP-13 on 2026-08-10 and PERS-09 / FFP-14 integration closure on 2026-08-13. The implementation uses both provider order and an auth-status gate, limit 12, customer-only access with administrator rejection, subject-key plus abort/generation stale protection, a shared mode renderer, up-to-two server reasons, and a default-on `VITE_PERS_ME_ENDPOINT` rollback switch. Ranking and feedback flags remain default-off: the deployed path is still non-personalized, while explicitly enabled PERS modes use stored account evidence without making any quality claim.
 
 ## FDEC-012: Administrator Workspace And Client-Only Simulated Checkout
 
@@ -138,7 +138,7 @@ Decision: Dataset-owned products never use Amazon imagery or borrow a legacy bin
 
 Rationale: The 116-record artwork bundle is identity-bound to reviewed legacy releases, accepted v2 files have a separate exact manifest, and one-off browser mutations would break the reproducible dataset version.
 
-Status: Implemented with DATA-10 through DATA-12; PERS-03 through PERS-08 / FFP-10 through FFP-13 were subsequently completed behind default-off flags, while PERS-09 remains deferred.
+Status: Implemented with DATA-10 through DATA-12; PERS-03 through PERS-09 / FFP-10 through FFP-14 were subsequently completed without changing the dataset boundary, while ranking flags remain default-off.
 
 ## FDEC-017: Keep Live Dataset Smoke Separate From Deterministic Fixtures
 
@@ -158,6 +158,16 @@ Decision: Keep one shared frontend presentation map for `preference-profile`, `b
 
 Rationale: The backend owns evidence, availability, weights, and mode selection. A thin presentation boundary prevents stale copy, client-side scoring drift, and accidental historical-identity or quality claims while keeping attribution auditable.
 
-Status: Implemented and verified in the PERS-06 through PERS-08 frontend delta; PERS-09 integration closure remains deferred.
+Status: Implemented and verified in the PERS-06 through PERS-08 frontend delta; PERS-09 integration closure is complete and leaves ranking flags default-off.
 
 Rationale: These boundaries prevent analytics inflation from search prefixes, cross-account history leakage, accidental preference saves, footer overlap, and storefront copy that could imply a real order or unfinished implementation.
+
+## FDEC-019: Keep Personalization Integration On One Identity-Keyed Resource Path
+
+Date: 2026-08-13
+
+Decision: Continue to load authenticated recommendations only on Home and Recommendations through the existing `CatalogProvider` `/me` resource. Preserve subject-key plus abort/generation protection across A-to-B identity changes, keep Profile and Onboarding off that request path, store the confirmed exact feedback kind so Undo copy remains truthful, and gate the full personalization Playwright harness behind an explicit test-only environment flag. Use a separate isolated backend to prove MongoDB persistence failures return the safe `503` contract.
+
+Rationale: One provider-owned resource avoids duplicate requests, stale identity overwrite, unseen-list logging, and client-side ranking invention. An explicit test-only gate exercises every server flag without changing shipped defaults, while the isolated failure server prevents silent seed fallback from hiding persistence errors.
+
+Status: Implemented and verified in PERS-09 across component tests, desktop/mobile full-gate flows, tablet/Firefox/WebKit recommendation smoke, seed and MongoDB contracts, accessibility checks, and responsive screenshot review. No recommender-quality claim or dataset mutation was introduced.

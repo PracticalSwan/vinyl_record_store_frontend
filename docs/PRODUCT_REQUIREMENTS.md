@@ -1,6 +1,6 @@
 # Frontend Product Requirements
 
-Requirement status reflects the integrated academic demo as of 2026-08-08.
+Requirement status reflects the integrated academic demo through PERS-09 closure on 2026-08-13.
 
 ## Goal
 
@@ -15,7 +15,7 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 | FFR-003 | Search, filter, and sort products. | Implemented | URL-backed literal server search, repeated facets, deterministic sort, and pagination. |
 | FFR-004 | Display wishlist, cart, quantity, and rating actions. | Implemented | Session guest adapter and authenticated server adapter with optimistic rollback. |
 | FFR-005 | Display product-based recommendations. | Implemented | Detail route consumes backend similarity results. |
-| FFR-006 | Display user-based recommendations. | Implemented with default-off preference branch | Verified customers use session-owned `preference-profile` when the backend flags and saved signals permit it, otherwise `cold-start`; visitors use `anonymous-fallback`, and the restricted `demo-user` showcase remains `demo-profile`. PERS-06+ behavior remains deferred. |
+| FFR-006 | Display user-based recommendations. | Implemented with default-off ranking branches | Verified customers use the backend-selected `preference-profile`, `behavior-profile`, or `personalized-hybrid` when flags and evidence permit it, aggregate `popularity` remains distinct, otherwise customers use `cold-start`; visitors use `popularity` or `anonymous-fallback`, and the restricted showcase remains `demo-profile`. |
 | FFR-007 | Show recommendation explanations. | Implemented | Cards display backend reasons. |
 | FFR-008 | Handle loading, empty, error, and success states. | Implemented | Independent route query and recommendation states. |
 | FFR-009 | Verify critical browser and accessibility behavior. | Implemented | Vitest, React Testing Library, Playwright browser matrix, and axe. |
@@ -41,4 +41,4 @@ Payments, production checkout, frontend database access, broad scraping, and bac
 
 - Unit, component, multi-browser, accessibility, lint, and production-build checks pass.
 - A running frontend can load the backend catalog and recommendation responses.
-- Users can distinguish demo-profile, content-similarity, session-owned cold-start, and anonymous-fallback recommendation contexts.
+- Users can distinguish every supported recommendation mode: demo-profile, content-similarity, session-owned cold-start, saved preference, behavior, aggregate popularity, personalized hybrid, and anonymous fallback.

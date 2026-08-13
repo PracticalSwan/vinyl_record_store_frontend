@@ -7,8 +7,15 @@ import { defineConfig, devices } from '@playwright/test';
 const frontendDirectory = path.dirname(fileURLToPath(import.meta.url));
 const backendDirectory = path.resolve(frontendDirectory, '..', 'vinyl_record_store_backend');
 const enablePersFirstBatch = process.env.E2E_ENABLE_PERS_FIRST_BATCH === '1';
-const persFirstBatchFlag = enablePersFirstBatch ? 'true' : 'false';
-const reuseExistingServer = !process.env.CI && !enablePersFirstBatch;
+const enablePersIntegration = process.env.E2E_ENABLE_PERS_INTEGRATION === '1';
+const persProfileFlag = enablePersFirstBatch || enablePersIntegration ? 'true' : 'false';
+const persIntegrationFlag = enablePersIntegration ? 'true' : 'false';
+const usePersMongoCatalog = process.env.E2E_PERS_CATALOG_DATA_SOURCE === 'mongodb';
+const persCatalogDataSource = usePersMongoCatalog ? 'mongodb' : 'seed';
+const reuseExistingServer = !process.env.CI
+  && !enablePersFirstBatch
+  && !enablePersIntegration
+  && !usePersMongoCatalog;
 process.env.E2E_REGISTER_PASSWORD = randomBytes(18).toString('base64url');
 process.env.E2E_REGISTER_USERNAME = `e2e_${randomBytes(8).toString('hex')}`;
 
@@ -33,13 +40,16 @@ export default defineConfig({
       cwd: backendDirectory,
       env: {
         ...process.env,
-        CATALOG_DATA_SOURCE: 'seed',
+        CATALOG_DATA_SOURCE: persCatalogDataSource,
         FRONTEND_ORIGIN: 'http://localhost:5173',
         AUTH_SECRET: randomBytes(48).toString('base64url'),
         PERS_ME_ENDPOINT: 'true',
-        PERS_PROFILE_DOMAIN: persFirstBatchFlag,
-        PERS_PREFERENCE_RANKING: persFirstBatchFlag,
-        PERS_NEGATIVE_FEEDBACK: persFirstBatchFlag,
+        PERS_PROFILE_DOMAIN: persProfileFlag,
+        PERS_PREFERENCE_RANKING: persProfileFlag,
+        PERS_NEGATIVE_FEEDBACK: persProfileFlag,
+        PERS_BEHAVIORAL_RANKING: persIntegrationFlag,
+        PERS_POPULARITY: persIntegrationFlag,
+        PERS_HYBRID: persIntegrationFlag,
       },
       url: 'http://localhost:3000/api/health',
       reuseExistingServer,
@@ -52,8 +62,8 @@ export default defineConfig({
         ...process.env,
         VITE_API_BASE_URL: 'http://localhost:3000',
         VITE_PERS_ME_ENDPOINT: 'true',
-        VITE_PERS_PROFILE_DOMAIN: persFirstBatchFlag,
-        VITE_PERS_NEGATIVE_FEEDBACK: persFirstBatchFlag,
+        VITE_PERS_PROFILE_DOMAIN: persProfileFlag,
+        VITE_PERS_NEGATIVE_FEEDBACK: persProfileFlag,
       },
       url: 'http://localhost:5173',
       reuseExistingServer,

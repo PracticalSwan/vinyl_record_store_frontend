@@ -37,7 +37,7 @@ The frontend does not own database access, catalog ingestion/enrichment, API rou
 - Checkout is a preview only: no real payment, no backend order, and sessionStorage-only confirmation persistence. The administrator workspace requires the MongoDB catalog source for writes; in seed-catalog mode, admin reads work but create/edit/delete/restore/import/artwork surface a persistence-unavailable error.
 - The active MongoDB dataset contains 2,305 products. Dataset-managed Admin rows are CLI-managed and read-only; the three showcase customers remain unchanged and historical Amazon pseudonyms never reach the client.
 - Interaction and recommendation logs use 90-day eventual TTL retention in MongoDB mode; seed mode does not persist recommendation request logs.
-- PERS-00 through PERS-08 / FFP-09 through FFP-13 are complete behind default-off backend flags. PERS-09 remains deferred; no quality claim is made.
+- PERS-00 through PERS-09 / FFP-09 through FFP-14 are complete; PERS-04 through PERS-08 remain behind default-off backend flags and no quality claim is made.
 
 ## Academic Focus
 

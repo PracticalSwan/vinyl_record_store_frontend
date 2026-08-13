@@ -37,7 +37,7 @@ Product query parameters are `q`, repeated `genre`, repeated `format`, repeated 
 
 Product-list metadata includes `page`, `limit`, `total`, `totalPages`, `sort`, and full-active-catalog facets for dynamic genres/formats, conditions, stock, prices, and years. Repeated values are ORed within a facet and different facets are ANDed.
 
-Recommendation responses include `requestId`, `listId`, `algorithmVersion`, `mode`, ordered ranked items, and `recommendationLogged`. The client sends `X-Tracking-Enabled`; enabled user requests also send a pseudonymous `X-Anonymous-Id`. Opt-out suppresses passive interaction capture and MongoDB recommendation-request logging but does not disable functional feedback. The first-batch `preference-profile` mode and feedback routes remain backend-flagged and fail closed when disabled.
+Recommendation responses include `requestId`, `listId`, `algorithmVersion`, `mode`, ordered ranked items, and `recommendationLogged`. The client sends `X-Tracking-Enabled`; only anonymous requests send a pseudonymous `X-Anonymous-Id`. Opt-out suppresses passive interaction capture and MongoDB recommendation-request logging but does not disable functional feedback. The preference, feedback, behavior, popularity, and hybrid capabilities remain backend-flagged and fail closed when disabled.
 
 ## Implemented Authentication Calls
 
@@ -70,9 +70,9 @@ Backend order/payment calls are not implemented. Administrator catalog calls are
 
 ## Personalization Calls
 
-PERS-00 through PERS-08 / FFP-09 through FFP-13 are implemented behind default-off backend flags. DATA-00 through DATA-15 changed only the catalog/data contract. PERS-09 remains deferred and requires separate authorization.
+PERS-00 through PERS-09 / FFP-09 through FFP-14 are implemented. PERS-04 through PERS-08 remain behind default-off backend flags, and DATA-00 through DATA-15 remain unchanged by closure.
 
-- `GET /api/recommendations/me` (implemented PERS-02 / FFP-09, extended PERS-04 / FFP-10 and consumed by FFP-12/13): verified customers receive the backend-selected pure preference/behavior/popularity mode or `personalized-hybrid` only when the effective default-off flags and evidence permit it, otherwise `cold-start`; visitors or invalid/expired sessions receive `popularity` when aggregate evidence is available or `anonymous-fallback`, and administrators receive `403`. The client never sends a user ID; authenticated requests omit `X-Anonymous-Id`.
+- `GET /api/recommendations/me` (implemented PERS-02 / FFP-09, extended through FFP-10/12/13, and integration-closed by PERS-09 / FFP-14): verified customers receive the backend-selected pure preference/behavior/popularity mode or `personalized-hybrid` only when the effective default-off flags and evidence permit it, otherwise `cold-start`; visitors or invalid/expired sessions receive `popularity` when aggregate evidence is available or `anonymous-fallback`, and administrators receive `403`. The client never sends a user ID; authenticated requests omit `X-Anonymous-Id`.
 - `PUT /api/me/feedback/:productId` and `DELETE /api/me/feedback/:productId` (PERS-05 / FFP-11): one current exact-item intent per customer/product. `PUT` accepts only `not-interested` or `already-own` and returns `{ productPublicId, kind }`; `DELETE` needs no kind query and returns `{ productPublicId, removed }` idempotently. No public feedback-list route is added in v1. `show-fewer-like-this`, free-text reason, and broad scope are deferred.
 - Current mode labels render `demo-profile`, `content-similarity`, `cold-start`, `preference-profile`, `behavior-profile`, aggregate-research `popularity`, `personalized-hybrid`, and `anonymous-fallback` honestly. Hybrid is rendered only when the backend selects that mode (both personalized components available); lower modes keep their pure component score/version and remain distinct. Cards render at most two ordered unique server reasons; no raw weights, component scores, historical identity, or quality percentages are displayed.
 

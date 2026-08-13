@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../src/context/authContext';
 import { CatalogProvider } from '../../src/context/CatalogProvider';
 import { useCatalog } from '../../src/context/useCatalog';
@@ -60,11 +60,23 @@ function Probe() {
   );
 }
 
+function NavigationProbe() {
+  const navigate = useNavigate();
+  return (
+    <>
+      <Probe />
+      <button type="button" onClick={() => navigate('/')}>Go home</button>
+      <button type="button" onClick={() => navigate('/recommendations')}>Go recommendations</button>
+      <button type="button" onClick={() => navigate('/account')}>Go off surface</button>
+    </>
+  );
+}
+
 function tree(auth) {
   return (
     <MemoryRouter initialEntries={['/recommendations']}>
       <AuthContext.Provider value={auth}>
-        <CatalogProvider><Probe /></CatalogProvider>
+        <CatalogProvider><NavigationProbe /></CatalogProvider>
       </AuthContext.Provider>
     </MemoryRouter>
   );
@@ -141,6 +153,62 @@ describe('CatalogProvider recommendation identity', () => {
     await act(async () => anonymousRequest.resolve(response('Anonymous result', 'anonymous-fallback')));
     await screen.findByText('Anonymous result');
     expect(screen.getByLabelText('Recommendation mode')).toHaveTextContent('anonymous-fallback');
+  });
+
+  it('aborts user A and ignores its stale result when the authenticated customer changes to user B', async () => {
+    const userARequest = deferred();
+    const userBRequest = deferred();
+    api.fetchMyRecommendations
+      .mockReturnValueOnce(userARequest.promise)
+      .mockReturnValueOnce(userBRequest.promise);
+    const view = render(tree({
+      status: 'authenticated',
+      user: { publicId: 'user-a', role: 'customer' },
+    }));
+    await waitFor(() => expect(api.fetchMyRecommendations).toHaveBeenCalledTimes(1));
+    const userASignal = api.fetchMyRecommendations.mock.calls[0][0].signal;
+
+    view.rerender(tree({
+      status: 'authenticated',
+      user: { publicId: 'user-b', role: 'customer' },
+    }));
+    await waitFor(() => expect(api.fetchMyRecommendations).toHaveBeenCalledTimes(2));
+    expect(userASignal.aborted).toBe(true);
+    await act(async () => userBRequest.resolve(response('User B result')));
+    await screen.findByText('User B result');
+    await act(async () => userARequest.resolve(response('Stale user A result')));
+    expect(screen.getByLabelText('Recommendation title')).toHaveTextContent('User B result');
+  });
+
+  it('aborts and ignores stale responses across recommendation surfaces and off-surface navigation', async () => {
+    const recommendationsRequest = deferred();
+    const homeRequest = deferred();
+    api.fetchMyRecommendations
+      .mockReturnValueOnce(recommendationsRequest.promise)
+      .mockReturnValueOnce(homeRequest.promise);
+    const user = userEvent.setup();
+    render(tree({ status: 'anonymous', user: null }));
+    await waitFor(() => expect(api.fetchMyRecommendations).toHaveBeenCalledTimes(1));
+    const recommendationsSignal = api.fetchMyRecommendations.mock.calls[0][0].signal;
+
+    await user.click(screen.getByRole('button', { name: 'Go home' }));
+    await waitFor(() => expect(api.fetchMyRecommendations).toHaveBeenCalledTimes(2));
+    expect(recommendationsSignal.aborted).toBe(true);
+    await act(async () => homeRequest.resolve(response('Home result', 'anonymous-fallback')));
+    await screen.findByText('Home result');
+    await act(async () => recommendationsRequest.resolve(response('Stale recommendations result')));
+    expect(screen.getByLabelText('Recommendation title')).toHaveTextContent('Home result');
+
+    const offSurfaceRequest = deferred();
+    api.fetchMyRecommendations.mockReturnValueOnce(offSurfaceRequest.promise);
+    await user.click(screen.getByRole('button', { name: 'Go recommendations' }));
+    await waitFor(() => expect(api.fetchMyRecommendations).toHaveBeenCalledTimes(3));
+    const offSurfaceSignal = api.fetchMyRecommendations.mock.calls[2][0].signal;
+    await user.click(screen.getByRole('button', { name: 'Go off surface' }));
+    expect(offSurfaceSignal.aborted).toBe(true);
+    await act(async () => offSurfaceRequest.resolve(response('Stale off-surface result')));
+    expect(screen.getByLabelText('Recommendation title')).toHaveTextContent('none');
+    expect(screen.getByLabelText('Recommendation status')).toHaveTextContent('loading');
   });
 
   it('keeps endpoint failures recoverable through an explicit retry', async () => {

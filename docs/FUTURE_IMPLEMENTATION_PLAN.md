@@ -1,6 +1,6 @@
 # Frontend Future Implementation Plan
 
-Status: FFP-01 through FFP-13 and DATA-00 through DATA-15 are complete. PERS-03 through PERS-08 / FFP-10 through FFP-13 are default-off personalization behavior; PERS-09 remains future work and was not implemented with the dataset.
+Status: FFP-01 through FFP-14, DATA-00 through DATA-15, and PERS-00 through PERS-09 are complete. PERS-04 through PERS-08 / FFP-10 through FFP-13 remain default-off ranking behavior; PERS-09 / FFP-14 completed without changing the dataset lifecycle or flag defaults.
 
 Audience: developers implementing the Groovehaus Vite/React storefront and backend developers maintaining the shared API contracts.
 
@@ -10,7 +10,7 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 
 `AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md` records the frontend half of DATA-00 through DATA-15. MongoDB mode exposes immutable v3 with 2,305 research-only products; v2 is the immediate rollback release and v1 is the identity/legacy base. The backend preserves the 116-record legacy catalog, the current 208-file accepted local artwork set with independently pinned v2 rollback evidence, and exactly three showcase customers. The UI supports dynamic genre/format facets, nullable metadata, 208 authoritative original-release years, verified local fallback for strict MusicBrainz/Cover Art Archive matches with a placeholder for unresolved rows, non-purchasable unknown price/stock, Admin dataset status, and CLI-managed dataset rows.
 
-Remaining recommender plans must preserve these contracts, distinguish historical readiness from live evidence, never surface pseudonymous historical rows, handle nullable data without invented reasons, and receive a new explicit implementation request. This plan does not authorize PERS-09.
+Future recommender work must preserve these contracts, distinguish historical readiness from live evidence, never surface pseudonymous historical rows, handle nullable data without invented reasons, and receive a new explicit implementation request. PERS-09 is complete and does not authorize a quality experiment or ranking-flag rollout.
 
 ## User Decisions Recorded On 2026-07-03
 
@@ -39,7 +39,7 @@ Remaining recommender plans must preserve these contracts, distinguish historica
 
 ## Approved Cross-Repository Implementation Order
 
-The first nine ordered items are complete. Continue the remaining plans in this order so each later surface builds on verified contracts and regression coverage:
+All original items in this order are complete; the appended personalization order 15 through 24 is also complete. The table remains the dependency record for how each later surface built on verified contracts and regression coverage:
 
 | Order | Plan | Dependency-safe outcome |
 | --- | --- | --- |
@@ -55,10 +55,10 @@ The first nine ordered items are complete. Continue the remaining plans in this 
 | 10 | BFP-06: catalog ingestion and metadata quality | Completed 2026-07-06 with validated preview/apply imports and approved metadata enrichment. |
 | 11 | FFP-06: artwork and image handling | Completed 2026-07-06; hardened 2026-07-21 with an exact 116-file backend-local bundle and deterministic failover. |
 | 12 | BFP-02 Part B: offline evaluation dataset and benchmark | Completed 2026-07-06; current evidence remains below the metric-reporting threshold. |
-| 13 | BFP-07, then FFP-07: integrated admin mode | Implement protected backend administration before exposing its frontend workspace. |
-| 14 | FFP-08: simulated checkout and order demonstration | Add the low-risk classroom flow last, after catalog, state, identity, and testing are stable. |
+| 13 | BFP-07, then FFP-07: integrated admin mode | Completed 2026-07-09 with protected backend administration before the frontend workspace. |
+| 14 | FFP-08: simulated checkout and order demonstration | Completed 2026-07-09 as a client-only preview after catalog, state, identity, and testing were stable. |
 
-BFP-05 remains on hold and is excluded from this order until the user selects a recommender approach. Deployment, real payments, and a production order system remain out of scope.
+BFP-05 remains only as a historical on-hold placeholder; PERS-00 resolved its method question under new IDs, so it has no separate implementation step. Deployment, real payments, and a production order system remain out of scope.
 
 ## FFP-01: Recommendation Interaction Analytics
 
@@ -636,9 +636,9 @@ After FFP-04 establishes the test commands, also run the affected unit, componen
 
 ## Personalization Roadmap (PERS-00 - PERS-09)
 
-This section records the frontend half of the dependency-safe personalization roadmap. PERS-00 through PERS-08 / FFP-13 were completed on 2026-08-10 after BFP-07, FFP-07, and FFP-08; PERS-09 remains deferred and default-off. The same cross-repository order is in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` and the backend plan.
+This section records the frontend half of the dependency-safe personalization roadmap. PERS-00 through PERS-08 / FFP-13 were completed on 2026-08-10 after BFP-07, FFP-07, and FFP-08; PERS-09 / FFP-14 integration closure completed on 2026-08-13. The ranking flags remain default-off. The same cross-repository order is in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` and the backend plan.
 
-The honesty wording that the current ranker is not personalized stays in force until PERS-04 onward actually personalizes. No quality claim is made; the `insufficient-evidence` evaluator status is unchanged.
+The deployed default remains `content-demo-v1`/cold-start while ranking flags are off. Enabled PERS modes use real stored account evidence, but implementation does not establish measured relevance or superiority. No quality claim is made; the `insufficient-evidence` evaluator status is unchanged.
 
 ### Plan Status Summary (Personalization, Frontend Half)
 
@@ -653,8 +653,8 @@ The honesty wording that the current ranker is not personalized stays in force u
 | PERS-06 / FFP-12 | Behavioral mode UI | Completed 2026-08-10 | Honest `behavior-profile`; passive opt-out does not disable direct account actions. |
 | PERS-07 | Popularity and fallback UI | Completed 2026-08-10 | `popularity` explicitly describes aggregate research ratings; existing fallbacks preserved. |
 | PERS-08 / FFP-13 | Hybrid mode UI | Completed 2026-08-10 | Hybrid only for preference + behavior combination; lower modes stay distinct; version attribution. |
-| PERS-09 / FFP-14 | Integration and hardening | Deferred | Not part of the PERS-06 through PERS-08 implementation batch. |
+| PERS-09 / FFP-14 | Integration and hardening | Completed 2026-08-13 | One identity-keyed resource path, stale-response/feedback-state regressions, full-gate browser integration, safe failure mapping, responsive/a11y evidence, and documentation are closed without enabling ranking flags. |
 
 ### Dependency-Safe Personalization Order (Appended After FFP-08)
 
-The frontend switched to the stable backend identity/session endpoint in PERS-02 and keeps a default-on reversible flag. The full cross-repository order (PERS-00 through PERS-09, orders 15 through 24) remains in both personalization plans. PERS-03 onward requires a separate explicit task and matching backend stability before frontend consumption.
+The frontend switched to the stable backend identity/session endpoint in PERS-02 and keeps a default-on reversible flag. The full cross-repository order (PERS-00 through PERS-09, orders 15 through 24) is complete in both personalization plans. Any later rollout, experiment, or new algorithm requires a separate explicit task and matching backend stability.

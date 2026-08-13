@@ -1,6 +1,6 @@
 # Personalization Implementation Plan (Frontend)
 
-This roadmap is the frontend half of converting the existing deterministic demo recommender into a genuine personalized recommender system for the Vinyl Record Store (CSX4207). PERS-00 through PERS-05 / FFP-11 were implemented on 2026-08-10 behind default-off backend flags, and PERS-06 through PERS-08 / FFP-12 through FFP-13 were implemented on `feat/personalization-pers-06-08` on 2026-08-10. DATA-00 through DATA-15 were re-verified with final lifecycle and browser evidence on 2026-08-08. PERS-09 remains deferred and was not implemented or used to authorize dataset changes.
+This roadmap is the frontend half of converting the existing deterministic demo recommender into a genuine personalized recommender system for the Vinyl Record Store (CSX4207). PERS-00 through PERS-05 / FFP-11 were implemented on 2026-08-10 behind default-off backend flags, PERS-06 through PERS-08 / FFP-12 through FFP-13 were implemented on 2026-08-10, and PERS-09 / FFP-14 integration closure was completed on 2026-08-13. DATA-00 through DATA-15 were re-verified with final lifecycle and browser evidence on 2026-08-08. PERS-09 keeps all new ranking flags default-off and does not authorize dataset changes.
 
 This plan is scheduled AFTER the entire existing documented roadmap: BFP-07 (admin backend), FFP-07 (admin frontend), FFP-08 (simulated checkout), and any backend support already planned for the simulated checkout. It does not reorder, replace, remove, or silently redefine any existing BFP/FFP plan.
 
@@ -21,7 +21,7 @@ The remaining frontend milestones are revised as follows:
 - PERS-05/06 controls remain live-account behavior and must never imply that Amazon history belongs to the signed-in customer.
 - PERS-09 adds active-dataset/v1/legacy rollback, dynamic-facet, original-versus-edition-year, nullable-field, accepted-art/placeholder, Admin read-only-row, and exact-three-user browser regressions.
 
-Historical data-readiness does not establish recommendation quality. The PERS-03 through PERS-08 / FFP-10 through FFP-13 batch is implemented behind default-off backend flags; PERS-09 remains outside this batch.
+Historical data-readiness does not establish recommendation quality. PERS-03 through PERS-09 / FFP-10 through FFP-14 are implemented behind default-off backend flags; PERS-09 adds integration and regression evidence only.
 
 ## PERS-04 Through PERS-09 Re-review (2026-08-09)
 
@@ -74,7 +74,7 @@ The order is identical to the backend plan. Each PERS milestone maps to the same
 | PERS-08 | Hybrid recommendation orchestration | BFP-15 | FFP-13 |
 | PERS-09 | Cross-repository integration, migration, regression protection, documentation closure | BFP-16 | FFP-14 |
 
-Frontend uses FFP-09 through FFP-14. Backend uses BFP-08 through BFP-16. Do not reuse IDs allocated by later admin/dataset work. As of this re-review, the next unused supporting frontend IDs are F-025, FDEC-018, and FR-030. Existing PERS task/risk IDs stay as already registered; allocate a new ID only for a genuinely new item.
+Frontend uses FFP-09 through FFP-14. Backend uses BFP-08 through BFP-16. Do not reuse IDs allocated by later admin/dataset work. FDEC-018 records PERS-08 presentation and FDEC-019 records PERS-09 closure; the next unused supporting frontend IDs are F-025, FDEC-020, and FR-030. Existing PERS task/risk IDs stay as already registered; allocate a new ID only for a genuinely new item.
 
 ## Milestone Template
 
@@ -112,7 +112,7 @@ Closed for identity/session architecture. The authenticated path, anonymous fall
 ### Non-goals
 
 - Implementing code, components, routes, or tests.
-- Changing the honesty wording that the current ranker is not personalized (true today; only changes when PERS-04+ actually personalizes).
+- Changing the then-current honesty wording was out of scope for PERS-00. The deployed default remains non-personalized while ranking flags are off; enabled PERS-04 through PERS-08 paths are personalized implementations, but they do not establish recommendation quality.
 
 ### Backend Changes
 
@@ -1034,7 +1034,7 @@ PERS-09 / FFP-14 (frontend) + BFP-16 (backend) — Full frontend integration, re
 
 ### Status
 
-Deferred and explicitly outside the PERS-06 through PERS-08 batch. No PERS-09 integration/closure implementation or dataset lifecycle work was performed.
+Completed 2026-08-13 on `feat/personalization-pers-09`. Integration, regression, accessibility, lifecycle, and documentation closure were added without changing the immutable dataset or enabling any ranking flag by default.
 
 ### Goal
 
@@ -1046,7 +1046,7 @@ Each later feature is independently reversible. PERS-09 proves their contracts a
 
 ### Current Implementation Gap
 
-PERS-06 through PERS-08 are implemented and regression-tested in their child branches. A later PERS-09 task may add broader cross-repository browser/data verification; it is not part of this implementation.
+Closed. The frontend now verifies the authenticated hybrid journey, direct feedback lifecycle including duplicate/idempotent behavior, route-transition cancellation and stale-response guards, neutral already-owned messaging, attribution across recommendation surfaces, and the cross-browser recommendation contract. Backend service/repository tests cover the matching identity, flag, logging, failure, and account-deletion boundaries.
 
 ### Dependencies
 
