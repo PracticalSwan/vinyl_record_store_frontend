@@ -38,10 +38,11 @@ The frontend does not own database access, catalog ingestion/enrichment, API rou
 - The active MongoDB dataset contains 2,305 products. Dataset-managed Admin rows are CLI-managed and read-only; the three showcase customers remain unchanged and historical Amazon pseudonyms never reach the client.
 - Interaction and recommendation logs use 90-day eventual TTL retention in MongoDB mode; seed mode does not persist recommendation request logs.
 - PERS-00 through PERS-09 / FFP-09 through FFP-14 are complete; PERS-04 through PERS-08 remain behind default-off backend flags and no quality claim is made.
+- NEXT-01 through NEXT-05 are complete and independently approved. The backend historical benchmark measured random, positive-popularity, content, and one observed-only biased-MF candidate; biased MF was negative and remains offline-only. The selected classroom setup is explicit MongoDB/v3 Profile B: frontend `/me`, profile-domain presentation, exact feedback, and tracking enabled; backend preference ranking enabled while behavior, popularity, and hybrid remain disabled. Committed defaults are unchanged; see `DEMO_PERSONALIZATION_RUNBOOK.md`.
 
 ## Academic Focus
 
-The interface supports decision-making through product metadata, filtering, stock information, ranked suggestions, explanations, and a reconstructable privacy-bounded evidence trail. Behavior tests do not establish recommendation quality.
+The interface supports decision-making through product metadata, filtering, stock information, ranked suggestions, explanations, and a reconstructable privacy-bounded evidence trail. Behavior tests do not establish recommendation quality. The aggregate historical metrics apply only to the pinned Amazon cohort and do not validate live preference, behavior, or hybrid ranking.
 
 ## Update Rule
 

@@ -81,6 +81,7 @@ function expectInputError(result) {
 
 test('@smoke PERS-09 real recommendation routes preserve contracts and privacy', async ({ page }) => {
   test.slow();
+  const aggregatePopularityEnabled = process.env.E2E_ENABLE_PERS_INTEGRATION === '1';
   await page.goto('/');
   const catalog = await api(page, '/api/products?limit=3');
   expect(catalog.status).toBe(200);
@@ -94,8 +95,12 @@ test('@smoke PERS-09 real recommendation routes preserve contracts and privacy',
     await api(page, '/api/recommendations/me?limit=3&surface=home'),
     { limit: 3 },
   );
-  expect(anonymous.mode).toBe(catalogMode === 'research-only' ? 'popularity' : 'anonymous-fallback');
-  if (catalogMode === 'research-only') {
+  expect(anonymous.mode).toBe(
+    catalogMode === 'research-only' && aggregatePopularityEnabled
+      ? 'popularity'
+      : 'anonymous-fallback',
+  );
+  if (catalogMode === 'research-only' && aggregatePopularityEnabled) {
     expect(anonymous.algorithmVersion).toBe('popularity-v1');
     expect(anonymous.recommendations.every((item) => (
       item.product.catalogMode === 'research-only'

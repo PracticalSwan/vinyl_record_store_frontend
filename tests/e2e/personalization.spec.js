@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import process from 'node:process';
 
 const apiBaseUrl = 'http://localhost:3000';
@@ -18,7 +19,7 @@ async function api(page, path, { method = 'GET', body, headers = {} } = {}) {
   }, { url: `${apiBaseUrl}${path}`, method, body, requestHeaders: headers });
 }
 
-test('PERS-03 to PERS-05 honor the seed E2E feature gate', async ({ page }, testInfo) => {
+test('@smoke PERS-03 to PERS-05 honor the selective personalization gate', async ({ page }, testInfo) => {
   test.slow();
   const firstBatchEnabled = process.env.E2E_ENABLE_PERS_FIRST_BATCH === '1';
   const integrationEnabled = process.env.E2E_ENABLE_PERS_INTEGRATION === '1';
@@ -71,6 +72,23 @@ test('PERS-03 to PERS-05 honor the seed E2E feature gate', async ({ page }, test
     }
     expect(firstPayload.data.mode).toBe('preference-profile');
     expect(firstPayload.data.algorithmVersion).toBe('preference-profile-v1');
+    await testInfo.attach('selective-loaded-recommendations', {
+      body: await page.screenshot({ fullPage: true }),
+      contentType: 'image/png',
+    });
+    await page.screenshot({
+      path: testInfo.outputPath(`selective-loaded-recommendations-${testInfo.project.name}.png`),
+      fullPage: true,
+    });
+    const accessibility = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(
+      accessibility.violations.filter(({ impact }) => impact === 'serious' || impact === 'critical'),
+    ).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      await page.evaluate(() => window.innerWidth),
+    );
     const malformedFeedback = await api(page, '/api/me/feedback/1', {
       method: 'PUT',
       body: { kind: 'unsupported-kind' },
@@ -116,6 +134,14 @@ test('PERS-03 to PERS-05 honor the seed E2E feature gate', async ({ page }, test
     await expect(undo).toBeFocused();
     await expect(firstCard.getByRole('status')).toContainText('Removed from recommendations.');
     await expect(firstCard.getByRole('button', { name: 'View record' })).toHaveCount(0);
+    await testInfo.attach('selective-not-interested-confirmed', {
+      body: await page.screenshot({ fullPage: true }),
+      contentType: 'image/png',
+    });
+    await page.screenshot({
+      path: testInfo.outputPath(`selective-not-interested-confirmed-${testInfo.project.name}.png`),
+      fullPage: true,
+    });
 
     const suppressed = await api(page, '/api/recommendations/me?limit=12&surface=recommendations');
     expect(suppressed.status).toBe(200);
@@ -153,6 +179,14 @@ test('PERS-03 to PERS-05 honor the seed E2E feature gate', async ({ page }, test
     await expect(firstCard.getByRole('button', { name: 'Undo' })).toBeFocused();
     await expect(firstCard.getByRole('status')).toContainText('Marked as already owned.');
     await expect(firstCard.getByRole('status')).not.toContainText(/not interested|dislike/i);
+    await testInfo.attach('selective-already-own-confirmed', {
+      body: await page.screenshot({ fullPage: true }),
+      contentType: 'image/png',
+    });
+    await page.screenshot({
+      path: testInfo.outputPath(`selective-already-own-confirmed-${testInfo.project.name}.png`),
+      fullPage: true,
+    });
 
     await page.goto('/account');
     const reloadedRecommendations = page.waitForResponse((response) => (
@@ -161,6 +195,23 @@ test('PERS-03 to PERS-05 honor the seed E2E feature gate', async ({ page }, test
     await page.goto('/recommendations');
     const reloadedPayload = await (await reloadedRecommendations).json();
     expect(reloadedPayload.data.recommendations.some((item) => item.product.id === targetId)).toBe(false);
+    const loadedHome = page.waitForResponse((response) => (
+      response.url().includes('/api/recommendations/me') && response.request().method() === 'GET'
+    ));
+    await page.goto('/');
+    const expectedHomeMode = integrationEnabled ? 'personalized-hybrid' : 'preference-profile';
+    expect((await (await loadedHome).json()).data.mode).toBe(expectedHomeMode);
+    await expect(page.getByText(
+      integrationEnabled ? 'Personalized hybrid' : 'Saved preference profile',
+    )).toBeVisible();
+    await testInfo.attach('selective-loaded-home', {
+      body: await page.screenshot({ fullPage: true }),
+      contentType: 'image/png',
+    });
+    await page.screenshot({
+      path: testInfo.outputPath(`selective-loaded-home-${testInfo.project.name}.png`),
+      fullPage: true,
+    });
   } finally {
     const deletion = await api(page, '/api/me', { method: 'DELETE' });
     expect(deletion.status).toBe(200);
