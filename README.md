@@ -48,6 +48,8 @@ The frontend depends on the backend, so start the backend first.
 
 The app opens at `http://localhost:5173` and expects the backend at `http://localhost:3000`. If your backend runs elsewhere, set `VITE_API_BASE_URL` in `.env.local`.
 
+The final classroom procedure uses explicit MongoDB/v3 **Profile B: Selective Personalization** environment overrides. Under that chosen profile visitors receive anonymous fallback rather than popularity, while a temporary ordinary customer can demonstrate saved-preference ranking and exact feedback. Committed defaults remain unchanged; follow [`docs/DEMO_PERSONALIZATION_RUNBOOK.md`](docs/DEMO_PERSONALIZATION_RUNBOOK.md) and its canonical backend link for exact flags, startup, rollback, and claim boundaries.
+
 Dataset acquisition, staging, activation, and rollback are backend CLI operations. See [`docs/AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md`](docs/AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md) for the frontend behavior and the linked authoritative backend runbook.
 
 ## Showcase accounts

@@ -1,6 +1,6 @@
 # Frontend Product Requirements
 
-Requirement status reflects the integrated academic demo through PERS-09 closure on 2026-08-13.
+Requirement status reflects the integrated academic demo through NEXT-05 closure on 2026-08-14.
 
 ## Goal
 
@@ -35,7 +35,7 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 
 ## Out Of Scope
 
-Payments, production checkout, frontend database access, broad scraping, and backend order APIs remain outside the current implemented demo. The role-gated administrator workspace and client-only checkout preview are implemented. External-dataset ingestion/evaluation belongs to the backend. Historical inputs are data-ready, the live evaluator remains insufficient-evidence, and neither status is a quality metric.
+Payments, production checkout, frontend database access, broad scraping, and backend order APIs remain outside the current implemented demo. The role-gated administrator workspace and client-only checkout preview are implemented. External-dataset ingestion/evaluation belongs to the backend. The backend completed an aggregate historical benchmark, but the live evaluator remains `insufficient-evidence`; neither the historical result nor UI behavior proves live preference/behavior/hybrid quality.
 
 ## Success Criteria
 

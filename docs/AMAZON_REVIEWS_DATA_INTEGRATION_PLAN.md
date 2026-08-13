@@ -14,7 +14,7 @@ When immutable `amazon-reviews-2023-cds-vinyl-5core-v3` is active, product respo
 
 The research catalog intentionally has no Groovehaus price, currency, stock, condition, cart, or checkout behavior. Users can browse, search, filter, paginate, open details, save a wishlist item, and rate a record. This is a real source-derived research catalog, not Groovehaus commercial inventory.
 
-The dataset change itself did not implement recommendation ranking. The separately implemented PERS-03 through PERS-09 / FFP-10 through FFP-14 path is data-lifecycle independent, and the PERS-04 through PERS-08 ranking flags remain default-off. Current lists truthfully render `demo-profile`, session-owned `cold-start`, `preference-profile`, `behavior-profile`, `popularity`, `personalized-hybrid`, or `anonymous-fallback`; collaborative filtering, matrix factorization/SVD, learned ranking, and any recommendation-quality claim remain excluded.
+The dataset change itself did not implement recommendation ranking. The separately implemented PERS-03 through PERS-09 / FFP-10 through FFP-14 path is data-lifecycle independent, and the PERS-04 through PERS-08 ranking flags remain default-off. The later aggregate NEXT-01/NEXT-03 benchmark evaluated random, positive-popularity, content, and one observed-only biased-MF candidate; it rejected biased MF for live use and did not map historical identities to customers. Current lists truthfully render `demo-profile`, session-owned `cold-start`, `preference-profile`, `behavior-profile`, `popularity`, `personalized-hybrid`, or `anonymous-fallback`; no historical result establishes live ranking quality.
 
 ## UI Behavior Matrix
 
