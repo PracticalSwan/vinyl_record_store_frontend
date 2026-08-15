@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ProductCard from '../../src/components/ProductCard';
 import { deleteFeedback, putFeedback } from '../../src/lib/feedback';
@@ -181,6 +181,37 @@ describe('ProductCard feedback flow', () => {
     expect(screen.queryByText('0.91')).toBeNull();
     expect(screen.queryByText('0.6')).toBeNull();
     expect(screen.queryByText('0.4')).toBeNull();
+  });
+
+  it('does not let text selected outside the card block card-surface navigation', async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={['/recommendations']}>
+        <Routes>
+          <Route
+            path="/recommendations"
+            element={<>
+              <p data-testid="outside-selection">Outside selection</p>
+              <ProductCard record={record} showReason surface="recommendations" />
+            </>}
+          />
+          <Route path="/records/17" element={<p>Record detail destination</p>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const outsideNode = screen.getByTestId('outside-selection').firstChild;
+    const selectionSpy = vi.spyOn(globalThis, 'getSelection').mockReturnValue({
+      toString: () => 'Outside selection',
+      anchorNode: outsideNode,
+      focusNode: outsideNode,
+    });
+    try {
+      await user.click(screen.getByTestId('product-image'));
+      expect(await screen.findByText('Record detail destination')).toBeVisible();
+    } finally {
+      selectionSpy.mockRestore();
+    }
   });
 
 });

@@ -139,7 +139,12 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
     const target = event.target;
     if (!target || typeof target.closest !== 'function') return;
     if (target.closest(CARD_NAVIGATION_EXCLUSION_SELECTOR)) return;
-    if (globalThis.getSelection?.()?.toString()) return;
+    const selection = globalThis.getSelection?.();
+    if (
+      selection?.toString()
+      && cardRef.current
+      && [selection.anchorNode, selection.focusNode].some((node) => node && cardRef.current.contains(node))
+    ) return;
     viewRecord();
   };
 
