@@ -21,7 +21,7 @@ test('recommendation metadata is surfaced and usage-data opt-out stops event del
   expect(payload.data.listId).toContain(payload.data.requestId);
   expect(typeof payload.data.recommendationLogged).toBe('boolean');
 
-  const firstRecommendation = page.getByRole('button', { name: 'View record' }).first();
+  const firstRecommendation = page.locator('.product-card').first().locator('.card-cover');
   await firstRecommendation.scrollIntoViewIfNeeded();
   await expect(firstRecommendation).toBeVisible();
   await expect.poll(() => batches.flat().map((event) => event.type)).toContain('recommendation_impression');
@@ -29,6 +29,8 @@ test('recommendation metadata is surfaced and usage-data opt-out stops event del
   await expect.poll(() => batches.flat().map((event) => event.type)).toEqual(
     expect.arrayContaining(['recommendation_click', 'product_view']),
   );
+  const recommendationClicks = () => batches.flat().filter((event) => event.type === 'recommendation_click');
+  await expect.poll(() => recommendationClicks()).toHaveLength(1);
   const productView = batches.flat().find((event) => event.type === 'product_view');
   expect(productView.recommendationContext).toMatchObject({
     requestId: payload.data.requestId,
@@ -102,5 +104,33 @@ test('a tampered recommendation session fails closed to the anonymous fallback',
   const response = await recommendationResponse;
   expect(response.status()).toBe(200);
   expect((await response.json()).data.mode).toBe('anonymous-fallback');
-  await expect(page.getByText('Anonymous fallback')).toBeVisible();
+  await expect(page.getByText('Discover more')).toBeVisible();
+});
+
+test('record card text stays put and explicit navigation emits one recommendation click', async ({ page }) => {
+  const batches = [];
+  await page.route('**/api/interactions', async (route) => {
+    const body = route.request().postDataJSON();
+    batches.push(body.events);
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ data: { accepted: body.events.length, duplicates: 0 } }),
+    });
+  });
+
+  await page.goto('/recommendations');
+  const card = page.locator('.product-card').first();
+  await expect(card).toBeVisible();
+  for (const selector of ['.card-title', '.card-artist', '.card-meta', '.card-price', '.card-condition', '.card-reason']) {
+    const textTarget = card.locator(selector).first();
+    if (await textTarget.count()) {
+      await textTarget.click();
+      await expect(page).toHaveURL(/\/recommendations(?:\?.*)?$/);
+    }
+  }
+
+  await card.getByRole('button', { name: 'View record' }).click();
+  await expect(page).toHaveURL(/\/records\/\d+$/);
+  await expect.poll(() => batches.flat().filter((event) => event.type === 'recommendation_click')).toHaveLength(1);
 });

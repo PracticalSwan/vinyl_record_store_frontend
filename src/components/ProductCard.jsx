@@ -21,6 +21,20 @@ import {
   isResearchProduct,
 } from '../lib/productDisplay';
 
+const CARD_NAVIGATION_EXCLUSION_SELECTOR = [
+  'button',
+  'a',
+  'input',
+  'select',
+  'textarea',
+  'label',
+  '[role="button"]',
+  '[role="link"]',
+  '[data-card-navigation-exclude]',
+  '.feedback-controls',
+  '.feedback-status',
+].join(',');
+
 function StockBadge({ stock }) {
   if (stock === 'in')  return <span className="badge badge-in">In stock</span>;
   if (stock === 'low') return <span className="badge badge-low">Low stock</span>;
@@ -31,7 +45,7 @@ function StockBadge({ stock }) {
 function StockDot({ stock }) {
   const cls = stock === 'in' ? 'dot-in' : stock === 'low' ? 'dot-low' : stock === 'out' ? 'dot-out' : '';
   const label = availabilityLabel(stock);
-  return <span className={`card-stock-dot ${cls}`} title={label} aria-hidden="true" />;
+  return <span className={`card-stock-dot ${cls}`} title={label} aria-hidden="true" data-card-navigation-exclude />;
 }
 
 function visibleRecommendationReasons(record) {
@@ -120,6 +134,15 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
     });
   };
 
+  const handleCardSurfaceClick = (event) => {
+    if (feedbackStatus === 'confirmed') return;
+    const target = event.target;
+    if (!target || typeof target.closest !== 'function') return;
+    if (target.closest(CARD_NAVIGATION_EXCLUSION_SELECTOR)) return;
+    if (globalThis.getSelection?.()?.toString()) return;
+    viewRecord();
+  };
+
   const toggleSaved = async (event) => {
     event.stopPropagation();
     await toggleWishlist(record.id, recommendationContext ? { recommendationContext, surface } : { surface });
@@ -177,6 +200,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
       className="product-card"
       role="listitem"
       aria-label={`${record.title} by ${displayArtist(record)}`}
+      onClick={handleCardSurfaceClick}
     >
       {!(feedbackStatus === 'confirmed' && feedbackEnabled) && <div className="card-cover">
         <ProductImage record={record} decorative />
@@ -202,15 +226,15 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
             confirmedKind={confirmedFeedbackKind}
           />
         ) : <>
-        <h3 className="card-title">{record.title}</h3>
-        <p className="card-artist">{displayArtist(record)}</p>
-        <div className="card-meta" aria-label="Record details">
+        <h3 className="card-title" data-card-navigation-exclude>{record.title}</h3>
+        <p className="card-artist" data-card-navigation-exclude>{displayArtist(record)}</p>
+        <div className="card-meta" data-card-navigation-exclude aria-label="Record details">
           <span className="badge badge-genre">{record.genre || 'Uncategorized'}</span>
           <span className="badge badge-era">{displayYear(record)}</span>
-          {researchOnly ? <span className="badge">Research record</span> : <StockBadge stock={record.stock} />}
+          {!researchOnly && <StockBadge stock={record.stock} />}
         </div>
         <div className="card-footer">
-          {!researchOnly && <div>
+          {!researchOnly && <div data-card-navigation-exclude>
             <span className="card-price">{formatMoney(record.price, record.currency)}</span>
             <p className="card-condition">{displayValue(record.condition, 'Condition unknown')}</p>
           </div>}
@@ -233,7 +257,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
       </div>
 
       {feedbackStatus !== 'confirmed' && showReason && recommendationReasons.map((reason) => (
-        <p className="card-reason" role="note" key={reason}>{reason}</p>
+        <p className="card-reason" data-card-navigation-exclude role="note" key={reason}>{reason}</p>
       ))}
     </article>
   );

@@ -133,8 +133,11 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('research catalog exposes dataset facets, pagination, search, and no commerce controls', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('body')).not.toContainText(/Research catalog|Research record|Research-only metadata|Amazon Reviews 2023 research subset|source-derived|metadata honestly/i);
+
   await page.goto('/catalog');
-  await expect(page.getByRole('note')).toContainText('Research catalog');
+  await expect(page.locator('body')).not.toContainText(/Research catalog|Research record|Research-only metadata|Amazon Reviews 2023 research subset|source-derived|metadata honestly/i);
   await expect(page.getByText('Showing 24 of 2305 records')).toBeVisible();
   if ((await page.viewportSize()).width < 700) {
     await page.getByRole('button', { name: /Filters/ }).click();
@@ -156,6 +159,36 @@ test('research catalog exposes dataset facets, pagination, search, and no commer
   await page.goto('/search?q=deliberately%20long');
   await expect(page.getByText('Showing 1 of 1 records')).toBeVisible();
   await expect(page.getByRole('listitem', { name: /Dataset Contract Record With A Deliberately Long/ })).toBeVisible();
+});
+
+test('record cards navigate from artwork and padding but exclude text and wishlist controls', async ({ page }) => {
+  await page.goto('/catalog');
+  const card = page.getByRole('listitem', { name: /Dataset Contract Record With A Deliberately Long/ }).first();
+  await card.locator('.card-cover').click();
+  await expect(page).toHaveURL(new RegExp(`/records/${products[0].id}$`));
+
+  await page.goto('/catalog');
+  const freshCard = page.getByRole('listitem', { name: /Dataset Contract Record With A Deliberately Long/ }).first();
+  await freshCard.locator('.card-title').click();
+  await expect(page).toHaveURL(/\/catalog$/);
+  await freshCard.locator('.card-artist').click();
+  await expect(page).toHaveURL(/\/catalog$/);
+  await freshCard.locator('.badge-genre').click();
+  await expect(page).toHaveURL(/\/catalog$/);
+  await freshCard.locator('.card-wishlist-btn').click();
+  await expect(page).toHaveURL(/\/catalog$/);
+
+  await freshCard.locator('.card-body').click({ position: { x: 3, y: 3 } });
+  await expect(page).toHaveURL(new RegExp(`/records/${products[0].id}$`));
+});
+
+test('view record remains the explicit keyboard navigation control', async ({ page }) => {
+  await page.goto('/catalog');
+  const card = page.getByRole('listitem', { name: /Dataset Contract Record With A Deliberately Long/ }).first();
+  const viewRecord = card.getByRole('button', { name: 'View record' });
+  await viewRecord.focus();
+  await viewRecord.press('Enter');
+  await expect(page).toHaveURL(new RegExp(`/records/${products[0].id}$`));
 });
 
 test('accepted artwork uses local fallback while unresolved records use no legacy artwork', async ({ page }) => {
@@ -186,7 +219,7 @@ test('accepted artwork uses local fallback while unresolved records use no legac
 
 test('research detail keeps wishlist and rating but has no cart or checkout path', async ({ page }) => {
   await page.goto(`/records/${products[0].id}`);
-  await expect(page.getByRole('note')).toContainText('Research-only metadata');
+  await expect(page.locator('body')).not.toContainText(/Research catalog|Research record|Research-only metadata|Amazon Reviews 2023 research subset|source-derived|metadata honestly/i);
   await expect(page.getByRole('row', { name: 'Original release year 1963' })).toBeVisible();
   await expect(page.getByRole('row', { name: 'Edition release year 2000' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Add to cart' })).toHaveCount(0);
@@ -197,6 +230,7 @@ test('research detail keeps wishlist and rating but has no cart or checkout path
   await expect(page.getByRole('button', { name: '4 stars' })).toHaveAttribute('aria-pressed', 'true');
   await page.goto('/wishlist');
   await expect(page.getByRole('listitem', { name: /Dataset Contract Record/ })).toBeVisible();
+  await expect(page.locator('body')).not.toContainText(/Research catalog|Research record|Research-only metadata|Amazon Reviews 2023 research subset|source-derived|metadata honestly/i);
   await expect(page.getByRole('button', { name: /Add .* to cart/ })).toHaveCount(0);
 
   await page.goto('/cart');

@@ -45,6 +45,22 @@ test('keyboard search, not-found, and out-of-stock states behave safely', async 
   await expect(page.getByRole('button', { name: 'Out of stock' })).toBeDisabled();
 });
 
+test('record card text and commerce metadata do not trigger surface navigation', async ({ page }) => {
+  await page.goto('/catalog');
+  const card = page.locator('.product-card').first();
+  await expect(card).toBeVisible();
+
+  for (const selector of ['.card-title', '.card-artist', '.card-meta', '.card-price', '.card-condition']) {
+    const textTarget = card.locator(selector).first();
+    await expect(textTarget).toBeVisible();
+    await textTarget.click();
+    await expect(page).toHaveURL(/\/catalog(?:\?.*)?$/);
+  }
+
+  await card.locator('.card-cover').click();
+  await expect(page).toHaveURL(/\/records\/\d+$/);
+});
+
 test('approved artwork renders with traceability and a broken image falls back without blocking actions', async ({ page }) => {
   let breakProxy = false;
   let breakLocal = false;
