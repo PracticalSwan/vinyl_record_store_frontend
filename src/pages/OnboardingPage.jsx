@@ -27,7 +27,7 @@ export default function OnboardingPage() {
       <section className="preferences-card" aria-labelledby="onboarding-heading">
         <p className="auth-eyebrow">Optional profile setup</p>
         <h1 id="onboarding-heading">Tell us what belongs in your crate</h1>
-        <p className="auth-intro">Keep preferences for the active catalog facets together in your Groovehaus profile.</p>
+        <p className="auth-intro">Choose a few genres, artists, and formats you enjoy. You can change them later.</p>
         <PreferencesForm initial={auth.user.preferences} onSave={save} onSkip={() => navigate('/account', { replace: true })} wizard submitting={submitting} requestError={error} />
       </section>
     </main>

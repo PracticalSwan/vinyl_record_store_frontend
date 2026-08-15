@@ -164,7 +164,6 @@ export default function PreferencesForm({
   return (
     <form className="preferences-form" id={formId} onSubmit={submit} noValidate>
       {wizard && <p className="preference-progress" aria-live="polite">Step {step} of 3</p>}
-      {researchOnly && <p className="research-catalog-note" role="note">Research catalog preferences use only active genre, artist, and format facets. Condition and budget are not available because the dataset has no commercial fields.</p>}
       {(!wizard || step === 1) && <GenreStep form={form} update={update} errors={errors} genres={optionSets.genres} />}
       {(!wizard || step === 2) && <DetailStep form={form} update={update} errors={errors} artistDraft={artistDraft} setArtistDraft={setArtistDraft} formats={optionSets.formats} researchOnly={researchOnly} />}
       {wizard && step === 3 && <Review form={form} researchOnly={researchOnly} />}

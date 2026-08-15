@@ -1,45 +1,45 @@
 const MODE_PRESENTATION = {
   'demo-profile': {
-    homeLabel: 'Curated showcase profile',
-    pageLabel: 'Showcase profile',
-    intro: 'These explainable results use a curated showcase profile rather than a signed-in customer.',
+    homeLabel: 'Featured picks',
+    pageLabel: 'Featured picks',
+    intro: 'Explore a curated selection of records chosen for discovery.',
   },
   'anonymous-fallback': {
-    homeLabel: 'Anonymous catalog fallback',
-    pageLabel: 'Anonymous fallback',
-    intro: 'No customer session is active, so these are catalog-based fallback suggestions without account history.',
+    homeLabel: 'Discover more',
+    pageLabel: 'Discover more',
+    intro: 'Explore a selection from the current catalog. Sign in and save your preferences to make future picks more personal.',
   },
   'cold-start': {
-    homeLabel: 'Session-owned cold-start',
-    pageLabel: 'Session-owned cold-start',
-    intro: 'This request is owned by the signed-in session, but no enabled personalized ranking signal is applicable, so results use the deterministic cold-start fallback.',
+    homeLabel: 'Discover more',
+    pageLabel: 'Getting to know your taste',
+    intro: 'Browse the collection and save your preferences to make these picks more personal.',
   },
   'preference-profile': {
-    homeLabel: 'Saved preference profile',
-    pageLabel: 'Saved preferences',
-    intro: 'These results use the preferences you saved for this account.',
+    homeLabel: 'Picked for you',
+    pageLabel: 'Based on your preferences',
+    intro: 'These picks reflect the genres, artists, and formats you saved.',
   },
   'behavior-profile': {
-    homeLabel: 'Behavior profile',
-    pageLabel: 'Behavior profile',
-    intro: 'These results use activity and account signals available for this profile.',
+    homeLabel: 'Picked for you',
+    pageLabel: 'Based on your activity',
+    intro: 'These picks reflect the ratings, saved records, and shopping activity available for your account.',
   },
   popularity: {
-    homeLabel: 'Research-rating popularity',
-    pageLabel: 'Research-rating popularity',
-    intro: 'These results are popular in the aggregate research ratings dataset; they are not personalized or based on recent storefront activity.',
+    homeLabel: 'Popular picks',
+    pageLabel: 'Popular picks',
+    intro: 'Explore records that stand out in listener ratings.',
   },
   'personalized-hybrid': {
-    homeLabel: 'Personalized hybrid',
-    pageLabel: 'Personalized hybrid',
-    intro: 'These results are personalized from the preferences and account activity available for this profile.',
+    homeLabel: 'Picked for you',
+    pageLabel: 'Personalized picks',
+    intro: 'These picks combine your saved preferences with your account activity.',
   },
 };
 
 const DEFAULT_PRESENTATION = {
-  homeLabel: 'Explainable ranked suggestions',
-  pageLabel: 'Current ranking mode',
-  intro: 'These results use the active backend ranking mode and its item-level explanations.',
+  homeLabel: 'Recommended records',
+  pageLabel: 'Recommended records',
+  intro: 'Explore records selected for this list.',
 };
 
 export function recommendationPresentation(mode) {

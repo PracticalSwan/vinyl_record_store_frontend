@@ -104,7 +104,7 @@ export default function CheckoutPage() {
       // Analytics never blocks the order-preview confirmation.
     }
     await clearCart();
-    navigate(`/orders/preview/${reference}`, { replace: true });
+    navigate(`/checkout/complete/${reference}`, { replace: true });
   };
 
   const stepIndex = STEP_INDEX[step];
@@ -113,8 +113,7 @@ export default function CheckoutPage() {
     <main><div className="container checkout">
       <h1 className="section-heading page-heading" tabIndex={-1} ref={headingRef}>Checkout</h1>
       <p className="checkout-demo-banner" role="note">
-        This checkout is an order preview. No payment is taken, no order is submitted, and shipping
-        details are kept only for this browser session.
+        No real payment is processed on this site.
       </p>
       <p className="checkout-progress" aria-live="polite">
         Step {stepIndex + 1} of {STEPS.length}: {step === 'cart' ? 'Cart review' : step === 'shipping' ? 'Shipping' : step === 'payment' ? 'Payment' : 'Review and confirm'}
@@ -160,7 +159,7 @@ export default function CheckoutPage() {
       {step === 'shipping' && (
         <section className="checkout-step" aria-labelledby="step-shipping">
           <h2 className="section-heading" id="step-shipping">Shipping details</h2>
-          <p className="inline-state">These temporary shipping details are cleared after confirmation and are never sent to analytics.</p>
+          <p className="inline-state">Shipping details stay in this browser session and are not used for analytics.</p>
           <form className="checkout-form" onSubmit={handleShippingSubmit}>
             <label className="admin-field admin-field-wide">
               <span>Full name</span>
@@ -205,14 +204,11 @@ export default function CheckoutPage() {
       {step === 'payment' && (
         <section className="checkout-step" aria-labelledby="step-payment">
           <h2 className="section-heading" id="step-payment">Payment</h2>
-          <div className="checkout-payment" role="group" aria-label="Payment preview">
+          <div className="checkout-payment" role="group" aria-label="Payment details">
             <p className="inline-state">
               Payment method: <strong>{DEMO_PAYMENT_LABEL}</strong>
             </p>
-            <p className="inline-state">
-              Groovehaus does not collect card numbers, bank details, wallets, or any payment information
-              in this preview. No charge is made and no payment provider is contacted.
-            </p>
+            <p className="inline-state">No payment details are required. Continue to review your order.</p>
           </div>
           <div className="checkout-step-actions">
             <button className="btn btn-outline" type="button" onClick={() => goTo('shipping')}>Back</button>
@@ -228,7 +224,7 @@ export default function CheckoutPage() {
             <div className="state-box compact-state" role="alert">
               <p className="state-title">Availability changed</p>
               <p className="state-desc">
-                {blocking.length} item(s) became unavailable. Return to the cart and remove them before confirming the order preview.
+                {blocking.length} item(s) became unavailable. Return to the cart and remove them before confirming your order.
               </p>
             </div>
           )}
@@ -254,7 +250,7 @@ export default function CheckoutPage() {
             </div>
           </div>
           <Totals totals={totals} />
-          <p className="inline-state">Confirm the preview to generate a reference and status outline. No charge occurs and no order is submitted.</p>
+          <p className="inline-state">Review your items and shipping details before confirming.</p>
           <div className="checkout-step-actions">
             <button className="btn btn-outline" type="button" onClick={() => goTo('payment')}>Back</button>
             <button
@@ -263,7 +259,7 @@ export default function CheckoutPage() {
               disabled={placing || blocking.length > 0 || cartItems.length === 0 || store.isPending('cart')}
               onClick={handlePlaceOrder}
             >
-              {placing ? 'Confirming preview...' : 'Confirm order preview'}
+              {placing ? 'Confirming...' : 'Confirm order'}
             </button>
           </div>
         </section>

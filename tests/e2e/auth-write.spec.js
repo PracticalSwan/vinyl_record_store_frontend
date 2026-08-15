@@ -63,7 +63,7 @@ test('registration, login, restoration, and protected writes work with cleanup',
     await page.locator('form').getByRole('button', { name: 'Sign in', exact: true }).click();
     await expect(page).toHaveURL('/account');
     await page.reload();
-    await expect(page.getByText('Authenticated session')).toBeVisible();
+    await expect(page.getByText('Your account')).toBeVisible();
 
     const recommendationResponse = page.waitForResponse((response) => (
       response.url().includes('/api/recommendations/me') && response.request().method() === 'GET'

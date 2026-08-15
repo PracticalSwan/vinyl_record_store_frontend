@@ -88,7 +88,6 @@ export default function DetailPage() {
         ['Original release year', record.originalReleaseYear || 'Not established'],
         ['Edition release year', record.editionReleaseYear || 'Not established'],
         ['Genre', record.genre || 'Uncategorized'],
-        ['Catalog source', 'Amazon Reviews 2023 research subset'],
       ]
     : [
         ['Label', record.label || 'Not provided'],
@@ -127,11 +126,10 @@ export default function DetailPage() {
             <div className="detail-meta-row" aria-label="Record details">
               <span className="badge badge-genre">{record.genre || 'Uncategorized'}</span>
               <span className="badge badge-era">{displayYear(record)}</span>
-              {researchOnly ? <span className="badge">Research record</span> : <><StockBadge stock={record.stock} /><span className="badge badge-cond">{displayValue(record.condition, 'Condition unknown')}</span></>}
+              {!researchOnly && <><StockBadge stock={record.stock} /><span className="badge badge-cond">{displayValue(record.condition, 'Condition unknown')}</span></>}
             </div>
 
             {!researchOnly && <p className="detail-price">{formatMoney(record.price, record.currency)}</p>}
-            {researchOnly && <p className="research-catalog-note" role="note">Research-only metadata. This record has no simulated store price, stock, condition, cart action, or checkout path.</p>}
             <p className="detail-desc">{record.description || 'No description is available.'}</p>
 
             <table className="detail-table" aria-label="Record specifications">
@@ -191,7 +189,7 @@ export default function DetailPage() {
         {/* Similar records */}
         <section aria-labelledby="similar-heading" style={{ paddingBottom: '3rem' }}>
           <h2 className="section-heading" id="similar-heading">
-            Similar records <small>Content-based matches from the backend</small>
+            Similar records <small>More records you might like</small>
           </h2>
           <hr className="section-rule" aria-hidden="true" />
           {similarState.status === 'loading' && <p className="inline-state">Loading similar records…</p>}

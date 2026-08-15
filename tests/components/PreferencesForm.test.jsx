@@ -94,7 +94,8 @@ describe('PreferencesForm', () => {
       onSkip={vi.fn()}
     />);
 
-    expect(await screen.findByRole('note')).toHaveTextContent('Research catalog preferences');
+    await screen.findByRole('group', { name: /Favorite genres/ });
+    expect(screen.queryByRole('note')).toBeNull();
     const genreGroup = screen.getByRole('group', { name: /Favorite genres/ });
     expect(within(genreGroup).getByLabelText('Jazz')).toBeVisible();
     expect(within(genreGroup).getByLabelText('Saved legacy genre')).toBeVisible();

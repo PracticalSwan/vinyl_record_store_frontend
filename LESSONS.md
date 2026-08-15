@@ -20,7 +20,7 @@ Read this file before every frontend session.
 - Live search may update after 300 ms, but recent history and `search_submit` analytics are committed only by submit or recent-term replay. Keep at most five terms and scope storage by guest or authenticated public ID.
 - Preference clearing changes the draft only. Saving empty preferences marks onboarding incomplete. Guard dirty state at the React Router data-router boundary, not on one button: Navbar navigation and browser history must enter the same focus-contained save/discard/cancel flow, preserve the pending destination, and restore the trigger on cancel.
 - Keep the application root as a flex column with growing main content so the footer follows short pages without overlaying long pages. Filter controls scroll independently from the product grid, and paired price fields must never overflow.
-- Checkout is a client-only preview with `/orders/preview/:reference` and `PREVIEW-` references. Do not rename compatibility analytics identifiers unless the stored-evidence contract is intentionally migrated.
+- Checkout is a client-only flow with `/checkout/complete/:reference` and `GH-XXXXXXXX` references. Keep the no-real-payment and session-only disclosure visible, and do not rename compatibility analytics identifiers unless the stored-evidence contract is intentionally migrated.
 
 ## Working Rules
 

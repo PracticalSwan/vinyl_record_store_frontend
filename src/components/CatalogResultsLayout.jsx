@@ -40,11 +40,6 @@ export default function CatalogResultsLayout({ title, header, query, updateQuery
       <div className="container catalog-page">
         <h1 className="section-heading page-heading">{title}</h1>
         {header}
-        {researchOnly && (
-          <p className="research-catalog-note" role="note">
-            Research catalog: browse real source-derived vinyl metadata. Prices, stock, condition, cart, and checkout are not part of this dataset.
-          </p>
-        )}
         <div className="catalog-layout">
           <FilterSidebar query={query} facets={meta?.facets} catalogMode={meta?.catalogMode} onChange={updateQuery} />
           <section aria-labelledby="catalog-results-heading" aria-busy={status === 'loading'}>

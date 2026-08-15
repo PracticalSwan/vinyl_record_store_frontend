@@ -10,15 +10,15 @@ This document records the implemented Groovehaus experience and its required sta
 | `/catalog` | URL-backed product grid, repeated filters, sorting, pagination, and no-result state. |
 | `/records/:id` | Product metadata, guest/authenticated rating/cart actions, and backend similarity results. |
 | `/search?q=` | 300 ms debounced literal server search with shared filters, sorting, pagination, and up to five clickable committed recent terms. |
-| `/recommendations` | Explainable session-owned cold-start, preference-profile, anonymous-fallback, or labelled showcase results. |
+| `/recommendations` | Explainable, session-owned recommendations with shopper-facing labels and server-provided reasons. |
 | `/wishlist` | Guest-session or authenticated server-backed wishlist. |
-| `/cart` | Guest-session or authenticated server-backed cart with an entry to the checkout preview. |
+| `/cart` | Guest-session or authenticated server-backed cart with an entry to checkout. |
 | `/register`, `/login` | Customer account creation and existing-account access. |
 | `/account` | Protected account summary and sign-out. |
 | `/onboarding` | Protected three-step preference onboarding. |
 | `/profile/preferences` | Protected preference editing, draft-only clearing, usage-data control, and a focus-contained save/discard/cancel guard for every SPA/history exit. |
-| `/checkout` | Protected client-only checkout preview with availability checks. |
-| `/orders/preview/:reference` | Session-scoped preview confirmation; no payment or backend order. |
+| `/checkout` | Protected client-only checkout with availability checks and a no-real-payment disclosure. |
+| `/checkout/complete/:reference` | Session-scoped checkout summary using `GH-XXXXXXXX`; no payment or backend order. |
 
 ## Design Language
 
@@ -51,11 +51,10 @@ Groovehaus uses a cream surface, dark brown navigation and cards, rust accent, s
 
 ## Honesty Rules
 
-- Use “demo profile” for the sample profile.
-- Use “cold-start” when no history exists.
-- Use “anonymous fallback” when no verified customer session resolves; do not imply account history.
-- Describe session ownership separately from ranking personalization: the request is customer-owned, while the default-off preference, behavior, popularity, and hybrid branches are active only when the backend flags and applicable evidence permit.
+- Keep backend recommendation mode identifiers internal to the API contract; map them through `recommendationPresentation` before rendering shopper-facing labels.
+- Explain session ownership separately from ranking personalization; a customer-owned request does not by itself imply account history or measured quality.
+- The default-off preference, behavior, popularity, and hybrid branches are active only when the backend flags and applicable evidence permit.
 - Describe guest state as current-tab-only and authenticated state as account-backed.
-- When a personalized flag is off or evidence is unavailable, render the lower mode returned by the backend; when enabled, label `preference-profile`, `behavior-profile`, `popularity`, or `personalized-hybrid` and render only server-provided reasons.
+- When a personalized flag is off or evidence is unavailable, render the lower mode returned by the backend with its shopper-facing label and render only server-provided reasons.
 - Keep the usage-data opt-out visible and immediately authoritative.
-- Label checkout as a preview and never imply real payment, shipment, persistence, or a backend order.
+- Keep checkout store-like while stating that no real payment is processed; never imply payment, shipment, fulfillment, persistence beyond the browser session, or a backend order.

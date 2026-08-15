@@ -67,7 +67,7 @@ const router = createBrowserRouter([
       { path: 'wishlist', element: <WishlistPage /> },
       { path: 'cart', element: <CartPage /> },
       { path: 'checkout', element: <RequireAuth><CheckoutPage /></RequireAuth> },
-      { path: 'orders/preview/:reference', element: <RequireAuth><DemoOrderConfirmationPage /></RequireAuth> },
+      { path: 'checkout/complete/:reference', element: <RequireAuth><DemoOrderConfirmationPage /></RequireAuth> },
       { path: 'login', element: <LoginPage /> },
       { path: 'register', element: <RegisterPage /> },
       { path: 'account', element: <RequireAuth><AccountPage /></RequireAuth> },

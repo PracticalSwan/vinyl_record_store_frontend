@@ -58,7 +58,7 @@ test('@smoke PERS-03 to PERS-05 honor the selective personalization gate', async
     const firstPayload = await firstResponse.json();
     if (!personalizedRankingEnabled) {
       expect(firstPayload.data.mode).toBe('cold-start');
-      await expect(page.getByText('Session-owned cold-start')).toBeVisible();
+      await expect(page.getByText('Getting to know your taste')).toBeVisible();
       await expect(page.getByRole('button', { name: 'Not interested' })).toHaveCount(0);
       await expect(page.getByRole('button', { name: 'Already own' })).toHaveCount(0);
       const targetId = firstPayload.data.recommendations[0].product.id;
@@ -124,6 +124,7 @@ test('@smoke PERS-03 to PERS-05 honor the selective personalization gate', async
       response.url().endsWith(`/api/me/feedback/${targetId}`) && response.request().method() === 'PUT'
     ));
     await firstCard.getByRole('button', { name: 'Not interested' }).click();
+    await expect(page).toHaveURL(/\/recommendations$/);
     const feedbackPutResponse = await feedbackPut;
     expect(feedbackPutResponse.status()).toBe(200);
     expect((await feedbackPutResponse.json()).data).toMatchObject({
@@ -158,6 +159,7 @@ test('@smoke PERS-03 to PERS-05 honor the selective personalization gate', async
       response.url().endsWith(`/api/me/feedback/${targetId}`) && response.request().method() === 'DELETE'
     ));
     await undo.click();
+    await expect(page).toHaveURL(/\/recommendations$/);
     const feedbackDeleteResponse = await feedbackDelete;
     expect(feedbackDeleteResponse.status()).toBe(200);
     expect((await feedbackDeleteResponse.json()).data).toMatchObject({
@@ -175,10 +177,13 @@ test('@smoke PERS-03 to PERS-05 honor the selective personalization gate', async
       response.url().endsWith(`/api/me/feedback/${targetId}`) && response.request().method() === 'PUT'
     ));
     await firstCard.getByRole('button', { name: 'Already own' }).click();
+    await expect(page).toHaveURL(/\/recommendations$/);
     expect((await alreadyOwnPut).status()).toBe(200);
     await expect(firstCard.getByRole('button', { name: 'Undo' })).toBeFocused();
     await expect(firstCard.getByRole('status')).toContainText('Marked as already owned.');
     await expect(firstCard.getByRole('status')).not.toContainText(/not interested|dislike/i);
+    await firstCard.locator('.card-body').click({ position: { x: 3, y: 3 } });
+    await expect(page).toHaveURL(/\/recommendations$/);
     await testInfo.attach('selective-already-own-confirmed', {
       body: await page.screenshot({ fullPage: true }),
       contentType: 'image/png',
@@ -201,9 +206,7 @@ test('@smoke PERS-03 to PERS-05 honor the selective personalization gate', async
     await page.goto('/');
     const expectedHomeMode = integrationEnabled ? 'personalized-hybrid' : 'preference-profile';
     expect((await (await loadedHome).json()).data.mode).toBe(expectedHomeMode);
-    await expect(page.getByText(
-      integrationEnabled ? 'Personalized hybrid' : 'Saved preference profile',
-    )).toBeVisible();
+    await expect(page.getByText('Picked for you')).toBeVisible();
     await testInfo.attach('selective-loaded-home', {
       body: await page.screenshot({ fullPage: true }),
       contentType: 'image/png',
@@ -296,7 +299,7 @@ test('PERS-09 full gates use durable behavior and true hybrid without off-surfac
     expect(payload.data.algorithmVersion).toBe('personalized-hybrid-v1');
     expect(payload.data.recommendations.length).toBeGreaterThan(0);
     expect(payload.data.recommendations.every((item) => item.algorithmVersion === 'personalized-hybrid-v1')).toBe(true);
-    await expect(page.getByText('Personalized hybrid')).toBeVisible();
+    await expect(page.getByText('Personalized picks')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Not interested' }).first()).toBeVisible();
     await expect(page.getByRole('button', { name: 'Already own' }).first()).toBeVisible();
 
@@ -310,7 +313,7 @@ test('PERS-09 full gates use durable behavior and true hybrid without off-surfac
     });
 
     await page.goto('/');
-    await expect(page.getByText('Personalized hybrid')).toBeVisible();
+    await expect(page.getByText('Picked for you')).toBeVisible();
     await testInfo.attach('pers09-loaded-home', {
       body: await page.screenshot({ fullPage: true }),
       contentType: 'image/png',
