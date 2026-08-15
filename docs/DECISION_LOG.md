@@ -171,3 +171,13 @@ Decision: Continue to load authenticated recommendations only on Home and Recomm
 Rationale: One provider-owned resource avoids duplicate requests, stale identity overwrite, unseen-list logging, and client-side ranking invention. An explicit test-only gate exercises every server flag without changing shipped defaults, while the isolated failure server prevents silent seed fallback from hiding persistence errors.
 
 Status: Implemented and verified in PERS-09 across component tests, desktop/mobile full-gate flows, tablet/Firefox/WebKit recommendation smoke, seed and MongoDB contracts, accessibility checks, and responsive screenshot review. No recommender-quality claim or dataset mutation was introduced.
+
+## FDEC-020: Keep Storefront Checkout Client-Only While Polishing Its Presentation
+
+Date: 2026-08-15
+
+Decision: Keep checkout entirely client-side, but present the customer flow through `/checkout/complete/:reference` with `GH-XXXXXXXX` references, no payment fields, and an explicit no-real-payment/session-only disclosure. Preserve the `demo_checkout_complete` analytics identifier and existing sessionStorage keys for compatibility; do not add order persistence, fulfillment, or payment infrastructure.
+
+Rationale: The presentation cleanup makes the storefront feel familiar without changing the classroom system's truth boundary or introducing commercial infrastructure.
+
+Status: Current-state refinement implemented in UI-03; historical FFP-08 preview decisions remain preserved above.

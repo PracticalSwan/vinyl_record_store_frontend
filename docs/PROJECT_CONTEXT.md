@@ -4,20 +4,20 @@ This is the frontend source of truth for the Vinyl Record Store Recommender Syst
 
 ## Current State
 
-Groovehaus is an implemented Vite 8.1 and React 19.2.7 storefront. It loads the backend's active versioned catalog, nullable/provenance-aware product metadata, structured artwork, and recommendation results; restores signed-cookie authentication; persists authenticated customer state; sends privacy-controlled interaction events; exposes a role-gated administrator workspace with dataset status; and runs a client-only simulated checkout through `VITE_API_BASE_URL`.
+Groovehaus is an implemented Vite 8.1 and React 19.2.7 storefront. It loads the backend's active versioned catalog, nullable/provenance-aware product metadata, structured artwork, and recommendation results; restores signed-cookie authentication; persists authenticated customer state; sends privacy-controlled interaction events; exposes a role-gated administrator workspace with dataset status; and runs a client-only checkout summary through `VITE_API_BASE_URL`.
 
 ## Responsibilities
 
 - Render catalog, debounced live search with scoped recent history, independently scrollable filters, product details, recommendations, wishlist, cart, registration, login, protected account, onboarding, and preference screens.
 - Render dynamic genre/format facets and safe Unknown/Unavailable states for dataset products; disable purchase when price or stock is unknown without disabling browsing, wishlist, or rating.
 - Own responsive layout, accessibility, navigation, URL query state, and API state surfaces.
-- Display backend-generated recommendation reasons and honest mode labels.
+- Display backend-generated recommendation reasons and shopper-facing labels mapped from the internal mode contract.
 - Gate recommendation loading on restored auth, call `/api/recommendations/me` without a client-selected identity, and prevent stale cross-identity responses through subject keys, aborts, and request generations.
 - Keep guest wishlist/cart/rating state in versioned `sessionStorage` and authenticated state behind one `StoreProvider` interface.
 - Merge guest state only into a brand-new registration. A persisted merge key resumes a failed merge after refresh; existing-account login and ordinary restore discard unrelated guest state.
 - Capture bounded pseudonymous analytics with an immediate visible opt-out and recommendation request/list attribution.
 - Render backend-approved Cover Art Archive mappings through one resilient `ProductImage` component with responsive sizing, attribution, accessibility, and a proxy -> committed local JPEG -> placeholder chain. The fixed legacy bundle covers all 116 records; a separate v3 bundle covers every strict accepted dataset match, with the same stable set pinned for v2 rollback. Ambiguous and unresolved v3 records use the placeholder, and Amazon images are excluded.
-- FFP-07 administrator workspace: a `RequireRole`-guarded `/admin` area (dashboard, product table with soft-delete/restore, create/edit form with optimistic-concurrency conflict re-fetch, import preview/apply, artwork refresh) consumes role-gated `/api/admin/*` routes. FFP-08 checkout preview: a `/checkout` wizard and `/orders/preview/:reference` confirmation with sessionStorage persistence, availability blocking, and cart clear on confirm. No real payment or backend order.
+- FFP-07 administrator workspace: a `RequireRole`-guarded `/admin` area (dashboard, product table with soft-delete/restore, create/edit form with optimistic-concurrency conflict re-fetch, import preview/apply, artwork refresh) consumes role-gated `/api/admin/*` routes. FFP-08 checkout: a `/checkout` wizard and `/checkout/complete/:reference` confirmation with `GH-XXXXXXXX` references, sessionStorage persistence, availability blocking, and cart clear on confirm. No real payment or backend order.
 - Preference clearing is draft-only. The data router intercepts every dirty SPA/history transition, preserves the pending destination, and provides a focus-contained save/discard/cancel dialog plus a direct back path to `/account`. The flex page shell keeps the footer below short content on every route.
 
 The frontend does not own database access, catalog ingestion/enrichment, API route implementation, scoring algorithms, raw private interaction rows, or offline evaluation.
@@ -31,10 +31,10 @@ The frontend does not own database access, catalog ingestion/enrichment, API rou
 
 ## Current Limitations
 
-- Preferences are saved and, when the backend's default-off preference flag is enabled, can produce the explicit `preference-profile` mode; behavior, popularity, and hybrid modes are similarly backend-selected behind their own default-off flags, while the disabled path remains deterministic cold-start/fallback ranking.
-- User results are explicitly `cold-start`, `preference-profile`, `behavior-profile`, `popularity`, or `personalized-hybrid` when the effective flags/evidence permit, or `anonymous-fallback` without aggregate evidence; the restricted showcase remains `demo-profile`. Session ownership is real, negative feedback is exact-item-only, and no quality claim is made.
+- Preferences are saved and, when the backend's default-off preference flag is enabled, can produce the internal `preference-profile` mode; behavior, popularity, and hybrid modes are similarly backend-selected behind their own default-off flags, while the disabled path remains deterministic cold-start/fallback ranking. The frontend maps these identifiers through `recommendationPresentation` before display.
+- User results retain the internal `cold-start`, `preference-profile`, `behavior-profile`, `popularity`, `personalized-hybrid`, `anonymous-fallback`, and restricted `demo-profile` contracts. Session ownership is real, negative feedback is exact-item-only, and no quality claim is made.
 - Guest state ends with the tab by design. Existing-account login never imports guest state.
-- Checkout is a preview only: no real payment, no backend order, and sessionStorage-only confirmation persistence. The administrator workspace requires the MongoDB catalog source for writes; in seed-catalog mode, admin reads work but create/edit/delete/restore/import/artwork surface a persistence-unavailable error.
+- Checkout is a client-only checkout summary: no real payment, no backend order, and sessionStorage-only confirmation persistence. The administrator workspace requires the MongoDB catalog source for writes; in seed-catalog mode, admin reads work but create/edit/delete/restore/import/artwork surface a persistence-unavailable error.
 - The active MongoDB dataset contains 2,305 products. Dataset-managed Admin rows are CLI-managed and read-only; the three showcase customers remain unchanged and historical Amazon pseudonyms never reach the client.
 - Interaction and recommendation logs use 90-day eventual TTL retention in MongoDB mode; seed mode does not persist recommendation request logs.
 - PERS-00 through PERS-09 / FFP-09 through FFP-14 are complete; PERS-04 through PERS-08 remain behind default-off backend flags and no quality claim is made.

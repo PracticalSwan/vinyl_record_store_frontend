@@ -4,7 +4,7 @@ import { canPurchase } from './productDisplay';
 // order, no persistence beyond the current browser session.
 
 export const DEMO_SHIPPING = 6;
-export const DEMO_PAYMENT_LABEL = 'Payment preview';
+export const DEMO_PAYMENT_LABEL = 'Not collected';
 
 export const COUNTRY_OPTIONS = [
   'Thailand',
@@ -62,10 +62,10 @@ export function generateDemoReference() {
       .join('')
       .toUpperCase()
       .slice(0, 8);
-    return `PREVIEW-${code}`;
+    return `GH-${code}`;
   }
   // Deterministic fallback (rare path; crypto.getRandomValues is widely available).
-  return `PREVIEW-${Date.now().toString(36).toUpperCase().slice(-8)}`;
+  return `GH-${Date.now().toString(36).toUpperCase().slice(-8)}`;
 }
 
 export function snapshotOrder({ cartItems, shipping, totals, reference }) {

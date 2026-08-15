@@ -3,14 +3,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { readOrder, DEMO_SHIPPING } from '../lib/checkout';
 import { formatMoney } from '../lib/productDisplay';
 
-// All demo orders stay PENDING: there is no fulfillment, payment, or backend
-// persistence, so the timeline is illustrative rather than a real shipment.
-const TIMELINE = [
-  { key: 'received', label: 'Order preview created', state: 'complete' },
-  { key: 'preparing', label: 'No fulfillment scheduled', state: 'current' },
-  { key: 'shipped', label: 'Not shipped', state: 'pending' },
-];
-
 export default function DemoOrderConfirmationPage() {
   const { reference } = useParams();
   const navigate = useNavigate();
@@ -21,14 +13,14 @@ export default function DemoOrderConfirmationPage() {
   useEffect(() => {
     if (!reference) return;
     if (!readOrder(reference)) {
-      navigate('/cart', { state: { notice: 'That order preview could not be found.' }, replace: true });
+      navigate('/cart', { state: { notice: 'That checkout summary could not be found.' }, replace: true });
     }
   }, [reference, navigate]);
 
   if (!order) {
     return (
       <main><div className="container catalog-state">
-        <p className="inline-state" aria-busy="true">Looking up order preview...</p>
+        <p className="inline-state" aria-busy="true">Loading checkout summary...</p>
       </div></main>
     );
   }
@@ -38,29 +30,16 @@ export default function DemoOrderConfirmationPage() {
   return (
     <main><div className="container checkout-confirmation">
       <div className="state-box confirmation-hero" role="status">
-        <p className="state-title">Order preview ready</p>
+        <p className="state-title">Checkout complete</p>
         <p className="state-desc">
-          Thank you, {shipping.name || 'music lover'}. No payment was taken and no real order was placed.
+          Thank you, {shipping.name || 'music lover'}. Your checkout summary is ready below.
         </p>
       </div>
 
       <div className="confirmation-reference">
-        <span className="confirmation-reference-label">Preview reference</span>
+        <span className="confirmation-reference-label">Reference</span>
         <code className="confirmation-reference-value">{order.reference}</code>
       </div>
-
-      <p className="confirmation-status" aria-live="polite">
-        Status: <strong>PREVIEW ONLY</strong>
-      </p>
-
-      <ol className="confirmation-timeline" role="list">
-        {TIMELINE.map((entry) => (
-          <li key={entry.key} className={`confirmation-timeline-item ${entry.state}`} aria-current={entry.state === 'current' ? 'step' : undefined}>
-            <span className="confirmation-timeline-dot" aria-hidden="true" />
-            <span>{entry.label}</span>
-          </li>
-        ))}
-      </ol>
 
       <div className="confirmation-grid">
         <section className="confirmation-block" aria-labelledby="confirmation-items">
@@ -94,8 +73,7 @@ export default function DemoOrderConfirmationPage() {
       </div>
 
       <p className="inline-state">
-        This reference and the details above are kept only in this browser session for the order preview and are
-        not stored on the server.
+        No real payment was processed. This checkout summary is stored only in this browser session and is not submitted for fulfillment.
       </p>
 
       <div className="checkout-step-actions">

@@ -658,3 +658,7 @@ The deployed default remains `content-demo-v1`/cold-start while ranking flags ar
 ### Dependency-Safe Personalization Order (Appended After FFP-08)
 
 The frontend switched to the stable backend identity/session endpoint in PERS-02 and keeps a default-on reversible flag. The full cross-repository order (PERS-00 through PERS-09, orders 15 through 24) is complete in both personalization plans. Any later rollout, experiment, or new algorithm requires a separate explicit task and matching backend stability.
+
+## Current-State Refinement — 2026-08-15
+
+The client-only checkout architecture remains unchanged: no payment provider, backend order endpoint, fulfillment, or server-side order persistence was added. The active storefront presentation now uses `/checkout/complete/:reference` with visible `GH-XXXXXXXX` references and a concise no-real-payment/session-only disclosure. Historical FFP-08 planning terminology above is retained as decision history; compatibility analytics identifiers and sessionStorage keys remain unchanged.
