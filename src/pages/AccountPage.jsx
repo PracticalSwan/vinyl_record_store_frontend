@@ -23,7 +23,7 @@ export default function AccountPage() {
   return (
     <main className="account-page container">
       <section className="account-card" aria-labelledby="account-heading">
-        <p className="auth-eyebrow">Authenticated session</p>
+        <p className="auth-eyebrow">Your account</p>
         <h1 id="account-heading">{auth.user.displayName || auth.user.username}</h1>
         <dl className="account-details">
           <div><dt>Username</dt><dd>{auth.user.username}</dd></div>

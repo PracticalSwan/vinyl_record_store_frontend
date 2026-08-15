@@ -3,18 +3,6 @@ import { IconAlert } from '../components/Icons';
 import { useCatalog } from '../context/useCatalog';
 import { recommendationPresentation } from '../lib/recommendationPresentation';
 
-function ProfileSummary({ signals }) {
-  if (!signals.length) return null;
-  return (
-    <>
-      <p className="signal-heading">Recommendation context from the backend</p>
-      <ul className="signal-pills" aria-label="Signals used for recommendations">
-        {signals.map((signal) => <li className="signal-pill" key={signal}>{signal}</li>)}
-      </ul>
-    </>
-  );
-}
-
 function RecommendationResults({ recommendations, mode }) {
   const topPicks = recommendations.slice(0, 8);
   const genre = recommendations.find((record) => record.genre)?.genre;
@@ -26,7 +14,7 @@ function RecommendationResults({ recommendations, mode }) {
   return (
     <>
       <h2 className="section-heading" style={{ fontSize: 20 }} id="top-picks-heading">
-        Top ranked picks <small>{recommendationPresentation(mode).pageLabel}</small>
+        Top picks <small>{recommendationPresentation(mode).pageLabel}</small>
       </h2>
       <hr className="section-rule" aria-hidden="true" />
       <ProductGrid records={topPicks} showReason surface="recommendations" />
@@ -34,7 +22,7 @@ function RecommendationResults({ recommendations, mode }) {
       {genreMatches.length > 1 && (
         <section aria-labelledby="genre-matches-heading" style={{ marginTop: '3rem' }}>
           <h2 className="section-heading" style={{ fontSize: 20 }} id="genre-matches-heading">
-            {genre} matches <small>Filtered from the current ranked list</small>
+            {genre} matches <small>More records you might like</small>
           </h2>
           <hr className="section-rule" aria-hidden="true" />
           <RecScroll records={genreMatches} ariaLabel={`${genre} recommendations`} surface="recommendations" />
@@ -75,9 +63,8 @@ export default function RecommendationsPage() {
         <p className="rec-page-intro">
           {catalog.recommendationMode
             ? recommendationPresentation(catalog.recommendationMode).intro
-            : 'The storefront will label the active recommendation mode when the ranked list is ready.'}
+            : 'Explore records selected for this list.'}
         </p>
-        <ProfileSummary signals={catalog.profileSummary} />
         <RecommendationState
           status={catalog.recommendationStatus}
           error={catalog.recommendationError}

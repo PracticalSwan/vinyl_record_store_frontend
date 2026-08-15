@@ -152,7 +152,7 @@ describe('API client', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('socket details')));
 
     await expect(fetchProducts()).rejects.toEqual(
-      new ApiError('The storefront could not reach the backend API.', 'API_UNAVAILABLE'),
+      new ApiError('The store is temporarily unavailable. Please try again.', 'API_UNAVAILABLE'),
     );
   });
 

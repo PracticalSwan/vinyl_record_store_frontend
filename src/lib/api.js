@@ -34,19 +34,19 @@ async function request(path, {
     });
   } catch (error) {
     if (error.name === 'AbortError') throw error;
-    throw new ApiError('The storefront could not reach the backend API.', 'API_UNAVAILABLE');
+    throw new ApiError('The store is temporarily unavailable. Please try again.', 'API_UNAVAILABLE');
   }
 
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
     throw new ApiError(
-      payload?.error?.message || 'The backend returned an unexpected response.',
+      payload?.error?.message || 'Something went wrong while loading Groovehaus. Please try again.',
       payload?.error?.code,
       response.status,
     );
   }
   if (!payload || typeof payload !== 'object' || !('data' in payload)) {
-    throw new ApiError('The backend returned an invalid response.', 'INVALID_RESPONSE', response.status);
+    throw new ApiError('Something went wrong while loading Groovehaus. Please try again.', 'INVALID_RESPONSE', response.status);
   }
   return payload;
 }

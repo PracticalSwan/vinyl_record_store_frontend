@@ -3,45 +3,38 @@ import { recommendationPresentation } from '../../src/lib/recommendationPresenta
 
 describe('recommendation presentation', () => {
   it.each([
-    ['demo-profile', 'Curated showcase profile', 'Showcase profile'],
-    ['anonymous-fallback', 'Anonymous catalog fallback', 'Anonymous fallback'],
-    ['cold-start', 'Session-owned cold-start', 'Session-owned cold-start'],
-    ['preference-profile', 'Saved preference profile', 'Saved preferences'],
-  ])('preserves the existing %s mode copy', (mode, homeLabel, pageLabel) => {
-    expect(recommendationPresentation(mode)).toMatchObject({ homeLabel, pageLabel });
+    ['demo-profile', 'Featured picks', 'Featured picks', 'Explore a curated selection of records chosen for discovery.'],
+    ['anonymous-fallback', 'Discover more', 'Discover more', 'Explore a selection from the current catalog. Sign in and save your preferences to make future picks more personal.'],
+    ['cold-start', 'Discover more', 'Getting to know your taste', 'Browse the collection and save your preferences to make these picks more personal.'],
+    ['preference-profile', 'Picked for you', 'Based on your preferences', 'These picks reflect the genres, artists, and formats you saved.'],
+    ['behavior-profile', 'Picked for you', 'Based on your activity', 'These picks reflect the ratings, saved records, and shopping activity available for your account.'],
+    ['popularity', 'Popular picks', 'Popular picks', 'Explore records that stand out in listener ratings.'],
+    ['personalized-hybrid', 'Picked for you', 'Personalized picks', 'These picks combine your saved preferences with your account activity.'],
+  ])('uses shopper-facing copy for %s', (mode, homeLabel, pageLabel, intro) => {
+    expect(recommendationPresentation(mode)).toEqual({ homeLabel, pageLabel, intro });
   });
 
-  it('describes behavior-profile without claiming passive tracking is required', () => {
-    expect(recommendationPresentation('behavior-profile')).toEqual({
-      homeLabel: 'Behavior profile',
-      pageLabel: 'Behavior profile',
-      intro: 'These results use activity and account signals available for this profile.',
+  it('does not expose engineering terminology in shopper-facing mode copy', () => {
+    const forbidden = /research|dataset|backend|cold-start|fallback|ranking mode|showcase profile|source-derived/i;
+    for (const mode of [
+      'demo-profile',
+      'anonymous-fallback',
+      'cold-start',
+      'preference-profile',
+      'behavior-profile',
+      'popularity',
+      'personalized-hybrid',
+    ]) {
+      const presentation = recommendationPresentation(mode);
+      expect(`${presentation.homeLabel} ${presentation.pageLabel} ${presentation.intro}`).not.toMatch(forbidden);
+    }
+  });
+
+  it('uses a safe store-facing default for unknown modes', () => {
+    expect(recommendationPresentation('unknown-mode')).toEqual({
+      homeLabel: 'Recommended records',
+      pageLabel: 'Recommended records',
+      intro: 'Explore records selected for this list.',
     });
   });
-
-  it('describes popularity as aggregate research evidence rather than personalized or recent activity', () => {
-    const presentation = recommendationPresentation('popularity');
-    expect(presentation.homeLabel).toBe('Research-rating popularity');
-    expect(presentation.intro).toContain('aggregate research ratings dataset');
-    expect(presentation.intro).toContain('not personalized');
-    expect(presentation.intro).toContain('not personalized or based on recent storefront activity');
-  });
-
-  it('labels hybrid only for the backend hybrid mode', () => {
-    expect(recommendationPresentation('personalized-hybrid')).toEqual({
-      homeLabel: 'Personalized hybrid',
-      pageLabel: 'Personalized hybrid',
-      intro: 'These results are personalized from the preferences and account activity available for this profile.',
-    });
-    expect(recommendationPresentation('preference-profile').pageLabel).toBe('Saved preferences');
-    expect(recommendationPresentation('behavior-profile').pageLabel).toBe('Behavior profile');
-    expect(recommendationPresentation('popularity').pageLabel).toBe('Research-rating popularity');
-  });
-});
-
-it('keeps cold-start copy generic across preference, behavior, and popularity fallbacks', () => {
-  const presentation = recommendationPresentation('cold-start');
-  expect(presentation.intro).toContain('no enabled personalized ranking signal is applicable');
-  expect(presentation.intro).toContain('deterministic cold-start fallback');
-  expect(presentation.intro).not.toContain('preference-profile branch');
 });

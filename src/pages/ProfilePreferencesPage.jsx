@@ -144,7 +144,7 @@ export default function ProfilePreferencesPage() {
       <section className="preferences-card" aria-labelledby="preferences-heading">
         <p className="auth-eyebrow">Account preferences</p>
         <h1 id="preferences-heading">Edit recommendation preferences</h1>
-        <p className="auth-intro">Choose the active genres, artists, and formats that fit your research browsing. Commercial preferences appear only when the active catalog supports them.</p>
+        <p className="auth-intro">Save the genres, artists, and formats you enjoy.</p>
         <button className="btn btn-ghost preferences-back" type="button" onClick={backToAccount}>Back to account</button>
         {dirty && <p className="form-unsaved" role="status">You have unsaved changes.</p>}
         {message && <p className="form-success" role="status">{message}</p>}
