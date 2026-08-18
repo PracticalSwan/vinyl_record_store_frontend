@@ -52,6 +52,12 @@ The final classroom procedure uses explicit MongoDB/v3 **Profile B: Selective Pe
 
 Dataset acquisition, staging, activation, and rollback are backend CLI operations. See [`docs/AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md`](docs/AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md) for the frontend behavior and the linked authoritative backend runbook.
 
+## Netlify production
+
+The production storefront is deployed as the `groovehaus-store` Netlify project. `netlify.toml` builds the Vite app to `dist`, applies the SPA fallback, adds conservative security headers, and proxies `/api/*` to the companion `groovehaus-api` project before the SPA redirect.
+
+Set `VITE_API_BASE_URL=/` in production so browser requests stay same-origin through the Netlify proxy. Keep the frontend Profile B flags aligned with the backend: `VITE_PERS_ME_ENDPOINT=true`, `VITE_PERS_PROFILE_DOMAIN=true`, `VITE_PERS_NEGATIVE_FEEDBACK=true`, and tracking enabled unless explicitly disabled for a privacy demonstration.
+
 ## Showcase accounts
 
 Two roles exist: `customer` and `admin`. Exactly three showcase customer accounts are seeded into the backend database, and one administrator is environment-backed.

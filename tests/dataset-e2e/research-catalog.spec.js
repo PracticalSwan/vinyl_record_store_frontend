@@ -1,8 +1,11 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import process from 'node:process';
 
 const apiBaseUrl = 'http://localhost:3000';
 const datasetKey = 'amazon-reviews-2023-cds-vinyl-5core-v3';
+const ADMIN_USERNAME = process.env.E2E_ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD;
 
 function fixtureProduct(index) {
   const id = 100_001 + index;
@@ -263,16 +266,17 @@ test('mobile dataset filters open with the keyboard', async ({ page }, testInfo)
 
 test('administrator dashboard identifies the active research dataset and CLI-managed rows', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.includes('mobile'), 'Administrator dataset table is covered on desktop.');
+  test.skip(!ADMIN_USERNAME || !ADMIN_PASSWORD, 'Administrator E2E credentials are not configured.');
   await page.goto('/');
-  const login = await page.evaluate(async ({ url }) => {
+  const login = await page.evaluate(async ({ url, username, password }) => {
     const response = await fetch(url, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'admin', password: 'groovehaus-admin' }),
+      body: JSON.stringify({ username, password }),
     });
     return response.status;
-  }, { url: `${apiBaseUrl}/api/auth/login` });
+  }, { url: `${apiBaseUrl}/api/auth/login`, username: ADMIN_USERNAME, password: ADMIN_PASSWORD });
   expect(login).toBe(200);
 
   await page.route('**/api/admin/summary', (route) => route.fulfill({
