@@ -98,6 +98,18 @@ describe('ProductImage', () => {
     expect(screen.queryByRole('img')).toBeNull();
   });
 
+  it('prefers curated dataset artwork locally and keeps the proxy as fallback', () => {
+    const datasetRecord = { ...record, id: 100001, datasetKey: 'amazon-reviews-2023-cds-vinyl-5core-v3', localArtworkAvailable: true };
+    render(<ProductImage record={datasetRecord} />);
+    const local = screen.getByRole('img', { name: 'Cover art for Kind of Blue by Miles Davis.' });
+    expect(local).toHaveAttribute('src', expect.stringContaining('/api/artwork/local/100001'));
+    expect(local).toHaveAttribute('data-artwork-source', 'local');
+    fireEvent.error(local);
+    const proxy = screen.getByRole('img', { name: 'Cover art for Kind of Blue by Miles Davis.' });
+    expect(proxy).toHaveAttribute('src', expect.stringContaining(encodeURIComponent(record.image.thumbnailUrl)));
+    expect(proxy).toHaveAttribute('data-artwork-source', 'proxy');
+  });
+
   it('uses dataset local artwork only when the backend declares it available', () => {
     const datasetRecord = {
       ...record,

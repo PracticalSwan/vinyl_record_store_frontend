@@ -194,7 +194,7 @@ test('view record remains the explicit keyboard navigation control', async ({ pa
   await expect(page).toHaveURL(new RegExp(`/records/${products[0].id}$`));
 });
 
-test('accepted artwork uses local fallback while unresolved records use no legacy artwork', async ({ page }) => {
+test('accepted dataset artwork prefers the curated local bundle while unresolved records use no legacy artwork', async ({ page }) => {
   let localAcceptedRequests = 0;
   let localUnresolvedRequests = 0;
   await page.route('**/api/artwork?*', (route) => route.abort('failed'));

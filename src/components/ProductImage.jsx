@@ -16,9 +16,9 @@ function approvedUrl(value, hosts) {
   }
 }
 
-// Prefer the backend proxy, then its canonical-ID local bundle, before the
-// generic placeholder. The browser never loads Cover Art Archive directly;
-// the backend validates the remote URL and every redirect hop.
+// Dataset records prefer their curated local bundle, with the backend proxy as
+// recovery. Legacy/seed records retain proxy-first behavior. The browser never
+// loads Cover Art Archive directly; the backend validates every redirect hop.
 function proxiedArtworkSrc(coverArtUrl) {
   return `${API_BASE_URL}/api/artwork?u=${encodeURIComponent(coverArtUrl)}`;
 }
@@ -28,13 +28,10 @@ function localArtworkSrc(publicId) {
   return PUBLIC_ID_PATTERN.test(value) ? `${API_BASE_URL}/api/artwork/local/${value}` : null;
 }
 
-function sourceChain(remoteUrl, localUrl) {
-  const sources = [];
-  if (remoteUrl) sources.push({ kind: 'proxy', src: proxiedArtworkSrc(remoteUrl) });
-  if (localUrl && !sources.some((source) => source.src === localUrl)) {
-    sources.push({ kind: 'local', src: localUrl });
-  }
-  return sources;
+function sourceChain(remoteUrl, localUrl, preferLocal = false) {
+  const remote = remoteUrl ? { kind: 'proxy', src: proxiedArtworkSrc(remoteUrl) } : null;
+  const local = localUrl ? { kind: 'local', src: localUrl } : null;
+  return preferLocal ? [local, remote].filter(Boolean) : [remote, local].filter(Boolean);
 }
 
 function Placeholder({ decorative, variant, alt }) {
@@ -116,7 +113,8 @@ export default function ProductImage({
   const localAvailable = record?.localArtworkAvailable === true
     || (!record?.datasetKey && record?.localArtworkAvailable !== false);
   const localUrl = localAvailable ? localArtworkSrc(record?.id) : null;
-  const sources = sourceChain(url, localUrl);
+  const preferLocal = Boolean(record?.datasetKey && localUrl);
+  const sources = sourceChain(url, localUrl, preferLocal);
   const chainKey = [record?.id || 'unknown', variant, ...sources.map((source) => source.src)].join(':');
   return (
     <Artwork
