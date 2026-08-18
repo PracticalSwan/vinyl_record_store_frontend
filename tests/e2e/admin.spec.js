@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import process from 'node:process';
 
@@ -65,6 +66,14 @@ test('the administrator sees the dashboard and product catalog', async ({ page }
   await expect(page).toHaveURL('/admin/products');
   await expect(page.getByRole('link', { name: 'Kind of Blue' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Add product' })).toBeVisible();
+
+  const accessibility = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze();
+  const blocking = accessibility.violations.filter(
+    ({ impact }) => impact === 'serious' || impact === 'critical',
+  );
+  expect(blocking.map(({ id }) => id)).toEqual([]);
 
   await page.getByRole('link', { name: 'Kind of Blue', exact: true }).click();
   await expect(page).toHaveURL('/admin/products/1/edit');
