@@ -2,11 +2,11 @@ import { expect, test } from '@playwright/test';
 import process from 'node:process';
 
 const apiBaseUrl = 'http://localhost:3000';
-// The only administrator is the seeded demo account documented for the
-// classroom backend (see README). There is no API to mint an admin, so this
-// spec depends on those credentials being present in the backend .env.local.
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'groovehaus-admin';
+// The administrator is environment-backed. Browser tests receive plaintext
+// credentials only through local/CI environment variables; no admin password
+// is committed to the repository.
+const ADMIN_USERNAME = process.env.E2E_ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD;
 
 async function api(page, path, { method = 'GET', body } = {}) {
   return page.evaluate(async ({ url, method: requestMethod, body: requestBody }) => {
@@ -49,6 +49,7 @@ test('a registered customer is denied the administrator area', async ({ page }, 
 });
 
 test('the administrator sees the dashboard and product catalog', async ({ page }) => {
+  test.skip(!ADMIN_USERNAME || !ADMIN_PASSWORD, 'Administrator E2E credentials are not configured.');
   test.slow();
   await page.goto('/');
   await login(page, ADMIN_USERNAME, ADMIN_PASSWORD);

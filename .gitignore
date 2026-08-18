@@ -11,6 +11,7 @@ node_modules/
 dist/
 dist-ssr/
 .next/
+.netlify/
 out/
 coverage/
 .nyc_output/
