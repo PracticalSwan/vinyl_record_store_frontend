@@ -306,3 +306,18 @@ test('mobile catalog filters open with the keyboard', async ({ page }, testInfo)
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   await expect(page.getByLabel('Filter records')).toBeVisible();
 });
+
+test('registration username pattern compiles without browser console errors', async ({ page }) => {
+  const patternErrors = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error' && /Pattern attribute value|Invalid regular expression/.test(message.text())) {
+      patternErrors.push(message.text());
+    }
+  });
+
+  await page.goto('/register');
+  const username = page.getByLabel('Username');
+  await username.fill('valid-name_123');
+  expect(await username.evaluate((input) => input.checkValidity())).toBe(true);
+  expect(patternErrors).toEqual([]);
+});

@@ -42,7 +42,7 @@ export default function RegisterPage() {
         <p className="auth-intro">Create your Groovehaus account to save records, manage your cart, rate releases, and set listening preferences.</p>
         <form className="auth-form" onSubmit={submit}>
           <label htmlFor="register-username">Username</label>
-          <input id="register-username" autoComplete="username" required minLength={3} maxLength={64} pattern="[A-Za-z0-9_-]+" value={form.username} onChange={update('username')} />
+          <input id="register-username" autoComplete="username" required minLength={3} maxLength={64} pattern="(?:[A-Za-z0-9_]|-)+" value={form.username} onChange={update('username')} />
           <label htmlFor="register-display-name">Display name <span>(optional)</span></label>
           <input id="register-display-name" autoComplete="name" maxLength={100} value={form.displayName} onChange={update('displayName')} />
           <label htmlFor="register-password">Password</label>
