@@ -16,7 +16,9 @@ vi.mock('../../src/components/ProductImage', () => ({ default: () => <div data-t
 describe('ProductCard research release distinction', () => {
   it('shows the source label on research records so same-title editions remain distinguishable', () => {
     render(<MemoryRouter><ProductCard record={{ id: 1, title: 'Ordinary Man', artist: 'Ozzy Osbourne', genre: 'Rock', editionReleaseYear: 2020, label: 'Epic Records', datasetKey: 'dataset-v3', catalogMode: 'research-only' }} /></MemoryRouter>);
-    expect(screen.getByText('Epic Records')).toBeVisible();
+    const label = screen.getByText('Epic Records');
+    expect(label).toBeVisible();
+    expect(label).toHaveClass('badge-label');
   });
 
   it('does not add a label badge to commerce preview cards', () => {
