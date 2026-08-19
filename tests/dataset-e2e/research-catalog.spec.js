@@ -304,6 +304,9 @@ test('administrator dashboard identifies the active research dataset and CLI-man
   await page.goto('/admin');
   await expect(page.getByText(datasetKey)).toBeVisible();
   await expect(page.getByText('Research-only browsing')).toBeVisible();
+  await expect(page.getByText('Source products')).toBeVisible();
+  await expect(page.getByText('Source artwork unresolved')).toBeVisible();
+  await expect(page.getByText(/Source metrics exclude storefront presentation dedupe/)).toBeVisible();
   await expect(page.getByText('The active dataset has no store price')).toBeVisible();
   await expect(page.getByText('Low stock')).toHaveCount(0);
   await page.getByRole('link', { name: 'Products', exact: true }).click();

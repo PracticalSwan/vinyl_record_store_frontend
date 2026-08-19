@@ -7,6 +7,11 @@ const STAT_CARDS = [
   { key: 'unresolvedArtwork', label: 'Unresolved artwork' },
   { key: 'softDeleted', label: 'Soft-deleted' },
 ];
+const RESEARCH_STAT_CARDS = [
+  { key: 'activeProducts', label: 'Source products' },
+  { key: 'unresolvedArtwork', label: 'Source artwork unresolved' },
+  { key: 'softDeleted', label: 'Soft-deleted' },
+];
 const COMMERCE_STAT_CARDS = [
   { key: 'lowStock', label: 'Low stock' },
   { key: 'outOfStock', label: 'Out of stock' },
@@ -51,7 +56,7 @@ export default function AdminDashboardPage() {
   const recent = summary?.recentActions || [];
   const dataset = summary?.dataset || null;
   const researchOnly = dataset?.catalogMode === 'research-only';
-  const statCards = researchOnly ? STAT_CARDS : [...STAT_CARDS, ...COMMERCE_STAT_CARDS];
+  const statCards = researchOnly ? RESEARCH_STAT_CARDS : [...STAT_CARDS, ...COMMERCE_STAT_CARDS];
 
   return (
     <div className="admin-dashboard">
@@ -63,6 +68,11 @@ export default function AdminDashboardPage() {
           </div>
         ))}
       </div>
+      {researchOnly && (
+        <p className="admin-note" role="note">
+          Source metrics exclude storefront presentation dedupe and supplemental artwork.
+        </p>
+      )}
 
       <section className="admin-recent" aria-labelledby="admin-dataset-heading">
         <h2 className="section-heading" id="admin-dataset-heading">Catalog dataset</h2>
