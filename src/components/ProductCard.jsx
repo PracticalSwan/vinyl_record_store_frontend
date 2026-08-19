@@ -236,7 +236,7 @@ export default function ProductCard({ record, showReason = false, surface = 'cat
         <div className="card-meta" data-card-navigation-exclude aria-label="Record details">
           <span className="badge badge-genre">{record.genre || 'Uncategorized'}</span>
           <span className="badge badge-era">{displayYear(record)}</span>
-          {researchOnly && record.label && <span className="badge">{record.label}</span>}
+          {researchOnly && record.label && <span className="badge badge-label">{record.label}</span>}
           {!researchOnly && <StockBadge stock={record.stock} />}
         </div>
         <div className="card-footer">
