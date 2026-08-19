@@ -50,3 +50,7 @@ Confirm that a reviewer can distinguish sample-profile results, product similari
 ## Release Evidence Rule
 
 Record live browser and cross-origin API results only when they were actually executed. Keep the Playwright web-server configuration on the real local frontend/backend contract; lint and build success alone do not prove runtime CORS or responsive behavior.
+
+## Production Verification Addendum â€” 2026-08-19
+
+The NEXT-05 counts above remain historical evidence for 2026-08-14. Later production work deployed the GitHub-linked Netlify storefront, added source-specific artwork ordering and the 2,259-record presentation overlay, fixed Admin source-metric labels and 360px layout defects, and ran targeted production regressions plus live smoke. These changes do not add recommendation-quality evidence; the live evaluator remains `insufficient-evidence`.

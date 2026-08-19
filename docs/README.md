@@ -1,6 +1,6 @@
 # Frontend Documentation
 
-These files describe the implemented Groovehaus storefront and its current backend contract.
+These files describe the deployed Groovehaus storefront, current backend contract, presentation overlay, and production boundaries.
 
 - `PROJECT_CONTEXT.md`: canonical frontend status and boundaries.
 - `PRODUCT_REQUIREMENTS.md`: requirements and implementation status.
@@ -14,7 +14,7 @@ These files describe the implemented Groovehaus storefront and its current backe
 - `FUTURE_IMPLEMENTATION_PLAN.md`: completed FFP-01 through FFP-14 records plus remaining deferred work and the cross-repository order.
 - `PERSONALIZATION_IMPLEMENTATION_PLAN.md`: PERS-00 through PERS-09 / FFP-09 through FFP-14 completed through 2026-08-13; ranking flags remain default-off and no quality claim is made.
 - `INTERACTION_LOGGING_PLAN.md`: implemented FFP-01 queue, privacy, attribution, and verification design.
-- `ROADMAP.md` and `TASK_BACKLOG.md`: completed implementation and explicitly deferred work.
+- `ROADMAP.md` and `TASK_BACKLOG.md`: completed implementation, production deployment/presentation hardening, cleanup, and explicitly deferred work.
 - `DECISION_LOG.md`, `RISK_REGISTER.md`, and `PRESENTATION_NOTES.md`: durable decisions, risks, and course-facing summary.
 - `SETUP_LATER.md`: remaining deferred setup.
 

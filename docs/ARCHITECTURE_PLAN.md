@@ -11,7 +11,7 @@ This document describes the implemented client structure and data flow.
 5. `AuthProvider` restores sessions, prevents stale restore/auth races, supplies registration/login/logout/preferences state, and clears the analytics identity boundary before auth changes; `RequireAuth` protects account/onboarding routes.
 6. `CatalogProvider` requests `/api/recommendations/me` only on Home and Recommendations after auth resolves. Its resource key includes the authenticated public subject; identity changes abort in-flight work and generation guards discard stale responses. `StoreProvider` presents one interface over session guests and authenticated server state.
 7. Product detail routes request backend similarity results through `useProductRecommendations`.
-8. Product card, detail, recommendation, wishlist, and cart surfaces route artwork through `ProductImage`. It validates the public mapping, trusts the backend's explicit `localArtworkAvailable` flag for dataset rows, generation-guards image events, and owns the remote proxy -> local endpoint -> placeholder sequence. Accepted v3 mappings use their separate verified local bundle, while the same stable set is pinned for v2 rollback; unresolved rows never request a legacy image.
+8. Product card, detail, recommendation, wishlist, and cart surfaces route artwork through `ProductImage`. It validates approved hosts and backend `localArtworkAvailable`, generation-guards image events, and selects a source-specific chain: strict dataset local -> proxy -> placeholder; supplemental dataset proxy -> placeholder; unresolved dataset placeholder; legacy/seed proxy -> local -> placeholder.
 9. `productDisplay.js` normalizes nullable artist/value/money/availability/purchase behavior across cards, detail, wishlist, cart, checkout, and confirmation. Admin pages consume active dataset status and treat dataset-owned rows as read-only.
 
 ## Layers
@@ -34,3 +34,10 @@ The backend is the active catalog-version, provenance, recommendation, identity,
 ## Security
 
 Only public Vite variables may be used in frontend code. Database credentials, auth secrets, password material, session-cookie contents, and private interaction history stay on the backend. Post-login return paths must resolve to the same frontend origin.
+
+## Production Deployment
+
+- `master` is the sole Git branch and GitHub-linked Netlify source.
+- Storefront: `https://groovehaus-store.netlify.app/`; API: `https://groovehaus-api.netlify.app/`.
+- Production `VITE_API_BASE_URL=/` keeps all browser API requests same-origin and the Netlify redirect proxies `/api/*` before the SPA fallback.
+- Generated `dist/`, `.netlify/`, Playwright output, and `.tmp-*` files are local residue, not source.

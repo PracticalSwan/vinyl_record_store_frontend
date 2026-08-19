@@ -2,6 +2,8 @@
 
 The backend base URL comes from `VITE_API_BASE_URL` and defaults locally to `http://localhost:3000`. Every request uses `credentials: "include"` so signed HttpOnly sessions work across the configured frontend/backend origins.
 
+Production sets `VITE_API_BASE_URL=/`; `https://groovehaus-store.netlify.app/api/*` is proxied by Netlify to the companion API. This keeps browser session cookies first-party even though the API is a separate Netlify project.
+
 ## Response Envelopes
 
 Success:
@@ -25,8 +27,8 @@ Product envelopes may include `image: { thumbnailUrl, detailUrl, source, sourceU
 | Catalog | `GET` | `/api/products` | Catalog, Search, Home, and cart suggestions use bounded server queries. |
 | Product detail | `GET` | `/api/products/:id` | Detail and ID-based local-list hydration. |
 | Search alias | `GET` | `/api/search` | Shares the product query service and response shape. |
-| Remote cover art | `GET` | `/api/artwork?u=` | Preferred source. `ProductImage` asks the bounded backend proxy instead of loading `coverartarchive.org` directly. |
-| Local cover art | `GET` | `/api/artwork/local/:publicId` | Second source. Canonical legacy and accepted-v3 IDs redirect to separately verified immutable, content-addressed JPEGs; absent/invalid/image errors advance to the placeholder. V2 rollback IDs remain pinned to the same accepted-art set. |
+| Remote cover art | `GET` | `/api/artwork?u=` | Bounded backend proxy. Legacy/seed may use it first; strict dataset rows use it as recovery after local; supplemental dataset artwork uses it as the only artwork source before placeholder. |
+| Local cover art | `GET` | `/api/artwork/local/:publicId` | Canonical legacy and strict-v3 IDs redirect to verified immutable JPEGs. Strict dataset rows prefer this source; legacy/seed use it as proxy fallback. Supplemental presentation mappings do not claim a local exact-pressing file. |
 | Similar products | `GET` | `/api/recommendations/product/:id?limit=6&surface=product-detail` | Product detail row with request/list attribution. |
 | Session-owned recommendations | `GET` | `/api/recommendations/me?limit=12&surface=...` | Home and recommendation routes only; customer identity comes from the cookie, otherwise anonymous fallback. |
 | Recommendation feedback | `PUT` / `DELETE` | `/api/me/feedback/:productId` | Recommendation cards only; sends exact `not-interested`/`already-own` kind or idempotent undo. No public list route. |

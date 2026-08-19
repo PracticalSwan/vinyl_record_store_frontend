@@ -9,7 +9,7 @@ Statuses are `done` or `deferred`. Deferred items are not active work.
 | F-003 | Connect catalog to backend. | done | Route query hooks and API client. |
 | F-004 | Connect user and product recommendations. | done | Demo-profile and similarity endpoints. |
 | F-005 | Add remote loading, empty, error, and retry states. | done | Catalog and recommendation surfaces. |
-| F-006 | Align docs with implementation. | done | Updated through the 2026-08-08 DATA-00 through DATA-15 closure and live browser evidence. |
+| F-006 | Align docs with implementation. | done | Current-state docs synchronized through the 2026-08-19 production/deployment/presentation cleanup; historical evidence remains intact. |
 | F-007 | Validate tests, lint, and production build. | done | Unit, browser, accessibility, lint, and build commands pass. |
 | F-008 | Add authenticated persistence and guest-state merge. | done | FFP-03 completed with session guests and sign-up-only keyed merge. |
 | F-009 | Add checkout and order preview. | done | Completed 2026-07-09 and copy-refined 2026-07-12: four-step preview wizard, `PREVIEW-` reference confirmation, sessionStorage persistence, availability blocking, and cart clear. No real payment or backend order. |
@@ -30,3 +30,8 @@ Statuses are `done` or `deferred`. Deferred items are not active work.
 | F-024 | Render the current Amazon Reviews 2023 dataset safely. | done | Immutable v3 is active: research-only facets/sorts/actions, 208 authoritative original years, accepted-art local fallback or placeholder, Admin dataset status/read-only rows, v2 immediate rollback, v1 identity base, and exactly three showcase customers preserved. |
 | F-025 | Freeze the final classroom personalization presentation. | done | NEXT-04 selected explicit MongoDB/v3 Profile B: saved-preference ranking and exact feedback on, behavior/popularity/hybrid off, temporary ordinary customer only, source defaults unchanged. |
 | F-026 | Complete final cross-browser and release-readiness verification. | done | NEXT-05 passed 112/112 unit tests, lint/build, default seed 77 pass/3 skips, selected Profile B 10 pass/2 intentional hybrid skips across five projects, dataset/failure/live contracts, accessibility checks, and cleanup. |
+
+| F-027 | Deploy the production storefront. | done | GitHub-linked Netlify `groovehaus-store` from sole `master`, same-origin `/api/*` proxy, production flags, security headers, and live smoke. |
+| F-028 | Harden customer catalog presentation. | done | Hide 46 high-confidence duplicate display rows, preserve 2,305 source rows, consume 1,124 supplemental validated artwork mappings, and clarify Admin source metrics. |
+| F-029 | Harden narrow production layouts. | done | 360px navigation/recommendation spacing and long research-label wrapping fixed and regression-covered. |
+| F-030 | Clean generated release/runtime residue. | done | Removed old worktrees/builds/Playwright/runtime staging/temp files while preserving source, dependencies, credentials, and evidence. |

@@ -1,6 +1,6 @@
-# Frontend Product Requirements
+﻿# Frontend Product Requirements
 
-Requirement status reflects the integrated academic demo through NEXT-05 closure on 2026-08-14.
+Requirement status reflects the deployed storefront through the 2026-08-19 production, presentation, and cleanup pass.
 
 ## Goal
 
@@ -22,8 +22,9 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 | FFR-010 | Register, restore, and protect customer accounts. | Implemented | Signed-cookie auth provider and protected routes. |
 | FFR-011 | Capture and edit future-facing preferences. | Implemented | Three-step onboarding and profile editor. |
 | FFR-012 | Capture privacy-controlled interaction analytics. | Implemented | Visible opt-out, bounded queue, recommendation attribution, and auth-boundary isolation. |
-| FFR-013 | Display approved artwork safely. | Implemented | Shared validated image component with responsive loading, attribution, accessibility, stale-event protection, and proxy -> local -> placeholder failover for all 116 bundled records. |
-| FFR-014 | Render the active external dataset safely. | Implemented | Dynamic genre/format facets, nullable metadata fallbacks, source/version disclosure, strict reviewed artwork with verified local fallback or placeholder, non-purchasable unknown price/stock, and CLI-managed Admin rows. |
+| FFR-013 | Display approved artwork safely. | Implemented | Shared validated image component with responsive loading, attribution, stale-event protection, and source-specific local/proxy/placeholder recovery; visible dataset artwork is 1,300/2,259. |
+| FFR-014 | Render the active external dataset safely. | Implemented | Preserve 2,305 sealed source rows while showing a 2,259-record deduplicated customer presentation, nullable metadata fallbacks, source metrics in Admin, non-purchasable unknown commerce fields, and CLI-managed dataset rows. |
+| FFR-015 | Deploy production storefront. | Implemented | GitHub-linked Netlify from sole `master`, same-origin `/api/*` proxy, Profile B public build flags, responsive/security headers, and live production smoke. |
 
 ## Non-Functional Requirements
 

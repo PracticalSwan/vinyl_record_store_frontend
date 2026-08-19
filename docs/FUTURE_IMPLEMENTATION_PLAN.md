@@ -22,7 +22,7 @@ Future recommender work must preserve these contracts, distinguish historical ag
 - Put administrator pages under protected `/admin` routes in the existing app.
 - Use MusicBrainz and Cover Art Archive as the artwork source, with verified backend-local JPEGs for the reviewed catalog and vinyl placeholders as the final fallback.
 - Add a simulated checkout that demonstrates the flow but never accepts payment or claims a real order.
-- Do not add deployment work or a machine-readable API schema.
+- GitHub-linked Netlify deployment is now implemented. Do not add a machine-readable API schema or broader infrastructure without a separate requirement.
 
 ## Plan Status Summary
 
@@ -58,7 +58,7 @@ All original items in this order are complete; the appended personalization orde
 | 13 | BFP-07, then FFP-07: integrated admin mode | Completed 2026-07-09 with protected backend administration before the frontend workspace. |
 | 14 | FFP-08: simulated checkout and order demonstration | Completed 2026-07-09 as a client-only preview after catalog, state, identity, and testing were stable. |
 
-BFP-05 remains only as a historical on-hold placeholder; PERS-00 resolved its method question under new IDs, so it has no separate implementation step. Deployment, real payments, and a production order system remain out of scope.
+BFP-05 remains only as a historical on-hold placeholder; PERS-00 resolved its method question under new IDs, so it has no separate implementation step. GitHub-linked Netlify deployment was completed later; real payments and a production order system remain out of scope.
 
 ## FFP-01: Recommendation Interaction Analytics
 
@@ -662,3 +662,7 @@ The frontend switched to the stable backend identity/session endpoint in PERS-02
 ## Current-State Refinement — 2026-08-15
 
 The client-only checkout architecture remains unchanged: no payment provider, backend order endpoint, fulfillment, or server-side order persistence was added. The active storefront presentation now uses `/checkout/complete/:reference` with visible `GH-XXXXXXXX` references and a concise no-real-payment/session-only disclosure. Historical FFP-08 planning terminology above is retained as decision history; compatibility analytics identifiers and sessionStorage keys remain unchanged.
+
+## Current-State Refinement â€” 2026-08-19
+
+The storefront is deployed from the sole `master` branch to GitHub-linked Netlify and uses same-origin `/api/*` proxying. The immutable v3 source remains 2,305 rows, while a non-mutating presentation overlay exposes 2,259 customer-visible records. Strict dataset artwork is local-first with proxy recovery; 1,124 supplemental validated release-group mappings are proxy-only and raise visible artwork to 1,300/2,259. Admin labels source metrics explicitly. Narrow 360px production layout defects were fixed without changing recommendation scoring or DATA-15.

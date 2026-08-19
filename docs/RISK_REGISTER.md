@@ -9,7 +9,7 @@
 | FR-005 | Duplicate source trees drift. | Medium | Keep `src/` canonical and `code_for_website/` snapshot-only. | controlled |
 | FR-006 | Backend outage hides remote content. | Medium | Route-level errors with retry and independent recommendation status. | controlled |
 | FR-007 | Mobile or keyboard regression. | Medium | Playwright responsive, keyboard, history, and axe coverage in the release gate. | controlled |
-| FR-008 | Unapproved, mismatched, broken, or unreachable artwork enters the UI. | High | Consume only complete backend mappings, validate approved hosts, use one image boundary, retain source links, generation-guard stale events, and fail over proxy -> canonical-ID local JPEG -> placeholder. | controlled |
+| FR-008 | Unapproved, mismatched, broken, or unreachable artwork enters the UI. | High | Use one validated `ProductImage` boundary and source-specific chains: strict dataset local -> proxy -> placeholder; supplemental dataset proxy -> placeholder; legacy/seed proxy -> local -> placeholder; generation-guard stale events. | controlled |
 | FR-009 | Analytics exposes identity or ignores opt-out. | High | Reject direct PII, keep opt-out authoritative in memory, clear the queue, and send only bounded pseudonymous fields. | controlled |
 | FR-010 | Rapid or crafted search input produces stale or unsafe results. | High | Bound literal queries, canonicalize facets, abort superseded requests, and test stale-response behavior. | controlled |
 | FR-011 | A failed registration merge loses guest state. | High | Persist the merge key before POST, retain the snapshot on failure, and resume a keyed merge after refresh. | controlled |
@@ -31,3 +31,7 @@
 | FR-027 | Historical readiness or pseudonymous data is presented as customer personalization. | High | Keep historical data backend-only, preserve current mode copy, keep the PERS-04 through PERS-08 ranking flags default-off, and label readiness as data preparation without a quality claim. | controlled |
 | FR-028 | Amazon edition dates are displayed or filtered as original album years. | High | Use separate original/edition fields, let the generic `year` and era facet represent only verified original years, label edition-only values explicitly, and cover both paths in component/browser tests. | controlled |
 | FR-029 | Research-only records expose price, stock, condition, cart, or checkout controls. | High | Drive all surfaces from `catalogMode`, hide commerce facets/sorts/actions, reject cart writes in the backend, preserve wishlist/rating, and test desktop/mobile accessibility. | controlled |
+
+| FR-030 | Storefront presentation count is confused with sealed source count. | Medium | Label Admin metrics as source counts, keep the 2,305 sealed source intact, and document the 2,259 customer-visible overlay separately. | controlled |
+| FR-031 | Supplemental album artwork is read as exact Amazon pressing evidence. | Medium | Render supplemental art only from validated backend mappings, preserve source attribution, and document it as representative release-group artwork; never borrow Amazon images or strict local identities. | controlled |
+| FR-032 | Narrow production layouts regress despite desktop coverage. | Medium | Keep explicit 360px navigation, recommendation inset, long-label wrapping, no-horizontal-overflow, and serious/critical axe regressions. | controlled |

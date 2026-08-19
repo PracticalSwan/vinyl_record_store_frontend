@@ -181,3 +181,33 @@ Decision: Keep checkout entirely client-side, but present the customer flow thro
 Rationale: The presentation cleanup makes the storefront feel familiar without changing the classroom system's truth boundary or introducing commercial infrastructure.
 
 Status: Current-state refinement implemented in UI-03; historical FFP-08 preview decisions remain preserved above.
+
+## FDEC-021: Deploy GitHub-Linked Netlify With Same-Origin API Proxy
+
+Date: 2026-08-19
+
+Decision: Deploy `groovehaus-store` from the sole `master` branch to Netlify and keep `VITE_API_BASE_URL=/` so browser calls remain same-origin through the storefront `/api/*` proxy to `groovehaus-api`.
+
+Rationale: This preserves first-party signed-cookie behavior and exact-origin mutation semantics without merging repositories or adding client secrets.
+
+Status: Implemented and live at `https://groovehaus-store.netlify.app/`.
+
+## FDEC-022: Separate Sealed Source Metrics From Customer Presentation
+
+Date: 2026-08-19
+
+Decision: Keep the 2,305 sealed v3 source count for Admin/evaluation provenance, but consume a backend presentation overlay that suppresses 46 high-confidence duplicate display rows and exposes 2,259 customer-visible records. Do not remap stable IDs or historical evidence.
+
+Rationale: A cleaner browsing catalog should not mutate DATA-15 or make Admin source metrics ambiguous.
+
+Status: Implemented; Admin copy identifies source counts explicitly.
+
+## FDEC-023: Use Source-Specific Artwork Order In Production
+
+Date: 2026-08-19
+
+Decision: Strict dataset rows use local -> proxy -> placeholder; supplemental presentation mappings use proxy -> placeholder; unresolved dataset rows use placeholder; legacy/seed remains proxy -> local -> placeholder. Supplemental release-group artwork is representative album art, not exact Amazon pressing evidence.
+
+Rationale: Local-first strict art reduces external failure/latency while supplemental mappings improve visual coverage without fabricating exact provenance.
+
+Status: Implemented; visible artwork is 1,300/2,259 (57.55%).

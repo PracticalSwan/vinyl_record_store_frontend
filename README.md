@@ -9,8 +9,8 @@ Groovehaus demonstrates how a recommender-powered storefront feels end to end: b
 Three things worth knowing up front:
 
 - Recommendations use a session-owned API path: signed-in customers receive `preference-profile`, `behavior-profile`, or `personalized-hybrid` only when the backend's default-off flags and evidence permit, otherwise `cold-start`; visitors may receive aggregate `popularity` or `anonymous-fallback`, and the restricted showcase remains `demo-profile`. Exact feedback controls are also default-off and no recommendation-quality claim is made.
-- MongoDB mode currently serves the immutable 2,305-product Amazon Reviews 2023 v3 research catalog. Nullable commerce metadata is shown honestly and cart/checkout controls are absent for dataset products. V2 is the immediate rollback release, V1 is the identity/legacy base, and the original 116 illustrated records remain preserved.
-- Product surfaces keep the approved Cover Art Archive proxy -> verified local JPEG -> placeholder chain. Legacy records use their fixed reviewed bundle; accepted v3 matches use a separate dataset bundle; ambiguous and unresolved v3 records skip local artwork and use the generic placeholder. The v2 rollback evidence pins the same stable accepted-art set. Amazon images are never used.
+- MongoDB mode retains the immutable 2,305-row Amazon Reviews 2023 v3 source, while the customer presentation overlay suppresses 46 high-confidence duplicate display rows and shows 2,259 records. Nullable commerce metadata remains honest and dataset products remain non-purchasable. V2 is the immediate rollback release, V1 is the identity/legacy base, and the original 116 illustrated records remain preserved.
+- Product surfaces use source-specific artwork recovery. Strict dataset rows prefer their verified backend-local JPEG then use the bounded proxy; 1,124 supplemental presentation mappings use proxy -> placeholder; unresolved dataset rows use the placeholder; legacy/seed rows retain proxy -> local -> placeholder. Visible artwork coverage is 1,300/2,259 (57.55%). Amazon images are never used.
 - `code_for_website/` is an early design-import snapshot kept for reference, not the running application. The active source lives in `src/`.
 
 ## What you can do
@@ -54,9 +54,10 @@ Dataset acquisition, staging, activation, and rollback are backend CLI operation
 
 ## Netlify production
 
-The production storefront is deployed as the `groovehaus-store` Netlify project. `netlify.toml` builds the Vite app to `dist`, applies the SPA fallback, adds conservative security headers, and proxies `/api/*` to the companion `groovehaus-api` project before the SPA redirect.
+The production storefront is `https://groovehaus-store.netlify.app/`, deployed as the GitHub-linked `groovehaus-store` Netlify project from the repository's sole `master` branch. `netlify.toml` builds the Vite app to `dist`, applies the SPA fallback, adds conservative security headers, and proxies `/api/*` to the companion `groovehaus-api` project before the SPA redirect.
 
 Set `VITE_API_BASE_URL=/` in production so browser requests stay same-origin through the Netlify proxy. Keep the frontend Profile B flags aligned with the backend: `VITE_PERS_ME_ENDPOINT=true`, `VITE_PERS_PROFILE_DOMAIN=true`, `VITE_PERS_NEGATIVE_FEEDBACK=true`, and tracking enabled unless explicitly disabled for a privacy demonstration.
+Pushes to `master` trigger production builds. Generated `dist/`, `.netlify/`, Playwright output, and `.tmp-*` files are local residue and are not release artifacts.
 
 ## Showcase accounts
 
