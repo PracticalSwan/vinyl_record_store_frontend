@@ -11,9 +11,10 @@
 //   - No-op when Atlas is unreachable (e.g. CI, seed-only checkout): the script
 //     catches the missing connection and exits 0 with a "skipped" line, so this
 //     teardown never fails the test run.
-//   - Targets only test residue (users whose username starts with `e2e_`, plus
-//     interactions/recommendationLogs/carts/wishlists/ratings/guestMerges). It
-//     never deletes vinylRecords (the catalog) or the demo users.
+//   - Targets only test residue: `e2e_` users, full-wipe test-only collections
+//     (interactions/recommendationLogs/guestMerges), and carts/wishlists/ratings/
+//     feedback rows owned by matched test users. It never deletes vinylRecords
+//     (the catalog) or the demo users.
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
@@ -31,7 +32,7 @@ export default async function globalTeardown() {
   }
   console.log("[globalTeardown] cleaning Atlas test residue via backend script (--apply)...");
   // The script exits 0 when Atlas is unavailable, so a non-zero status here means
-  // a real failure; surface it without failing the whole test run destructively.
+  // a real cleanup failure. Fail the Playwright run instead of claiming clean state.
   const result = spawnSync(
     process.execPath,
     ["--env-file-if-exists=.env.local", script, "--apply"],
@@ -41,7 +42,10 @@ export default async function globalTeardown() {
   const err = (result.stderr || "").trim();
   if (out) console.log(out);
   if (err) console.error(err);
-  if (result.status !== 0 && result.status !== null) {
-    console.warn(`[globalTeardown] cleanup script exited ${result.status}; test run is unaffected.`);
+  if (result.error || result.status !== 0) {
+    const detail = result.error
+      ? `spawn error ${result.error.code || "unknown"}`
+      : `exit ${result.status}`;
+    throw new Error(`[globalTeardown] Atlas test-residue cleanup failed (${detail}).`);
   }
 }

@@ -29,7 +29,7 @@ The React frontend owns presentation, URL query state, tab-scoped guest state, a
 - The admin workspace and client-only simulated checkout exist; no real payment or backend order exists. The backend historical benchmark evaluated random, positive-popularity, content, and observed-only biased MF: content was strongest descriptively and biased MF was a negative offline-only result. This is aggregate historical evidence without significance analysis; the live evaluator still reports `insufficient-evidence`.
 - Automated behavior tests and logged events do not equal recommendation-quality evidence.
 - PERS-00 through PERS-09 are complete for architecture, session-owned identity, default-off preference/behavior/popularity/hybrid presentation, exact feedback controls, browser/data regression protection, and documentation closure. No quality claim is made.
-- For the classroom presentation, follow Profile B in `DEMO_PERSONALIZATION_RUNBOOK.md`: MongoDB/v3, preference ranking and exact feedback enabled by environment, behavior/popularity/hybrid disabled, and source defaults unchanged.
+- For the classroom presentation, follow Profile C in `DEMO_PERSONALIZATION_RUNBOOK.md`: MongoDB/v3, three canonical Jazz/Rock/Soul showcase personas, the existing preference/behavior/aggregate-popularity/exact-feedback/hybrid stages enabled by environment, and source defaults unchanged.
 
 - Production storefront: `https://groovehaus-store.netlify.app/`, with same-origin `/api/*` proxying to the Netlify backend.
-- Production uses explicit Profile B environment flags: preference ranking and exact feedback enabled; behavior, popularity, and hybrid disabled. Source defaults remain unchanged.
+- Production uses explicit Profile C environment flags. Signed-in showcase users receive `personalized-hybrid-v1`; signed-out users may receive aggregate `popularity-v1`. Source defaults remain unchanged, and neither mode is measured live quality.

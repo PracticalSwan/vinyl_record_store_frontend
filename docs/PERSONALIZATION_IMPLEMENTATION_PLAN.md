@@ -1189,7 +1189,7 @@ Each stage is reversible. PERS-02 already moved recommendation loading to the st
 
 ## Decision Register (Recorded Or Proposed)
 
-Completed PERS-00 through PERS-02 resolve FDEC-011, provider order/auth gating, limit 12, customer-only `/me`, and identity-transition protection. This 2026-08-09 re-review additionally fixes the frontend choices for PERS-04 through PERS-08: no off-surface preference reload (fresh route-scoped load on next recommendation navigation); pessimistic exact-item feedback with only not-interested/already-own/undo; tracking opt-out does not disable direct account actions; popularity copy refers to research ratings; hybrid renders only the backend three-component mode and at most two reasons. Remaining approval is production enablement of the new ranking flags.
+Completed PERS-00 through PERS-02 resolve FDEC-011, provider order/auth gating, limit 12, customer-only `/me`, and identity-transition protection. This 2026-08-09 re-review additionally fixes the frontend choices for PERS-04 through PERS-08: no off-surface preference reload (fresh route-scoped load on next recommendation navigation); pessimistic exact-item feedback with only not-interested/already-own/undo; tracking opt-out does not disable direct account actions; popularity copy refers to research ratings; hybrid renders only the backend three-component mode and at most two reasons. The explicitly authorized 2026-08-29 maintenance enables Profile C by environment and verifies three canonical showcase personas; any new model or quality experiment still requires separate approval.
 
 ## Honesty Contract
 

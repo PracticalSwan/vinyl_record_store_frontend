@@ -48,7 +48,7 @@ The frontend depends on the backend, so start the backend first.
 
 The app opens at `http://localhost:5173` and expects the backend at `http://localhost:3000`. If your backend runs elsewhere, set `VITE_API_BASE_URL` in `.env.local`.
 
-The final classroom procedure uses explicit MongoDB/v3 **Profile B: Selective Personalization** environment overrides. Under that chosen profile visitors receive anonymous fallback rather than popularity, while a temporary ordinary customer can demonstrate saved-preference ranking and exact feedback. Committed defaults remain unchanged; follow [`docs/DEMO_PERSONALIZATION_RUNBOOK.md`](docs/DEMO_PERSONALIZATION_RUNBOOK.md) and its canonical backend link for exact flags, startup, rollback, and claim boundaries.
+The current classroom procedure uses explicit MongoDB/v3 **Profile C: Showcase Hybrid** environment overrides. Visitors receive aggregate popularity, while the three protected Jazz/Rock/Soul personas demonstrate saved preferences, durable behavior, exact feedback, and `personalized-hybrid-v1`. Committed defaults remain unchanged; follow [`docs/DEMO_PERSONALIZATION_RUNBOOK.md`](docs/DEMO_PERSONALIZATION_RUNBOOK.md) and its canonical backend link for exact flags, seed state, startup, rollback, and claim boundaries.
 
 Dataset acquisition, staging, activation, and rollback are backend CLI operations. See [`docs/AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md`](docs/AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md) for the frontend behavior and the linked authoritative backend runbook.
 
@@ -56,19 +56,19 @@ Dataset acquisition, staging, activation, and rollback are backend CLI operation
 
 The production storefront is `https://groovehaus-store.netlify.app/`, deployed as the GitHub-linked `groovehaus-store` Netlify project from the repository's sole `master` branch. `netlify.toml` builds the Vite app to `dist`, applies the SPA fallback, adds conservative security headers, and proxies `/api/*` to the companion `groovehaus-api` project before the SPA redirect.
 
-Set `VITE_API_BASE_URL=/` in production so browser requests stay same-origin through the Netlify proxy. Keep the frontend Profile B flags aligned with the backend: `VITE_PERS_ME_ENDPOINT=true`, `VITE_PERS_PROFILE_DOMAIN=true`, `VITE_PERS_NEGATIVE_FEEDBACK=true`, and tracking enabled unless explicitly disabled for a privacy demonstration.
+Set `VITE_API_BASE_URL=/` in production so browser requests stay same-origin through the Netlify proxy. Keep the frontend Profile C presentation flags aligned with the backend: `VITE_PERS_ME_ENDPOINT=true`, `VITE_PERS_PROFILE_DOMAIN=true`, `VITE_PERS_NEGATIVE_FEEDBACK=true`, and tracking enabled unless explicitly disabled for a privacy demonstration. Behavior, popularity, and hybrid selection remain backend-owned.
 Pushes to `master` trigger production builds. Generated `dist/`, `.netlify/`, Playwright output, and `.tmp-*` files are local residue and are not release artifacts.
 
 ## Showcase accounts
 
 Two roles exist: `customer` and `admin`. Exactly three showcase customer accounts are seeded into the backend database, and one administrator is environment-backed.
 
-- Customer (jazz): `jazzlistener` / `jazz-groove-2026`
-- Customer (rock): `rockcollector` / `rock-groove-2026`
-- Customer (soul): `soulseeker` / `soul-groove-2026`
+- Customer persona `jazz_listener`: `jazzlistener` / `jazz-groove-2026`
+- Customer persona `rock_collector`: `rockcollector` / `rock-groove-2026`
+- Customer persona `soul_seeker`: `soulseeker` / `soul-groove-2026`
 - Admin: environment-backed; the administrator password is not committed. Configure the backend `AUTH_DEMO_ADMIN_*` values for local login.
 
-Visitors can also register their own customer account. Showcase customer logins require the backend to reach its database; see the backend README for details.
+Visitors can also register their own customer account. Each showcase customer starts with a completed role-aligned preference profile, three ratings, two wishlist items, and no cart or exact feedback. Persona names are demo metadata; the authorization role remains `customer`. Showcase logins require the backend to reach its database; see the backend README for details.
 
 ## Project structure
 

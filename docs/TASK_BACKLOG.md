@@ -31,7 +31,8 @@ Statuses are `done` or `deferred`. Deferred items are not active work.
 | F-025 | Freeze the final classroom personalization presentation. | done | NEXT-04 selected explicit MongoDB/v3 Profile B: saved-preference ranking and exact feedback on, behavior/popularity/hybrid off, temporary ordinary customer only, source defaults unchanged. |
 | F-026 | Complete final cross-browser and release-readiness verification. | done | NEXT-05 passed 112/112 unit tests, lint/build, default seed 77 pass/3 skips, selected Profile B 10 pass/2 intentional hybrid skips across five projects, dataset/failure/live contracts, accessibility checks, and cleanup. |
 
-| F-027 | Deploy the production storefront. | done | GitHub-linked Netlify `groovehaus-store` from sole `master`, same-origin `/api/*` proxy, production flags, security headers, and live smoke. |
+| F-027 | Deploy the production storefront. | done | GitHub-linked Netlify `groovehaus-store` from sole `master`, same-origin `/api/*` proxy, production presentation flags, security headers, and live smoke. |
 | F-028 | Harden customer catalog presentation. | done | Hide 46 high-confidence duplicate display rows, preserve 2,305 source rows, consume 1,124 supplemental validated artwork mappings, and clarify Admin source metrics. |
 | F-029 | Harden narrow production layouts. | done | 360px navigation/recommendation spacing and long research-label wrapping fixed and regression-covered. |
 | F-030 | Clean generated release/runtime residue. | done | Removed old worktrees/builds/Playwright/runtime staging/temp files while preserving source, dependencies, credentials, and evidence. |
+| F-031 | Verify role-aligned showcase personalization. | done | Added one bounded MongoDB Profile C browser flow that signs into Jazz/Rock/Soul personas, checks hybrid mode, dominant genre, known-item exclusion and controls, disables tracking, captures screenshots, and preserves canonical state through cleanup. |

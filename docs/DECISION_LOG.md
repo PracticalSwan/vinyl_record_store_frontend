@@ -211,3 +211,13 @@ Decision: Strict dataset rows use local -> proxy -> placeholder; supplemental pr
 Rationale: Local-first strict art reduces external failure/latency while supplemental mappings improve visual coverage without fabricating exact provenance.
 
 Status: Implemented; visible artwork is 1,300/2,259 (57.55%).
+
+## FDEC-024: Verify Profile C Through The Existing Server-Owned Presentation Path
+
+Date: 2026-08-29
+
+Decision: Keep all preference, behavior, popularity, exclusion, and hybrid computation in the backend. Use the existing `recommendationPresentation` map for Profile C and add one bounded MongoDB Playwright flow that signs into the three canonical showcase personas, disables passive tracking, verifies `personalized-hybrid-v1`, dominant Jazz/Rock/Soul genre, known-item exclusion and exact-feedback controls, then captures one screenshot per persona. Do not add client-side weights, scores, persona roles, or a second recommendation state path.
+
+Rationale: The frontend already renders the complete mode contract. One real three-login flow proves the new classroom state and UI integration with less drift than duplicating recommender rules or running the full cross-browser matrix. The persona labels remain fixture metadata; authorization stays `customer` and recommendation quality is not implied.
+
+Status: Implemented and verified in Chromium desktop against the Atlas-backed Profile C harness. Global teardown reported zero test residue and preserved all three users. The wider production browser baseline found no layout, keyboard, validation, overflow, or console defect; backend candidate caching addresses the separate observed recommendation latency issue.

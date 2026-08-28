@@ -24,7 +24,7 @@ Help users browse a demo vinyl catalog and understand explainable recommendation
 | FFR-012 | Capture privacy-controlled interaction analytics. | Implemented | Visible opt-out, bounded queue, recommendation attribution, and auth-boundary isolation. |
 | FFR-013 | Display approved artwork safely. | Implemented | Shared validated image component with responsive loading, attribution, stale-event protection, and source-specific local/proxy/placeholder recovery; visible dataset artwork is 1,300/2,259. |
 | FFR-014 | Render the active external dataset safely. | Implemented | Preserve 2,305 sealed source rows while showing a 2,259-record deduplicated customer presentation, nullable metadata fallbacks, source metrics in Admin, non-purchasable unknown commerce fields, and CLI-managed dataset rows. |
-| FFR-015 | Deploy production storefront. | Implemented | GitHub-linked Netlify from sole `master`, same-origin `/api/*` proxy, Profile B public build flags, responsive/security headers, and live production smoke. |
+| FFR-015 | Deploy production storefront. | Implemented | GitHub-linked Netlify from sole `master`, same-origin `/api/*` proxy, Profile C presentation flags, responsive/security headers, and live production smoke. |
 
 ## Non-Functional Requirements
 

@@ -1,6 +1,6 @@
 # Frontend Future Implementation Plan
 
-Status: FFP-01 through FFP-14, DATA-00 through DATA-15, PERS-00 through PERS-09, and post-PERS NEXT-01 through NEXT-05 are complete and independently approved. PERS-04 through PERS-08 / FFP-10 through FFP-13 remain default-off ranking behavior. The historical benchmark is aggregate-only, biased MF was rejected for live use, and Profile B is an explicit classroom environment rather than a default rollout.
+Status: FFP-01 through FFP-14, DATA-00 through DATA-15, PERS-00 through PERS-09, post-PERS NEXT-01 through NEXT-05, and the 2026-08-29 Profile C showcase maintenance are complete. PERS-04 through PERS-08 / FFP-10 through FFP-13 remain default-off source behavior but are enabled by the current production environment. The historical benchmark is aggregate-only and biased MF remains rejected for live use.
 
 Audience: developers implementing the Groovehaus Vite/React storefront and backend developers maintaining the shared API contracts.
 
@@ -10,7 +10,7 @@ Source of truth: current frontend source, `PROJECT_CONTEXT.md`, `UI_UX_PLAN.md`,
 
 `AMAZON_REVIEWS_DATA_INTEGRATION_PLAN.md` records the frontend half of DATA-00 through DATA-15. MongoDB mode exposes immutable v3 with 2,305 research-only products; v2 is the immediate rollback release and v1 is the identity/legacy base. The backend preserves the 116-record legacy catalog, the current 208-file accepted local artwork set with independently pinned v2 rollback evidence, and exactly three showcase customers. The UI supports dynamic genre/format facets, nullable metadata, 208 authoritative original-release years, verified local fallback for strict MusicBrainz/Cover Art Archive matches with a placeholder for unresolved rows, non-purchasable unknown price/stock, Admin dataset status, and CLI-managed dataset rows.
 
-Future recommender work must preserve these contracts, distinguish historical aggregate evidence from live evidence, never surface pseudonymous historical rows, handle nullable data without invented reasons, and receive a new explicit implementation request. The separately authorized post-PERS sequence evaluated random, positive-popularity, content, and one observed-only biased-MF candidate; it rejected biased MF for live use, selected environment-only Profile B, and did not authorize a ranking-default rollout.
+Future recommender work must preserve these contracts, distinguish historical aggregate evidence from live evidence, never surface pseudonymous historical rows, handle nullable data without invented reasons, and receive a new explicit implementation request. The separately authorized post-PERS sequence evaluated random, positive-popularity, content, and one observed-only biased-MF candidate; it rejected biased MF for live use. The later Profile C maintenance enables only the already-implemented deterministic stages by environment and does not change source defaults.
 
 ## User Decisions Recorded On 2026-07-03
 
@@ -638,7 +638,7 @@ After FFP-04 establishes the test commands, also run the affected unit, componen
 
 This section records the frontend half of the dependency-safe personalization roadmap. PERS-00 through PERS-08 / FFP-13 were completed on 2026-08-10 after BFP-07, FFP-07, and FFP-08; PERS-09 / FFP-14 integration closure completed on 2026-08-13. The ranking flags remain default-off. The same cross-repository order is in `PERSONALIZATION_IMPLEMENTATION_PLAN.md` and the backend plan.
 
-The deployed default remains `content-demo-v1`/cold-start while ranking flags are off. Enabled PERS modes use real stored account evidence, but the historical experiment did not contain those Groovehaus signals and does not establish their relevance or superiority. The live `insufficient-evidence` evaluator status is unchanged. For the final classroom session only, `DEMO_PERSONALIZATION_RUNBOOK.md` selects MongoDB/v3 Profile B with preference and exact feedback enabled and behavior/popularity/hybrid disabled.
+The source default remains `content-demo-v1`/cold-start while ranking flags are off. Enabled PERS modes use real stored account evidence, but the historical experiment did not contain those Groovehaus signals and does not establish their relevance or superiority. The live `insufficient-evidence` evaluator status is unchanged. `DEMO_PERSONALIZATION_RUNBOOK.md` selects MongoDB/v3 Profile C for the current classroom and production environment, with canonical synthetic showcase profiles and the existing preference/behavior/aggregate-popularity/exact-feedback/hybrid stages enabled.
 
 ### Plan Status Summary (Personalization, Frontend Half)
 
